@@ -21,9 +21,10 @@ Recommended reading order:
 1. [Understanding The Beacon](docs/understanding.md)
 2. [Installation And Upload](docs/installation.md)
 3. [Configuration Guide](docs/configuration.md)
-4. [Wiring Guide](docs/wiring.md)
-5. [Field Checklist](docs/field-checklist.md)
-6. [Troubleshooting](docs/troubleshooting.md)
+4. [Heltec Board Support](docs/heltec-boards.md)
+5. [Wiring Guide](docs/wiring.md)
+6. [Field Checklist](docs/field-checklist.md)
+7. [Troubleshooting](docs/troubleshooting.md)
 
 Quick guide map:
 
@@ -32,6 +33,7 @@ Quick guide map:
 | [Understanding The Beacon](docs/understanding.md) | ARDF basics, what the beacon sends, and how the ESP32/radio parts work together. |
 | [Installation And Upload](docs/installation.md) | Using VS Code or PlatformIO CLI to choose a board, configure, build, upload, and run the first bench test. |
 | [Configuration Guide](docs/configuration.md) | Callsign, ARDF fox IDs, timing, warble, PTT, battery, and Serial Monitor commands. |
+| [Heltec Board Support](docs/heltec-boards.md) | PlatformIO environments and pin notes for popular Heltec ESP32 boards. |
 | [Wiring Guide](docs/wiring.md) | PTT/audio interface notes for cheap handheld radios. |
 | [Field Checklist](docs/field-checklist.md) | Pre-hunt bench checks, radio setup, power setup, deployment, and recovery. |
 | [Troubleshooting](docs/troubleshooting.md) | Build, upload, serial, PTT, audio, battery, timing, and RF problems. |
@@ -110,6 +112,7 @@ Recommended boards:
 | ESP32-S3 DevKit boards | Supported | Good modern option; pin mapping may differ. |
 | ESP32-C3 boards | Limited | Usable for a simple beacon, but fewer GPIO pins and only one core. |
 | TTGO / LilyGO ESP32 boards | Supported | Useful if they include display, battery charger, or LoRa hardware. |
+| Heltec ESP32 boards | Supported | WiFi Kit, WiFi LoRa 32, Wireless Stick, Wireless Stick Lite, and a Wireless Tracker compatibility build. See [docs/heltec-boards.md](docs/heltec-boards.md). |
 | ESP32 LoRa boards | Conditional | Good for non-amateur LoRa experiments, but LoRa is not a normal VHF FM fox hunt transmitter. |
 
 Tested PlatformIO build environments:
@@ -121,6 +124,16 @@ Tested PlatformIO build environments:
 | `lolin32` | WEMOS LOLIN32 |
 | `esp32-s3-devkitc-1` | ESP32-S3-DevKitC-1 |
 | `esp32-c3-devkitm-1` | ESP32-C3-DevKitM-1 |
+| `heltec-wifi-kit-32` | Heltec WiFi Kit 32 |
+| `heltec-wifi-kit-32-v2` | Heltec WiFi Kit 32 V2 |
+| `heltec-wifi-kit-32-v3` | Heltec WiFi Kit 32 V3 |
+| `heltec-wifi-lora-32` | Heltec WiFi LoRa 32 |
+| `heltec-wifi-lora-32-v2` | Heltec WiFi LoRa 32 V2 |
+| `heltec-wifi-lora-32-v3` | Heltec WiFi LoRa 32 V3 |
+| `heltec-wireless-stick` | Heltec Wireless Stick |
+| `heltec-wireless-stick-lite` | Heltec Wireless Stick Lite |
+| `heltec-wireless-stick-lite-v3` | Heltec Wireless Stick Lite V3 compatibility build |
+| `heltec-wireless-tracker` | Heltec Wireless Tracker compatibility build |
 
 Boards to avoid for the first version:
 
@@ -246,6 +259,7 @@ docs/
   understanding.md
   installation.md
   configuration.md
+  heltec-boards.md
   wiring.md
   field-checklist.md
   troubleshooting.md

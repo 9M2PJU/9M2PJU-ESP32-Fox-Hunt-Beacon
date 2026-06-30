@@ -80,6 +80,16 @@ esp32doit-devkit-v1
 lolin32
 esp32-s3-devkitc-1
 esp32-c3-devkitm-1
+heltec-wifi-kit-32
+heltec-wifi-kit-32-v2
+heltec-wifi-kit-32-v3
+heltec-wifi-lora-32
+heltec-wifi-lora-32-v2
+heltec-wifi-lora-32-v3
+heltec-wireless-stick
+heltec-wireless-stick-lite
+heltec-wireless-stick-lite-v3
+heltec-wireless-tracker
 ```
 
 ### 4. Configure The Beacon
@@ -170,9 +180,21 @@ Available environments:
 | `lolin32` | WEMOS LOLIN32 |
 | `esp32-s3-devkitc-1` | ESP32-S3-DevKitC-1 |
 | `esp32-c3-devkitm-1` | ESP32-C3-DevKitM-1 |
+| `heltec-wifi-kit-32` | Heltec WiFi Kit 32 |
+| `heltec-wifi-kit-32-v2` | Heltec WiFi Kit 32 V2 |
+| `heltec-wifi-kit-32-v3` | Heltec WiFi Kit 32 V3 |
+| `heltec-wifi-lora-32` | Heltec WiFi LoRa 32 |
+| `heltec-wifi-lora-32-v2` | Heltec WiFi LoRa 32 V2 |
+| `heltec-wifi-lora-32-v3` | Heltec WiFi LoRa 32 V3 |
+| `heltec-wireless-stick` | Heltec Wireless Stick |
+| `heltec-wireless-stick-lite` | Heltec Wireless Stick Lite |
+| `heltec-wireless-stick-lite-v3` | Heltec Wireless Stick Lite V3 compatibility build |
+| `heltec-wireless-tracker` | Heltec Wireless Tracker compatibility build |
 
 If your board is not listed, start with `esp32dev` for classic ESP32 boards, or
 add a new PlatformIO environment in `platformio.ini`.
+
+For Heltec-specific notes, see [heltec-boards.md](heltec-boards.md).
 
 ## Configure Before Upload
 

@@ -292,7 +292,7 @@ Edit [include/beacon_config.h](include/beacon_config.h) for firmware defaults.
 | Setting | Meaning | Default |
 | --- | --- | --- |
 | `DEFAULT_CALLSIGN` | Main callsign sent in CW at the start of TX. | `9M2PJU` |
-| `DEFAULT_FOX_ID` | Fox/beacon label sent after the callsign. | `FOX1` |
+| `DEFAULT_FOX_ID` | ARDF fox identifier sent after the callsign. | `MOE` |
 | `DEFAULT_STARTUP_DELAY_SECONDS` | Wait time after power-on before the beacon schedule starts. Gives you time to hide the beacon. | `10` |
 | `DEFAULT_TRANSMIT_SECONDS` | How long the radio transmits each cycle. | `30` |
 | `DEFAULT_IDLE_SECONDS` | Replay/quiet time between transmissions. The radio is unkeyed during this time. | `90` |
@@ -337,11 +337,21 @@ CALLSIGN in CW -> short gap -> FOX_ID in CW -> warble tone until TX timer ends
 ```
 
 For example, with `DEFAULT_CALLSIGN` set to `9M2PJU` and `DEFAULT_FOX_ID` set to
-`FOX1`, the radio sends `9M2PJU FOX1` in Morse code and then continues with the
+`MOE`, the radio sends `9M2PJU MOE` in Morse code and then continues with the
 warble tone until `DEFAULT_TRANSMIT_SECONDS` is finished.
 
 If `DEFAULT_WARBLE_ENABLED` is `0`, it only sends the CW ID sequence and then
 unkeys after the transmit timer completes.
+
+Common ARDF fox identifiers:
+
+| Fox | CW identifier |
+| --- | --- |
+| 1 | `MOE` |
+| 2 | `MOI` |
+| 3 | `MOS` |
+| 4 | `MOH` |
+| 5 | `MO5` |
 
 ### Serial Configuration
 
@@ -354,7 +364,7 @@ ptt_test
 defaults
 reboot
 set call 9M2PJU
-set fox FOX1
+set fox MOE
 set startup 300
 set tx 30
 set idle 90
@@ -380,7 +390,7 @@ Command meanings:
 | `defaults` | Restore values from `include/beacon_config.h` and save them to flash. |
 | `reboot` | Restart the ESP32. |
 | `set call <text>` | Set the callsign sent in CW. |
-| `set fox <text>` | Set the fox ID sent after the callsign. |
+| `set fox <text>` | Set the ARDF fox identifier sent after the callsign, such as `MOE`, `MOI`, `MOS`, `MOH`, or `MO5`. |
 | `set startup <seconds>` | Set power-on hiding delay. |
 | `set tx <seconds>` | Set transmit duration. |
 | `set idle <seconds>` | Set quiet/replay delay between transmissions. |
@@ -526,7 +536,7 @@ Design reminders:
 
 ```text
 callsign = 9M2PJU
-fox_id = FOX1
+fox_id = MOE
 frequency = configured on radio module or handheld radio
 tx_duration_seconds = 30
 idle_duration_seconds = 90

@@ -301,7 +301,7 @@ void printConfig() {
   Serial.println(F("  defaults"));
   Serial.println(F("  reboot"));
   Serial.println(F("  set call 9M2PJU"));
-  Serial.println(F("  set fox FOX1"));
+  Serial.println(F("  set fox MOE"));
   Serial.println(F("  set startup 300"));
   Serial.println(F("  set tx 30"));
   Serial.println(F("  set idle 90"));

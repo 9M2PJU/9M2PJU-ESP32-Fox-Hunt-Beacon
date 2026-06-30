@@ -9,7 +9,7 @@
 
 // What the beacon sends at the start of every transmission.
 #define DEFAULT_CALLSIGN "9M2PJU"
-#define DEFAULT_FOX_ID "FOX1"
+#define DEFAULT_FOX_ID "MOE"
 
 // Main timing.
 #define DEFAULT_STARTUP_DELAY_SECONDS 10

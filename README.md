@@ -9,6 +9,19 @@ The first firmware version is built with PlatformIO and the Arduino framework
 for ESP32 boards. It is designed to key a handheld radio through a simple PTT
 interface and feed CW or warble tone into the radio microphone input.
 
+## Documentation
+
+Start here if you are building or operating the beacon:
+
+| Guide | Use it for |
+| --- | --- |
+| [Understanding The Beacon](docs/understanding.md) | ARDF basics, what the beacon sends, and how the ESP32/radio parts work together. |
+| [Installation And Upload](docs/installation.md) | Installing PlatformIO, choosing a board, building, uploading, and first bench test. |
+| [Configuration Guide](docs/configuration.md) | Callsign, ARDF fox IDs, timing, warble, PTT, battery, and Serial Monitor commands. |
+| [Wiring Guide](docs/wiring.md) | PTT/audio interface notes for cheap handheld radios. |
+| [Field Checklist](docs/field-checklist.md) | Pre-hunt bench checks, radio setup, power setup, deployment, and recovery. |
+| [Troubleshooting](docs/troubleshooting.md) | Build, upload, serial, PTT, audio, battery, timing, and RF problems. |
+
 ## Can This Be Made With ESP32 Boards?
 
 Yes. An ESP32 board is a good controller for a fox hunt beacon because it has
@@ -216,8 +229,12 @@ include/
 src/
   main.cpp
 docs/
+  understanding.md
+  installation.md
+  configuration.md
   wiring.md
   field-checklist.md
+  troubleshooting.md
 ```
 
 The main user configuration file is `include/beacon_config.h`. Edit that file

@@ -1,0 +1,136 @@
+# Installation And Upload
+
+This guide gets the firmware onto an ESP32 board using PlatformIO.
+
+## Requirements
+
+- ESP32 development board.
+- USB cable that supports data, not charge-only.
+- Computer with Python and PlatformIO available.
+- This repository cloned locally.
+- Optional radio/PTT/audio hardware for later bench testing.
+
+Do the first upload with no radio connected. Verify the ESP32 and PTT output
+before wiring a transmitter.
+
+## Install PlatformIO
+
+Use one of these options:
+
+- Install the PlatformIO extension in VS Code.
+- Install PlatformIO Core with Python:
+
+```sh
+python -m pip install --user platformio
+```
+
+If this repository already has a local virtual environment, use:
+
+```sh
+.venv/bin/pio --version
+```
+
+Otherwise use:
+
+```sh
+pio --version
+```
+
+## Choose A Board Environment
+
+The default environment is `esp32dev`, which works for many ESP32 DevKit boards.
+
+Available environments:
+
+| Environment | Board |
+| --- | --- |
+| `esp32dev` | Generic ESP32 Dev Module |
+| `esp32doit-devkit-v1` | DOIT ESP32 DevKit v1 |
+| `lolin32` | WEMOS LOLIN32 |
+| `esp32-s3-devkitc-1` | ESP32-S3-DevKitC-1 |
+| `esp32-c3-devkitm-1` | ESP32-C3-DevKitM-1 |
+
+If your board is not listed, start with `esp32dev` for classic ESP32 boards, or
+add a new PlatformIO environment in `platformio.ini`.
+
+## Configure Before Upload
+
+Edit `include/beacon_config.h` before building if you want the firmware image to
+contain your default callsign, fox ID, timing, pins, and battery settings.
+
+Minimum values to check:
+
+```c
+#define DEFAULT_CALLSIGN "9M2PJU"
+#define DEFAULT_FOX_ID "MOE"
+#define DEFAULT_TRANSMIT_SECONDS 30
+#define DEFAULT_IDLE_SECONDS 90
+```
+
+See [configuration.md](configuration.md) for the full setup guide.
+
+## Build
+
+Build the default environment:
+
+```sh
+pio run
+```
+
+Build a specific environment:
+
+```sh
+pio run -e esp32doit-devkit-v1
+```
+
+## Upload
+
+Connect the ESP32 by USB, then upload:
+
+```sh
+pio run -t upload
+```
+
+Upload a specific environment:
+
+```sh
+pio run -e esp32doit-devkit-v1 -t upload
+```
+
+If upload fails, hold the board `BOOT` button while PlatformIO starts
+connecting, then release it after the upload begins. Some boards need this only
+occasionally.
+
+## Open Serial Monitor
+
+Open the serial monitor at 115200 baud:
+
+```sh
+pio device monitor -b 115200
+```
+
+Press reset on the board. You should see the beacon banner and configuration.
+Type:
+
+```text
+show
+```
+
+Then test without a radio connected:
+
+```text
+ptt_test
+```
+
+## First Bench Test Order
+
+1. Upload firmware with no radio connected.
+2. Run `show` and confirm callsign, fox ID, timing, and pins.
+3. Run `ptt_test` and check GPIO 25 with an LED or multimeter.
+4. Wire the PTT interface only.
+5. Run `ptt_test` again and confirm the radio keys and releases.
+6. Add audio wiring with the level trimpot turned low.
+7. Run `test` and listen on a second receiver.
+8. Increase audio level slowly until CW is readable and not distorted.
+
+Use a dummy load or the lowest practical RF power while testing.

@@ -11,7 +11,21 @@ interface and feed CW or warble tone into the radio microphone input.
 
 ## Documentation
 
-Start here if you are building or operating the beacon:
+This README is the project overview. The detailed user guides are in the
+[`docs/`](docs/) folder. New users should read the docs before wiring a radio or
+transmitting, because the beacon needs correct callsign, ARDF fox ID, PTT
+polarity, audio level, and local radio-rule setup.
+
+Recommended reading order:
+
+1. [Understanding The Beacon](docs/understanding.md)
+2. [Installation And Upload](docs/installation.md)
+3. [Configuration Guide](docs/configuration.md)
+4. [Wiring Guide](docs/wiring.md)
+5. [Field Checklist](docs/field-checklist.md)
+6. [Troubleshooting](docs/troubleshooting.md)
+
+Quick guide map:
 
 | Guide | Use it for |
 | --- | --- |

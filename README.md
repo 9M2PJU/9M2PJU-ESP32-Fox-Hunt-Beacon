@@ -343,7 +343,13 @@ warble tone until `DEFAULT_TRANSMIT_SECONDS` is finished.
 If `DEFAULT_WARBLE_ENABLED` is `0`, it only sends the CW ID sequence and then
 unkeys after the transmit timer completes.
 
-Common ARDF fox identifiers:
+ARDF means Amateur Radio Direction Finding. In a typical ARDF event, several
+hidden transmitters, or "foxes", take turns transmitting short Morse
+identifiers so competitors can tell which fox they are hearing. The conventional
+2 m/80 m ARDF identifiers are `MOE`, `MOI`, `MOS`, `MOH`, and `MO5`.
+
+Set `DEFAULT_FOX_ID` or run `set fox <identifier>` based on which transmitter
+this unit will be in the event:
 
 | Fox | CW identifier |
 | --- | --- |
@@ -352,6 +358,11 @@ Common ARDF fox identifiers:
 | 3 | `MOS` |
 | 4 | `MOH` |
 | 5 | `MO5` |
+
+For a single training beacon, `MOE` is a good default. For multi-fox events,
+program each beacon with a different identifier and timing plan so hunters can
+separate the transmitters. Keep `DEFAULT_CALLSIGN` set to the licensed station
+callsign required for your local amateur radio identification rules.
 
 ### Serial Configuration
 

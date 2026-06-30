@@ -567,5 +567,5 @@ low_battery_voltage = 3.4
 
 ## License
 
-License not selected yet. Choose one before publishing firmware or hardware
-files for reuse.
+This project is licensed under the GNU General Public License v3.0 or later
+(`GPL-3.0-or-later`). See [LICENSE](LICENSE) for the full license text.

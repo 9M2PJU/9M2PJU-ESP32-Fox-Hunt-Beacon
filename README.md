@@ -30,7 +30,7 @@ Quick guide map:
 | Guide | Use it for |
 | --- | --- |
 | [Understanding The Beacon](docs/understanding.md) | ARDF basics, what the beacon sends, and how the ESP32/radio parts work together. |
-| [Installation And Upload](docs/installation.md) | Installing PlatformIO, choosing a board, building, uploading, and first bench test. |
+| [Installation And Upload](docs/installation.md) | Using VS Code or PlatformIO CLI to choose a board, configure, build, upload, and run the first bench test. |
 | [Configuration Guide](docs/configuration.md) | Callsign, ARDF fox IDs, timing, warble, PTT, battery, and Serial Monitor commands. |
 | [Wiring Guide](docs/wiring.md) | PTT/audio interface notes for cheap handheld radios. |
 | [Field Checklist](docs/field-checklist.md) | Pre-hunt bench checks, radio setup, power setup, deployment, and recovery. |

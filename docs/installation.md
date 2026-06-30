@@ -36,6 +36,127 @@ Otherwise use:
 pio --version
 ```
 
+## Using Visual Studio Code
+
+This is the easiest workflow for most users.
+
+### 1. Install VS Code And PlatformIO
+
+1. Install Visual Studio Code.
+2. Open VS Code.
+3. Open the Extensions view.
+4. Search for `PlatformIO IDE`.
+5. Install the `PlatformIO IDE` extension.
+6. Restart VS Code if prompted.
+
+After installation, VS Code should show the PlatformIO alien-head icon in the
+left activity bar.
+
+### 2. Open This Firmware Project
+
+1. In VS Code, choose `File > Open Folder`.
+2. Select the `9M2PJU-ESP32-Fox-Hunt-Beacon` repository folder.
+3. Wait for PlatformIO to load the project.
+4. Confirm that `platformio.ini` appears in the file explorer.
+
+Open the folder itself, not only `src/main.cpp`. PlatformIO needs the whole
+project folder so it can find `platformio.ini`, `include/`, and `src/`.
+
+### 3. Choose Or Confirm The Board
+
+Open `platformio.ini`. The default build target is:
+
+```ini
+[platformio]
+default_envs = esp32dev
+```
+
+Use `esp32dev` for many common ESP32 DevKit boards. If you have a different
+listed board, change `default_envs` to one of these:
+
+```text
+esp32dev
+esp32doit-devkit-v1
+lolin32
+esp32-s3-devkitc-1
+esp32-c3-devkitm-1
+```
+
+### 4. Configure The Beacon
+
+Open `include/beacon_config.h` and check these values before building:
+
+```c
+#define DEFAULT_CALLSIGN "9M2PJU"
+#define DEFAULT_FOX_ID "MOE"
+#define DEFAULT_STARTUP_DELAY_SECONDS 10
+#define DEFAULT_TRANSMIT_SECONDS 30
+#define DEFAULT_IDLE_SECONDS 90
+```
+
+Set `DEFAULT_CALLSIGN` to the licensed station callsign. Set
+`DEFAULT_FOX_ID` to the ARDF fox identifier, such as `MOE` for Fox 1 or `MOI`
+for Fox 2.
+
+### 5. Build In VS Code
+
+Use either method:
+
+- Click the PlatformIO checkmark icon in the VS Code status bar.
+- Open the PlatformIO sidebar, then choose `Project Tasks > <environment> >
+  General > Build`.
+
+The build should finish with `SUCCESS`.
+
+### 6. Upload Firmware To The ESP32
+
+1. Connect the ESP32 board with a data-capable USB cable.
+2. Keep the radio disconnected for the first upload.
+3. Click the PlatformIO right-arrow upload icon in the status bar.
+4. Or use `Project Tasks > <environment> > General > Upload`.
+
+If upload fails, hold the ESP32 `BOOT` button while upload starts, then release
+it once writing begins.
+
+### 7. Open Serial Monitor In VS Code
+
+Use either method:
+
+- Click the PlatformIO plug/monitor icon in the status bar.
+- Or use `Project Tasks > <environment> > Platform > Monitor`.
+
+The monitor speed is configured as 115200 baud in `platformio.ini`. Press the
+ESP32 reset button and type:
+
+```text
+show
+ptt_test
+```
+
+`show` prints the saved beacon configuration. `ptt_test` keys only the PTT
+output briefly with no audio, which is the safest first hardware test.
+
+### 8. Change Settings After Upload
+
+You can change many settings from the Serial Monitor without rebuilding:
+
+```text
+set call 9M2PJU
+set fox MOE
+set startup 300
+set tx 30
+set idle 90
+set warble on
+show
+```
+
+Serial Monitor settings are saved in ESP32 flash. To restore the values from
+`include/beacon_config.h`, type:
+
+```text
+defaults
+```
+
 ## Choose A Board Environment
 
 The default environment is `esp32dev`, which works for many ESP32 DevKit boards.

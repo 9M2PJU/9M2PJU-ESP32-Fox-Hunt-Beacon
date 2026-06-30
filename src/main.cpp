@@ -308,6 +308,11 @@ void printConfig() {
   Serial.println(F("  set wpm 12"));
   Serial.println(F("  set tone 700"));
   Serial.println(F("  set warble on|off"));
+  Serial.println(F("  set warble_low 700"));
+  Serial.println(F("  set warble_high 900"));
+  Serial.println(F("  set warble_step 350"));
+  Serial.println(F("  set lead 350"));
+  Serial.println(F("  set tail 350"));
   Serial.println(F("  set ptt active_low|active_high"));
   Serial.println(F("  set battery on|off"));
   Serial.println(F("  set battery_scale 2.0"));

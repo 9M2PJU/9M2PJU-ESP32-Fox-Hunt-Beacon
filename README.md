@@ -371,8 +371,8 @@ For example, with `DEFAULT_CALLSIGN` set to `9M2PJU` and `DEFAULT_FOX_ID` set to
 `MOE`, the radio sends `9M2PJU MOE` in Morse code and then continues with the
 warble tone until `DEFAULT_TRANSMIT_SECONDS` is finished.
 
-If `DEFAULT_WARBLE_ENABLED` is `0`, it only sends the CW ID sequence and then
-unkeys after the transmit timer completes.
+If `DEFAULT_WARBLE_ENABLED` is `0`, it sends only the CW ID sequence, waits for
+the PTT tail delay, and then unkeys.
 
 ARDF means Amateur Radio Direction Finding. In a typical ARDF event, several
 hidden transmitters, or "foxes", take turns transmitting short Morse
@@ -414,6 +414,11 @@ set wpm 12
 set tone 700
 set warble on
 set warble off
+set warble_low 700
+set warble_high 900
+set warble_step 350
+set lead 350
+set tail 350
 set ptt active_low
 set ptt active_high
 set battery on
@@ -439,6 +444,11 @@ Command meanings:
 | `set wpm <number>` | Set CW speed. |
 | `set tone <hz>` | Set CW tone frequency. |
 | `set warble on/off` | Enable or disable the warble tone. |
+| `set warble_low <hz>` | Set low warble frequency. |
+| `set warble_high <hz>` | Set high warble frequency. |
+| `set warble_step <ms>` | Set how fast the warble alternates. |
+| `set lead <ms>` | Set delay after PTT before audio starts. |
+| `set tail <ms>` | Set delay before PTT releases after audio stops. |
 | `set ptt active_low/active_high` | Match the PTT interface circuit. |
 | `set battery on/off` | Enable or disable low-battery protection. |
 | `set battery_scale <number>` | Set battery divider multiplier. |
@@ -585,7 +595,7 @@ idle_duration_seconds = 90
 startup_delay_seconds = 300
 cw_wpm = 12
 cw_tone_hz = 700
-ptt_active_level = LOW
+ptt_active_level = HIGH
 low_battery_voltage = 3.4
 ```
 

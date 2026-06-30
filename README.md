@@ -22,9 +22,10 @@ Recommended reading order:
 2. [Installation And Upload](docs/installation.md)
 3. [Configuration Guide](docs/configuration.md)
 4. [Heltec Board Support](docs/heltec-boards.md)
-5. [Wiring Guide](docs/wiring.md)
-6. [Field Checklist](docs/field-checklist.md)
-7. [Troubleshooting](docs/troubleshooting.md)
+5. [LilyGO Board Support](docs/lilygo-boards.md)
+6. [Wiring Guide](docs/wiring.md)
+7. [Field Checklist](docs/field-checklist.md)
+8. [Troubleshooting](docs/troubleshooting.md)
 
 Quick guide map:
 
@@ -34,6 +35,7 @@ Quick guide map:
 | [Installation And Upload](docs/installation.md) | Using VS Code or PlatformIO CLI to choose a board, configure, build, upload, and run the first bench test. |
 | [Configuration Guide](docs/configuration.md) | Callsign, ARDF fox IDs, timing, warble, PTT, battery, and Serial Monitor commands. |
 | [Heltec Board Support](docs/heltec-boards.md) | PlatformIO environments and pin notes for popular Heltec ESP32 boards. |
+| [LilyGO Board Support](docs/lilygo-boards.md) | PlatformIO environments and pin notes for popular LilyGO and TTGO ESP32 boards. |
 | [Wiring Guide](docs/wiring.md) | PTT/audio interface notes for cheap handheld radios. |
 | [Field Checklist](docs/field-checklist.md) | Pre-hunt bench checks, radio setup, power setup, deployment, and recovery. |
 | [Troubleshooting](docs/troubleshooting.md) | Build, upload, serial, PTT, audio, battery, timing, and RF problems. |
@@ -111,7 +113,7 @@ Recommended boards:
 | ESP32-WROVER boards | Supported | Extra PSRAM is not required, but the board should work. |
 | ESP32-S3 DevKit boards | Supported | Good modern option; pin mapping may differ. |
 | ESP32-C3 boards | Limited | Usable for a simple beacon, but fewer GPIO pins and only one core. |
-| TTGO / LilyGO ESP32 boards | Supported | Useful if they include display, battery charger, or LoRa hardware. |
+| TTGO / LilyGO ESP32 boards | Supported | T-Display, T3-S3, LoRa32, T-Beam, T-Watch, T1, T7, and T-OI Plus build targets. See [docs/lilygo-boards.md](docs/lilygo-boards.md). |
 | Heltec ESP32 boards | Supported | WiFi Kit, WiFi LoRa 32, Wireless Stick, Wireless Stick Lite, and a Wireless Tracker compatibility build. See [docs/heltec-boards.md](docs/heltec-boards.md). |
 | ESP32 LoRa boards | Conditional | Good for non-amateur LoRa experiments, but LoRa is not a normal VHF FM fox hunt transmitter. |
 
@@ -134,6 +136,18 @@ Tested PlatformIO build environments:
 | `heltec-wireless-stick-lite` | Heltec Wireless Stick Lite |
 | `heltec-wireless-stick-lite-v3` | Heltec Wireless Stick Lite V3 compatibility build |
 | `heltec-wireless-tracker` | Heltec Wireless Tracker compatibility build |
+| `lilygo-t-display` | LilyGO T-Display |
+| `lilygo-t-display-s3` | LilyGO T-Display S3 |
+| `lilygo-t3-s3` | LilyGO T3-S3 |
+| `ttgo-lora32-v1` | TTGO LoRa32 OLED V1 |
+| `ttgo-lora32-v2` | TTGO LoRa32 OLED V2 |
+| `ttgo-lora32-v21` | TTGO LoRa32 OLED v2.1.6 |
+| `ttgo-t-beam` | TTGO T-Beam |
+| `ttgo-t-oi-plus` | TTGO T-OI Plus ESP32-C3 |
+| `ttgo-t-watch` | TTGO T-Watch |
+| `ttgo-t1` | TTGO T1 |
+| `ttgo-t7-v13-mini32` | TTGO T7 V1.3 Mini32 |
+| `ttgo-t7-v14-mini32` | TTGO T7 V1.4 Mini32 |
 
 Boards to avoid for the first version:
 
@@ -260,6 +274,7 @@ docs/
   installation.md
   configuration.md
   heltec-boards.md
+  lilygo-boards.md
   wiring.md
   field-checklist.md
   troubleshooting.md
@@ -306,6 +321,28 @@ esp32doit-devkit-v1
 lolin32
 esp32-s3-devkitc-1
 esp32-c3-devkitm-1
+heltec-wifi-kit-32
+heltec-wifi-kit-32-v2
+heltec-wifi-kit-32-v3
+heltec-wifi-lora-32
+heltec-wifi-lora-32-v2
+heltec-wifi-lora-32-v3
+heltec-wireless-stick
+heltec-wireless-stick-lite
+heltec-wireless-stick-lite-v3
+heltec-wireless-tracker
+lilygo-t-display
+lilygo-t-display-s3
+lilygo-t3-s3
+ttgo-lora32-v1
+ttgo-lora32-v2
+ttgo-lora32-v21
+ttgo-t-beam
+ttgo-t-oi-plus
+ttgo-t-watch
+ttgo-t1
+ttgo-t7-v13-mini32
+ttgo-t7-v14-mini32
 ```
 
 Example build for ESP32-C3:

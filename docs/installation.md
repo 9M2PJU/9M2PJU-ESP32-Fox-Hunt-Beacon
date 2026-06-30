@@ -90,6 +90,18 @@ heltec-wireless-stick
 heltec-wireless-stick-lite
 heltec-wireless-stick-lite-v3
 heltec-wireless-tracker
+lilygo-t-display
+lilygo-t-display-s3
+lilygo-t3-s3
+ttgo-lora32-v1
+ttgo-lora32-v2
+ttgo-lora32-v21
+ttgo-t-beam
+ttgo-t-oi-plus
+ttgo-t-watch
+ttgo-t1
+ttgo-t7-v13-mini32
+ttgo-t7-v14-mini32
 ```
 
 ### 4. Configure The Beacon
@@ -190,11 +202,24 @@ Available environments:
 | `heltec-wireless-stick-lite` | Heltec Wireless Stick Lite |
 | `heltec-wireless-stick-lite-v3` | Heltec Wireless Stick Lite V3 compatibility build |
 | `heltec-wireless-tracker` | Heltec Wireless Tracker compatibility build |
+| `lilygo-t-display` | LilyGO T-Display |
+| `lilygo-t-display-s3` | LilyGO T-Display S3 |
+| `lilygo-t3-s3` | LilyGO T3-S3 |
+| `ttgo-lora32-v1` | TTGO LoRa32 OLED V1 |
+| `ttgo-lora32-v2` | TTGO LoRa32 OLED V2 |
+| `ttgo-lora32-v21` | TTGO LoRa32 OLED v2.1.6 |
+| `ttgo-t-beam` | TTGO T-Beam |
+| `ttgo-t-oi-plus` | TTGO T-OI Plus ESP32-C3 |
+| `ttgo-t-watch` | TTGO T-Watch |
+| `ttgo-t1` | TTGO T1 |
+| `ttgo-t7-v13-mini32` | TTGO T7 V1.3 Mini32 |
+| `ttgo-t7-v14-mini32` | TTGO T7 V1.4 Mini32 |
 
 If your board is not listed, start with `esp32dev` for classic ESP32 boards, or
 add a new PlatformIO environment in `platformio.ini`.
 
-For Heltec-specific notes, see [heltec-boards.md](heltec-boards.md).
+For Heltec-specific notes, see [heltec-boards.md](heltec-boards.md). For
+LilyGO and TTGO notes, see [lilygo-boards.md](lilygo-boards.md).
 
 ## Configure Before Upload
 

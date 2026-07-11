@@ -5,3 +5,4 @@
 *.map
 include/web_assets.h
 data_embed/*.gz
+AGENTS.md

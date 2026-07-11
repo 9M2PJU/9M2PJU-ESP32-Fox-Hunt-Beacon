@@ -80,9 +80,11 @@ requirements, power limits, and event safety rules.
 
 - PlatformIO project for common ESP32 boards.
 - Configurable callsign and fox ID stored in ESP32 flash.
-- Configurable transmit interval, transmit duration, and startup delay.
+- IARU standard 5-fox timing defaults (60 s TX, 240 s idle, 300 s cycle).
+- Fox-slot synchronization: auto-derive startup delay from fox ID for round-robin.
+- Continuous beacon mode (MO6 finish-line transmitter) on a separate frequency.
 - CW ID generation using audio tone.
-- Optional warble tone for the rest of the transmit window.
+- Optional warble tone for the rest of the transmit window (disabled by default).
 - PTT control with guard time before and after audio.
 - PTT-only test command for checking radio keying before audio tests.
 - Optional battery voltage measurement using a resistor divider.
@@ -90,10 +92,11 @@ requirements, power limits, and event safety rules.
 - Test button for immediate transmission.
 - Compile-time configuration file for default beacon behavior.
 - Serial monitor configuration at 115200 baud.
+- Web admin UI: WiFi AP with captive portal for phone/laptop configuration.
+- On-screen status display for boards with OLED or TFT screens.
 
 Planned later features:
 
-- Wi-Fi setup mode.
 - Bluetooth serial configuration.
 - Deep sleep between transmissions for longer battery life.
 - Multiple fox profiles for event use.
@@ -135,7 +138,12 @@ Tested PlatformIO build environments:
 | `heltec-wireless-stick` | Heltec Wireless Stick |
 | `heltec-wireless-stick-lite` | Heltec Wireless Stick Lite |
 | `heltec-wireless-stick-lite-v3` | Heltec Wireless Stick Lite V3 compatibility build |
-| `heltec-wireless-tracker` | Heltec Wireless Tracker compatibility build |
+| `heltec-wireless-tracker` | Heltec Wireless Tracker (TFT, compatibility build) |
+| `heltec-vision-master-t190` | Heltec Vision Master T190 (TFT, compatibility build) |
+| `heltec-wireless-paper` | Heltec Wireless Paper (E-Ink, compatibility build) |
+| `heltec-vision-master-e213` | Heltec Vision Master E213 (E-Ink, compatibility build) |
+| `heltec-vision-master-e290` | Heltec Vision Master E290 (E-Ink, compatibility build) |
+| `heltec-capsule-sensor-v3` | Heltec Capsule Sensor V3 (no display, compatibility build) |
 | `lilygo-t-display` | LilyGO T-Display |
 | `lilygo-t-display-s3` | LilyGO T-Display S3 |
 | `lilygo-t3-s3` | LilyGO T3-S3 |
@@ -247,14 +255,17 @@ The beacon is a timed transmitter controller.
 10. The cycle repeats until the beacon is powered off or the battery limit is
     reached.
 
-Example schedule:
+Example schedule (IARU 5-fox cycle, fox 1 / MOE):
 
 ```text
-00:00 - 00:05  PTT on, send "MOE" or callsign in CW
-00:05 - 00:30  Send warble tone or intermittent tone
-00:30 - 02:00  PTT off, sleep/idle
-02:00 - 02:30  Repeat transmission
+00:00 - 01:00  PTT on, send "9M2PJU MOE" in CW, then steady carrier
+01:00 - 05:00  PTT off, idle (foxes 2-5 take their turns)
+05:00 - 06:00  Repeat transmission
 ```
+
+With fox sync enabled, fox 2 (MOI) starts at 01:00, fox 3 (MOS) at 02:00, fox 4
+(MOH) at 03:00, and fox 5 (MO5) at 04:00. All five beacons share one frequency
+and take turns in the standard round-robin.
 
 ## Firmware
 
@@ -267,8 +278,13 @@ Source layout:
 platformio.ini
 include/
   beacon_config.h
+  display_config.h
+  display.h
+  web_admin.h
 src/
   main.cpp
+  display.cpp
+  web_admin.cpp
 docs/
   understanding.md
   installation.md
@@ -285,15 +301,17 @@ before building when you want the firmware image to contain your preferred
 default callsign, fox ID, replay time, delay, timer, tone, PTT, battery, and pin
 settings.
 
-Implemented modules inside `main.cpp`:
+Implemented modules:
 
-- beacon scheduler
-- CW keyer
-- PWM audio tone generator
-- PTT control
-- battery monitor
-- flash configuration storage
-- serial command parser
+- beacon scheduler (`main.cpp`)
+- CW keyer (`main.cpp`)
+- PWM audio tone generator (`main.cpp`)
+- PTT control (`main.cpp`)
+- battery monitor (`main.cpp`)
+- flash configuration storage (`main.cpp`)
+- serial command parser (`main.cpp`)
+- web admin UI with WiFi AP and captive portal (`web_admin.cpp`)
+- on-screen status display for OLED/TFT boards (`display.cpp`)
 
 Build the default ESP32 DevKit firmware:
 
@@ -331,6 +349,11 @@ heltec-wireless-stick
 heltec-wireless-stick-lite
 heltec-wireless-stick-lite-v3
 heltec-wireless-tracker
+heltec-vision-master-t190
+heltec-wireless-paper
+heltec-vision-master-e213
+heltec-vision-master-e290
+heltec-capsule-sensor-v3
 lilygo-t-display
 lilygo-t-display-s3
 lilygo-t3-s3
@@ -375,12 +398,15 @@ Edit [include/beacon_config.h](include/beacon_config.h) for firmware defaults.
 | --- | --- | --- |
 | `DEFAULT_CALLSIGN` | Main callsign sent in CW at the start of TX. | `9M2PJU` |
 | `DEFAULT_FOX_ID` | ARDF fox identifier sent after the callsign. | `MOE` |
-| `DEFAULT_STARTUP_DELAY_SECONDS` | Wait time after power-on before the beacon schedule starts. Gives you time to hide the beacon. | `10` |
-| `DEFAULT_TRANSMIT_SECONDS` | How long the radio transmits each cycle. | `30` |
-| `DEFAULT_IDLE_SECONDS` | Replay/quiet time between transmissions. The radio is unkeyed during this time. | `90` |
+| `DEFAULT_STARTUP_DELAY_SECONDS` | Wait time after power-on before the beacon schedule starts. Overridden by fox sync when enabled. | `10` |
+| `DEFAULT_TRANSMIT_SECONDS` | How long the radio transmits each cycle. IARU standard is 60 s. | `60` |
+| `DEFAULT_IDLE_SECONDS` | Replay/quiet time between transmissions. IARU standard is 240 s for a 5-fox cycle. | `240` |
+| `DEFAULT_FOX_SYNC_ENABLED` | Auto-derive startup delay from fox ID for IARU round-robin scheduling. | `1` |
+| `DEFAULT_BEACON_MODE` | Continuous beacon (MO6 finish-line) mode. | `0` |
+| `DEFAULT_BEACON_ID_INTERVAL_SECONDS` | CW ID repeat interval in continuous beacon mode. | `60` |
 | `DEFAULT_CW_WPM` | Morse speed for callsign and fox ID. | `12` |
 | `DEFAULT_CW_TONE_HZ` | Audio tone frequency for CW. | `700` |
-| `DEFAULT_WARBLE_ENABLED` | Sends alternating tone after CW until TX time ends. Use `0` for CW only. | `1` |
+| `DEFAULT_WARBLE_ENABLED` | Sends alternating tone after CW until TX time ends. Disabled by default for IARU standard (steady carrier). | `0` |
 | `DEFAULT_WARBLE_LOW_HZ` | Low warble tone. | `700` |
 | `DEFAULT_WARBLE_HIGH_HZ` | High warble tone. | `900` |
 | `DEFAULT_WARBLE_STEP_MS` | How fast the warble alternates. | `350` |
@@ -398,32 +424,38 @@ Edit [include/beacon_config.h](include/beacon_config.h) for firmware defaults.
 
 ### Timing Example
 
-With these settings:
+With the default IARU settings and fox sync enabled:
 
 ```c
-#define DEFAULT_STARTUP_DELAY_SECONDS 300
-#define DEFAULT_TRANSMIT_SECONDS 30
-#define DEFAULT_IDLE_SECONDS 90
+#define DEFAULT_TRANSMIT_SECONDS 60
+#define DEFAULT_IDLE_SECONDS 240
+#define DEFAULT_FOX_SYNC_ENABLED 1
 ```
 
-The beacon waits 5 minutes after power-on, transmits for 30 seconds, stays quiet
-for 90 seconds, and then repeats. The full replay cycle is 120 seconds after the
-startup delay.
+For fox 1 (`MOE`), the beacon starts immediately after power-on, transmits for
+60 seconds, stays quiet for 240 seconds, and repeats. The full cycle is 300
+seconds (5 minutes). For fox 2 (`MOI`), the startup delay is automatically set
+to 60 seconds so it takes the second slot in the round-robin. Fox 3 starts at
+120 s, fox 4 at 180 s, fox 5 at 240 s. All five beacons share one frequency and
+take turns.
 
 ### What The Beacon Sends
 
 During each transmit window, the firmware sends:
 
 ```text
-CALLSIGN in CW -> short gap -> FOX_ID in CW -> warble tone until TX timer ends
+CALLSIGN in CW -> short gap -> FOX_ID in CW -> steady carrier until TX timer ends
 ```
 
 For example, with `DEFAULT_CALLSIGN` set to `9M2PJU` and `DEFAULT_FOX_ID` set to
-`MOE`, the radio sends `9M2PJU MOE` in Morse code and then continues with the
-warble tone until `DEFAULT_TRANSMIT_SECONDS` is finished.
+`MOE`, the radio sends `9M2PJU MOE` in Morse code and then holds a steady carrier
+until `DEFAULT_TRANSMIT_SECONDS` is finished. This matches the IARU ARDF
+standard signal format.
 
-If `DEFAULT_WARBLE_ENABLED` is `0`, it sends only the CW ID sequence, waits for
-the PTT tail delay, and then unkeys.
+If `DEFAULT_WARBLE_ENABLED` is `1`, it sends the CW ID sequence and then
+alternates a warble tone between `DEFAULT_WARBLE_LOW_HZ` and
+`DEFAULT_WARBLE_HIGH_HZ` until the TX timer ends. This is non-standard but
+useful for training.
 
 ARDF means Amateur Radio Direction Finding. In a typical ARDF event, several
 hidden transmitters, or "foxes", take turns transmitting short Morse
@@ -458,9 +490,14 @@ defaults
 reboot
 set call 9M2PJU
 set fox MOE
+set mode fox
+set mode beacon
+set fox_sync on
+set fox_sync off
+set beacon_id 60
 set startup 300
-set tx 30
-set idle 90
+set tx 60
+set idle 240
 set wpm 12
 set tone 700
 set warble on
@@ -489,7 +526,10 @@ Command meanings:
 | `reboot` | Restart the ESP32. |
 | `set call <text>` | Set the callsign sent in CW. |
 | `set fox <text>` | Set the ARDF fox identifier sent after the callsign, such as `MOE`, `MOI`, `MOS`, `MOH`, or `MO5`. |
-| `set startup <seconds>` | Set power-on hiding delay. |
+| `set mode fox\|beacon` | Switch between scheduled fox mode and continuous beacon (MO6 finish) mode. |
+| `set fox_sync on\|off` | Enable or disable auto startup delay from fox ID for IARU round-robin. |
+| `set beacon_id <seconds>` | Set CW ID repeat interval for continuous beacon mode. |
+| `set startup <seconds>` | Set power-on hiding delay (overridden by fox sync when enabled). |
 | `set tx <seconds>` | Set transmit duration. |
 | `set idle <seconds>` | Set quiet/replay delay between transmissions. |
 | `set wpm <number>` | Set CW speed. |
@@ -504,6 +544,118 @@ Command meanings:
 | `set battery on/off` | Enable or disable low-battery protection. |
 | `set battery_scale <number>` | Set battery divider multiplier. |
 | `set low_battery <volts>` | Set low-battery cutoff voltage. |
+
+## Web Admin UI
+
+The beacon hosts a WiFi access point with a captive portal web UI for
+phone/laptop configuration. This works on all ESP32 boards (all have WiFi).
+
+On boot, the ESP32 starts a WiFi AP named `FoxBeacon-XXXX` (last 4 hex of MAC).
+Connect to it from a phone or laptop and the captive portal should auto-open the
+configuration page. If it does not, browse to `http://192.168.4.1/`.
+
+The web UI lets you:
+
+- View current status (state, battery, fox slot, AP name, IP)
+- Edit all settings: callsign, fox ID, mode, fox sync, timing, CW, warble, PTT,
+  battery, WiFi AP on/off, AP auto-off timeout, display eco mode
+- Save settings to flash (same as serial `set` commands)
+- Trigger a test transmission or PTT test
+- Restore compile-time defaults
+- Reboot the ESP32
+
+The web UI is served on all boards. No router or internet connection is needed.
+The AP has no password by default so it is open for easy field access.
+
+The WiFi AP can be turned on or off from the on-screen settings menu or the web
+UI. When off, the WiFi radio is disabled to save power in the field.
+
+The AP has an **auto-off timeout** (default 10 minutes). If no client is
+connected and no web requests are received for the timeout period, the AP shuts
+down automatically to save power. Set to 0 to keep the AP on indefinitely. To
+turn it back on, use the on-screen menu (WiFi AP toggle) or `set wifi_ap on`.
+
+## On-Screen Status Display
+
+Boards with an OLED or TFT screen show a live status display.
+
+### Startup Screen
+
+On boot, the display shows a startup splash for 3 seconds:
+
+```
+9M2PJU Fox
+────────────────
+v1.1.0
+Starting...
+```
+
+After 3 seconds, it transitions to the status screen.
+
+### Status Screen
+
+The status screen shows:
+
+- Callsign and fox ID
+- Mode (FOX or BEACON)
+- Current state (STARTUP, IDLE, TX, BEACON, LOWBAT)
+- Timing (TX and idle seconds)
+- Battery voltage (if battery monitoring is enabled)
+- Web admin AP IP address (if WiFi AP is enabled)
+
+The display updates once per second.
+
+### Settings Menu (On-Screen)
+
+Double-click the button on the status screen to open the settings menu. The menu
+provides quick on/off toggles for field use without needing a phone or laptop:
+
+| Item | Description |
+| --- | --- |
+| WiFi AP | Turn WiFi AP / web admin on or off |
+| Warble | Enable/disable warble tone |
+| Fox Sync | Enable/disable fox slot synchronization |
+| Battery | Enable/disable battery monitoring |
+| Mode | Toggle between FOX and BEACON mode |
+| Eco Disp | Enable/disable display eco mode (auto-off after 15s) |
+| Exit | Return to status screen |
+
+Menu navigation:
+
+- **Single click**: Move to next item
+- **Double click**: Toggle selected item
+- **Long hold (2s)**: Exit menu
+- Menu auto-exits after 30 seconds of inactivity
+
+Full configuration (callsign, fox ID, timing, CW speed, PTT, warble frequencies,
+battery scale, etc.) is only available through the WiFi web admin UI. The
+on-screen menu is limited to on/off toggles for quick field adjustments.
+
+### Display Eco Mode
+
+When eco mode is enabled, the display turns off after 15 seconds of inactivity
+to save power. Any button press wakes the display. This is useful for extended
+field operations where battery life matters more than constant status visibility.
+
+Supported display boards:
+
+| Board | Display type | Library |
+| --- | --- | --- |
+| Heltec WiFi Kit 32 (V1/V2) | OLED SSD1306 128x64 | U8g2 |
+| Heltec WiFi Kit 32 V3 | OLED SSD1306 128x64 | U8g2 |
+| Heltec WiFi LoRa 32 (V1/V2/V3) | OLED SSD1306 128x64 | U8g2 |
+| Heltec Wireless Stick / Stick Lite | OLED SSD1306 128x64 | U8g2 |
+| Heltec Wireless Stick Lite V3 | OLED SSD1306 128x64 | U8g2 |
+| TTGO LoRa32 V1 | OLED SSD1306 128x64 | U8g2 |
+| TTGO LoRa32 V2 | OLED SSD1306 128x64 | U8g2 |
+| TTGO LoRa32 V2.1.6 | OLED SSD1306 128x64 | U8g2 |
+| TTGO T-Beam | OLED SSD1306 128x64 | U8g2 |
+| LilyGO T-Display | TFT ST7789 135x240 | TFT_eSPI |
+| LilyGO T-Display S3 | TFT ST7789 170x320 | TFT_eSPI |
+| TTGO T-Watch | TFT ST7789 240x240 | TFT_eSPI |
+
+Boards without displays (ESP32 DevKit, ESP32-S3 DevKit, ESP32-C3, TTGO T1, T7,
+T-OI Plus, T3-S3) still get the web admin UI — they just have no screen.
 
 ## Default Pin Plan
 
@@ -568,8 +720,8 @@ Suggested starting values:
 - CW tone: 700 Hz.
 - Warble tone: alternating 700 Hz and 900 Hz.
 - CW speed: 12 WPM.
-- PTT lead time: 300 ms.
-- PTT tail time: 300 ms.
+- PTT lead time: 350 ms.
+- PTT tail time: 350 ms.
 
 Use `test` to make one immediate transmission. The boot button on many ESP32
 boards also queues a test transmission.
@@ -620,10 +772,12 @@ Design reminders:
 
 ### Phase 3: Field-Ready Beacon
 
-- Add Wi-Fi setup mode for phone configuration.
+- Add Wi-Fi setup mode for phone configuration. Done (web admin UI with AP and
+  captive portal).
+- Add on-screen status display for boards with OLED/TFT screens. Done.
 - Add enclosure, switch, charge connector, and antenna connector.
-- Add low-battery cutoff.
-- Add field checklist and wiring diagram.
+- Add low-battery cutoff. Done.
+- Add field checklist and wiring diagram. Done.
 - Add a tested schematic for common Kenwood-style speaker-mic plugs.
 - Add weatherproof field enclosure notes.
 
@@ -631,9 +785,11 @@ Design reminders:
 
 - Store multiple fox profiles.
 - Support unique tone/CW pattern per beacon.
-- Add staggered start delay.
+- Add staggered start delay. Done (fox-slot sync).
 - Add optional GPS time or phone-based setup workflow.
-- Add event mode for Fox 1 through Fox 5 timing patterns.
+- Add event mode for Fox 1 through Fox 5 timing patterns. Done (IARU defaults
+  with fox sync).
+- Add continuous beacon (MO6) finish mode. Done.
 
 ## Example Configuration
 
@@ -641,12 +797,17 @@ Design reminders:
 callsign = 9M2PJU
 fox_id = MOE
 frequency = configured on radio module or handheld radio
-tx_duration_seconds = 30
-idle_duration_seconds = 90
-startup_delay_seconds = 300
+tx_duration_seconds = 60
+idle_duration_seconds = 240
+startup_delay_seconds = 10 (overridden by fox_sync)
+fox_sync = on
+beacon_mode = off
 cw_wpm = 12
 cw_tone_hz = 700
+warble = off
 ptt_active_level = HIGH
+ptt_lead_ms = 350
+ptt_tail_ms = 350
 low_battery_voltage = 3.4
 ```
 
@@ -668,15 +829,13 @@ low_battery_voltage = 3.4
 1. Test on an ESP32 DevKit v1 with a cheap handheld radio interface.
 2. Tune audio filter and trimpot values for common walkie-talkies.
 3. Add example wiring photos or schematic.
-4. Split firmware into modules once the prototype behavior is proven.
-5. Add Wi-Fi setup mode.
-6. Add support notes for SA818V/DRA818V style modules.
-7. Add a simple web page to edit callsign, fox ID, TX time, replay delay, and
-   battery cutoff from a phone.
-8. Add optional deep sleep for long battery hunts.
-9. Add release binaries for common ESP32 boards.
-10. Add hardware-tested profiles for common Baofeng/Kenwood-style speaker-mic
-    cables after confirming pinouts on real units.
+4. Add support notes for SA818V/DRA818V style modules.
+5. Add optional deep sleep for long battery hunts.
+6. Add release binaries for common ESP32 boards.
+7. Add hardware-tested profiles for common Baofeng/Kenwood-style speaker-mic
+   cables after confirming pinouts on real units.
+8. Add on-screen menu navigation with buttons for display boards.
+9. Add WiFi station mode option for connecting to an existing network.
 
 ## License
 

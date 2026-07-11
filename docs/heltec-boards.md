@@ -21,7 +21,12 @@ Use these names with PlatformIO:
 | `heltec-wireless-stick` | `heltec_wireless_stick` | Wireless Stick. Onboard LoRa is not used. |
 | `heltec-wireless-stick-lite` | `heltec_wireless_stick_lite` | Wireless Stick Lite. Onboard LoRa is not used. |
 | `heltec-wireless-stick-lite-v3` | `esp32-s3-devkitc-1` plus Heltec Arduino variant | Wireless Stick Lite V3 compatibility build. Onboard LoRa is not used. |
-| `heltec-wireless-tracker` | `esp32-s3-devkitc-1` compatibility build | Wireless Tracker uses ESP32-S3, SX1262 LoRa, and GNSS. PlatformIO does not provide a dedicated board ID in the installed espressif32 package, so this is a compatibility build that needs header-pin verification. |
+| `heltec-wireless-tracker` | `esp32-s3-devkitc-1` compatibility build | Wireless Tracker (ESP32-S3, SX1262 LoRa, GNSS, 0.96" TFT ST7735 160x80). Onboard LoRa/GNSS not used. |
+| `heltec-vision-master-t190` | `esp32-s3-devkitc-1` compatibility build | Vision Master T190 (ESP32-S3, 1.9" TFT ST7789 170x320). Onboard LoRa not used. |
+| `heltec-wireless-paper` | `esp32-s3-devkitc-1` compatibility build | Wireless Paper (ESP32-S3, 2.13" E-Ink 250x122). Onboard LoRa not used. |
+| `heltec-vision-master-e213` | `esp32-s3-devkitc-1` compatibility build | Vision Master E213 (ESP32-S3, 2.13" E-Ink 250x122). Onboard LoRa not used. |
+| `heltec-vision-master-e290` | `esp32-s3-devkitc-1` compatibility build | Vision Master E290 (ESP32-S3, 2.9" E-Ink 296x128). Onboard LoRa not used. |
+| `heltec-capsule-sensor-v3` | `esp32-s3-devkitc-1` compatibility build | Capsule Sensor V3 (ESP32-S3, no display). Onboard LoRa not used. |
 
 Example build:
 
@@ -60,6 +65,26 @@ ESP32-S3 Heltec boards and compatibility builds:
 | Test button | 0 |
 | Battery ADC | 1 |
 
+Wireless Tracker (ESP32-S3) uses different pins due to TFT + GPS:
+
+| Function | GPIO |
+| --- | ---: |
+| PTT output | 7 |
+| Audio output | 6 |
+| Status LED | 18 |
+| Test button | 0 |
+| Battery ADC | 1 |
+
+Vision Master series and Capsule Sensor V3 (ESP32-S3):
+
+| Function | GPIO |
+| --- | ---: |
+| PTT output | 4 |
+| Audio output | 3 |
+| Status LED | 18 |
+| Test button | 0 |
+| Battery ADC | 6 |
+
 These are starter mappings for firmware builds and bench testing. Before wiring
 a radio, compare the pins with the exact board revision, silkscreen, schematic,
 and pin map. Heltec boards often reserve pins for OLED, LoRa, GNSS, battery, or
@@ -67,11 +92,19 @@ power-control circuits.
 
 ## Compatibility Build Notes
 
-Heltec Wireless Tracker is based on ESP32-S3 and includes SX1262 LoRa plus GNSS.
-This project does not currently use those onboard radio/GNSS features. The
-`heltec-wireless-tracker` environment exists so users can build the controller
-firmware and wire external PTT/audio lines, but it should be treated as
-experimental until tested on real hardware.
+Several newer Heltec boards (Wireless Tracker, Vision Master series, Wireless
+Paper, Capsule Sensor V3) do not have dedicated PlatformIO board IDs in the
+installed espressif32 package. These environments use the generic
+`esp32-s3-devkitc-1` board definition with explicit pin mappings and display
+configuration via build flags. They compile successfully, but should be
+pin-checked on real hardware before connecting a radio.
+
+The Wireless Tracker has a 0.96" TFT ST7735 display (160x80). The Vision Master
+T190 has a 1.9" TFT ST7789 display (170x320). The Wireless Paper and Vision
+Master E213 have 2.13" E-Ink displays (250x122). The Vision Master E290 has a
+2.9" E-Ink display (296x128). E-Ink displays use the GxEPD2 library and support
+the on-screen menu and status screen, but refresh more slowly (1-4 seconds) than
+OLED or TFT displays.
 
 `heltec-wireless-stick-lite-v3` is also a compatibility build because this
 PlatformIO package includes the Arduino variant but not a dedicated board JSON.

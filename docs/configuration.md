@@ -1,38 +1,79 @@
 # Configuration Guide
 
-The beacon can be configured in two ways:
+The beacon can be configured in three ways:
 
 1. Edit `include/beacon_config.h` before building.
 2. Use Serial Monitor commands after flashing.
+3. Use the web admin UI from a phone or laptop over WiFi.
 
-Saved Serial Monitor settings are stored in ESP32 flash and override the
-compile-time defaults. Run `defaults` in Serial Monitor to restore the values
-from `include/beacon_config.h`.
+All three methods control the same settings. Serial Monitor and web UI settings
+are stored in ESP32 flash and override the compile-time defaults. Run `defaults`
+in Serial Monitor or click the Defaults button in the web UI to restore the
+values from `include/beacon_config.h`.
+
+Boards with a display also have an on-screen settings menu (double-click the
+button) for quick on/off toggles. This is a convenience for field use and only
+covers a subset of settings — full configuration requires the web UI or serial
+monitor.
+
+## Web Admin UI
+
+The beacon hosts a WiFi access point with a captive portal. On boot, look for a
+WiFi network named `FoxBeacon-XXXX` (last 4 hex of MAC address). Connect to it
+from a phone or laptop — the configuration page should auto-open. If it does
+not, browse to `http://192.168.4.1/`.
+
+The web UI provides forms for all settings, plus buttons for test transmission,
+PTT test, restore defaults, and reboot. No app or internet connection is needed.
+
+The web UI works on all ESP32 boards. Boards with OLED or TFT screens also show
+a live status display with callsign, fox ID, mode, state, timing, battery, and
+AP IP address.
+
+The WiFi AP can be turned on or off from the on-screen settings menu or the web
+UI. When off, the WiFi radio is disabled to save power.
+
+The AP also has an **auto-off timeout** (default 10 minutes). If no phone or
+laptop is connected and no web requests are received for the timeout period, the
+AP shuts down automatically to save power. Set the timeout to 0 to disable
+auto-off (AP stays on indefinitely). Configure it via the web UI, serial
+monitor (`set wifi_ap_timeout 10`), or it defaults to 10 minutes. To turn the AP
+back on after auto-off, use the on-screen menu (double-click the button, select
+WiFi AP, toggle ON) or the serial command `set wifi_ap on`.
 
 ## Recommended Basic Setup
 
-For one training beacon:
+For a standard IARU 5-fox event, the defaults already match the standard cycle
+(60 s TX, 240 s idle, warble off, fox sync on). You only need to set the
+callsign and fox ID on each beacon:
 
 ```text
 set call 9M2PJU
 set fox MOE
-set startup 300
-set tx 30
-set idle 90
-set wpm 12
-set tone 700
-set warble on
 ```
 
-For a multi-fox ARDF event, use a different fox identifier for each beacon:
+For a multi-fox ARDF event, use a different fox identifier for each beacon.
+With fox sync enabled (the default), the startup delay is calculated
+automatically from the fox ID, so all five beacons use the same timing:
 
-| Beacon | Command |
-| --- | --- |
-| Fox 1 | `set fox MOE` |
-| Fox 2 | `set fox MOI` |
-| Fox 3 | `set fox MOS` |
-| Fox 4 | `set fox MOH` |
-| Fox 5 | `set fox MO5` |
+| Beacon | Command | Auto startup delay |
+| --- | --- | ---: |
+| Fox 1 | `set fox MOE` | 0 s |
+| Fox 2 | `set fox MOI` | 60 s |
+| Fox 3 | `set fox MOS` | 120 s |
+| Fox 4 | `set fox MOH` | 180 s |
+| Fox 5 | `set fox MO5` | 240 s |
+
+Power all five beacons on at roughly the same time and they will take turns
+automatically in the standard round-robin order.
+
+For a finish-line beacon (MO6) on a separate frequency:
+
+```text
+set mode beacon
+set fox MO6
+set beacon_id 60
+```
 
 Keep `set call ...` set to the licensed station or club callsign required by
 your local rules.
@@ -42,7 +83,7 @@ your local rules.
 Each transmit window sends:
 
 ```text
-CALLSIGN in CW -> FOX_ID in CW -> optional warble tone
+CALLSIGN in CW -> FOX_ID in CW -> steady carrier (or warble if enabled)
 ```
 
 With the default settings, the radio sends:
@@ -51,7 +92,8 @@ With the default settings, the radio sends:
 9M2PJU MOE
 ```
 
-Then it warbles between 700 Hz and 900 Hz until the transmit timer ends.
+Then it holds a steady carrier until the transmit timer ends. If warble is
+enabled, it alternates between 700 Hz and 900 Hz instead.
 
 ## Compile-Time Defaults
 
@@ -62,12 +104,15 @@ command to return to your preferred setup.
 | --- | --- | --- |
 | `DEFAULT_CALLSIGN` | Callsign sent in CW. | `9M2PJU` |
 | `DEFAULT_FOX_ID` | ARDF fox identifier sent after the callsign. | `MOE` |
-| `DEFAULT_STARTUP_DELAY_SECONDS` | Delay after power-on before the schedule starts. | `10` |
-| `DEFAULT_TRANSMIT_SECONDS` | Length of each transmit window. | `30` |
-| `DEFAULT_IDLE_SECONDS` | Quiet time between transmissions. | `90` |
+| `DEFAULT_STARTUP_DELAY_SECONDS` | Delay after power-on before the schedule starts. Overridden by fox sync when enabled. | `10` |
+| `DEFAULT_TRANSMIT_SECONDS` | Length of each transmit window. | `60` |
+| `DEFAULT_IDLE_SECONDS` | Quiet time between transmissions. | `240` |
+| `DEFAULT_FOX_SYNC_ENABLED` | Auto-derive startup delay from fox ID for IARU round-robin. | `1` |
+| `DEFAULT_BEACON_MODE` | Continuous beacon (MO6 finish) mode. | `0` |
+| `DEFAULT_BEACON_ID_INTERVAL_SECONDS` | CW ID repeat interval in continuous beacon mode. | `60` |
 | `DEFAULT_CW_WPM` | Morse speed. | `12` |
 | `DEFAULT_CW_TONE_HZ` | CW audio tone. | `700` |
-| `DEFAULT_WARBLE_ENABLED` | Enables warble after the CW ID. | `1` |
+| `DEFAULT_WARBLE_ENABLED` | Enables warble after the CW ID. Disabled for IARU standard. | `0` |
 | `DEFAULT_WARBLE_LOW_HZ` | Low warble frequency. | `700` |
 | `DEFAULT_WARBLE_HIGH_HZ` | High warble frequency. | `900` |
 | `DEFAULT_WARBLE_STEP_MS` | Warble step duration. | `350` |
@@ -103,7 +148,10 @@ Open Serial Monitor at 115200 baud and type commands followed by Enter.
 | `reboot` | Restart the ESP32. |
 | `set call <text>` | Set the CW callsign. |
 | `set fox <text>` | Set the ARDF fox ID, such as `MOE` or `MOI`. |
-| `set startup <seconds>` | Set startup hiding delay. |
+| `set mode fox\|beacon` | Switch between scheduled fox mode and continuous beacon (MO6) mode. |
+| `set fox_sync on\|off` | Enable or disable auto startup delay from fox ID. |
+| `set beacon_id <seconds>` | Set CW ID repeat interval for continuous beacon mode. |
+| `set startup <seconds>` | Set startup hiding delay (overridden by fox sync when enabled). |
 | `set tx <seconds>` | Set transmit duration. |
 | `set idle <seconds>` | Set quiet time between transmissions. |
 | `set wpm <number>` | Set CW speed. |
@@ -127,17 +175,29 @@ allowed range, it is clipped to the nearest allowed value.
 
 ## Timing Examples
 
-Simple practice beacon:
+Standard IARU 5-fox event (the default):
 
 ```text
+set fox_sync on
+set tx 60
+set idle 240
+set warble off
+```
+
+Simple practice beacon with faster cycling:
+
+```text
+set fox_sync off
 set startup 60
 set tx 20
 set idle 60
+set warble on
 ```
 
-Classic two-minute cycle:
+Classic two-minute training cycle:
 
 ```text
+set fox_sync off
 set startup 300
 set tx 30
 set idle 90
@@ -146,9 +206,18 @@ set idle 90
 Longer low-power training cycle:
 
 ```text
+set fox_sync off
 set startup 300
 set tx 15
 set idle 165
+```
+
+Finish-line continuous beacon (MO6) on a separate frequency:
+
+```text
+set mode beacon
+set fox MO6
+set beacon_id 60
 ```
 
 ## Audio Setup

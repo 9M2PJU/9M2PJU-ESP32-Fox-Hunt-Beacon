@@ -31,6 +31,26 @@ behave as expected in the field.
 | Settings seem ignored | Run `show`; saved flash settings override `include/beacon_config.h`. |
 | Need to restore firmware defaults | Run `defaults`, then `show`. |
 
+## Web Admin UI Problems
+
+| Symptom | Check |
+| --- | --- |
+| Cannot find FoxBeacon WiFi | The AP starts on boot (if WiFi AP is enabled). Wait 5-10 seconds after power-on. Check the serial monitor for the AP name and IP. If WiFi AP was turned off from the menu, double-click the button to open settings and turn it back on. The AP may also have auto-off'd after the timeout (default 10 min) — turn it back on the same way or use `set wifi_ap on`. |
+| Captive portal does not auto-open | Browse to `http://192.168.4.1/` manually. Some phones block captive portals. |
+| Page loads but settings do not save | Make sure you clicked Save and wait for the confirmation message. Try rebooting from the web UI. |
+| Web UI is slow or unresponsive | The web server pauses during active transmissions. Try again during an idle period. |
+| Display is blank on a display board | Check that the correct board environment was built. Display pins vary per board. |
+
+## Display Menu Problems
+
+| Symptom | Check |
+| --- | --- |
+| Double-click does not open menu | Make sure two clicks happen within 400ms. Practice the timing — it's a quick double tap. |
+| Menu disappears too quickly | The menu auto-exits after 30 seconds of inactivity. Single-click to reset the timer. |
+| Display is off and won't wake | Eco mode turns the display off after 15s. Single-click the button to wake it. |
+| Toggled WiFi AP but cannot connect | After toggling WiFi AP on, wait 5-10 seconds for the AP to start. Check serial monitor for the SSID. |
+| Menu shows but items don't toggle | Double-click to toggle (not single click). Single click only moves the cursor. |
+
 ## PTT Problems
 
 | Symptom | Likely cause | Fix |
@@ -57,9 +77,12 @@ practical power.
 
 | Symptom | Check |
 | --- | --- |
-| Beacon waits too long after boot | Check `set startup <seconds>`. |
-| Transmit window too short | Check `set tx <seconds>`. |
-| Long silence between transmissions | Check `set idle <seconds>`. |
+| Beacon waits too long after boot | Check `set startup <seconds>`. If `fox_sync on`, the startup delay is auto-calculated from the fox ID (MOE=0 s, MOI=60 s, MOS=120 s, MOH=180 s, MO5=240 s). Run `show` to see the resolved delay. |
+| Fox starts in the wrong slot | Confirm `fox_sync on` and the fox ID is a standard ARDF ID (MOE/MOI/MOS/MOH/MO5). Non-standard IDs fall back to the manual `startup` delay. |
+| Transmit window too short | Check `set tx <seconds>`. IARU standard is 60. |
+| Long silence between transmissions | Check `set idle <seconds>`. IARU standard is 240 for a 5-fox cycle. |
+| Beacon transmits continuously | `set mode beacon` enables continuous mode. Run `set mode fox` to return to scheduled operation. |
+| No CW ID in beacon mode | Check `set beacon_id <seconds>`; the ID repeats at this interval while PTT is held. |
 | Test button transmits unexpectedly | GPIO 0 may be pulled low or the button is held. Check button wiring. |
 
 Use `show` to confirm the active saved values.

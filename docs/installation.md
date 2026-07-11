@@ -90,6 +90,11 @@ heltec-wireless-stick
 heltec-wireless-stick-lite
 heltec-wireless-stick-lite-v3
 heltec-wireless-tracker
+heltec-vision-master-t190
+heltec-wireless-paper
+heltec-vision-master-e213
+heltec-vision-master-e290
+heltec-capsule-sensor-v3
 lilygo-t-display
 lilygo-t-display-s3
 lilygo-t3-s3
@@ -112,8 +117,8 @@ Open `include/beacon_config.h` and check these values before building:
 #define DEFAULT_CALLSIGN "9M2PJU"
 #define DEFAULT_FOX_ID "MOE"
 #define DEFAULT_STARTUP_DELAY_SECONDS 10
-#define DEFAULT_TRANSMIT_SECONDS 30
-#define DEFAULT_IDLE_SECONDS 90
+#define DEFAULT_TRANSMIT_SECONDS 60
+#define DEFAULT_IDLE_SECONDS 240
 ```
 
 Set `DEFAULT_CALLSIGN` to the licensed station callsign. Set
@@ -160,24 +165,36 @@ output briefly with no audio, which is the safest first hardware test.
 
 ### 8. Change Settings After Upload
 
-You can change many settings from the Serial Monitor without rebuilding:
+You can change settings in two ways without rebuilding:
+
+**Serial Monitor** (USB cable required):
 
 ```text
 set call 9M2PJU
 set fox MOE
-set startup 300
-set tx 30
-set idle 90
-set warble on
+set tx 60
+set idle 240
+set fox_sync on
 show
 ```
 
-Serial Monitor settings are saved in ESP32 flash. To restore the values from
-`include/beacon_config.h`, type:
+**Web Admin UI** (no cable needed after first upload):
 
-```text
-defaults
-```
+After boot, look for a WiFi network named `FoxBeacon-XXXX` on your phone or
+laptop. Connect to it and browse to `http://192.168.4.1/` if the captive portal
+does not auto-open. The web UI has forms for all settings and buttons for test,
+PTT test, defaults, and reboot.
+
+**On-Screen Menu** (display boards only):
+
+Double-click the button on the status screen to open a quick settings menu with
+on/off toggles for WiFi AP, warble, fox sync, battery, mode, and display eco
+mode. Single-click to navigate, double-click to toggle, long-hold to exit. Full
+configuration still requires the web UI or serial monitor.
+
+Settings are saved in ESP32 flash. To restore the values from
+`include/beacon_config.h`, type `defaults` in Serial Monitor or click the
+Defaults button in the web UI.
 
 ## Choose A Board Environment
 
@@ -201,7 +218,12 @@ Available environments:
 | `heltec-wireless-stick` | Heltec Wireless Stick |
 | `heltec-wireless-stick-lite` | Heltec Wireless Stick Lite |
 | `heltec-wireless-stick-lite-v3` | Heltec Wireless Stick Lite V3 compatibility build |
-| `heltec-wireless-tracker` | Heltec Wireless Tracker compatibility build |
+| `heltec-wireless-tracker` | Heltec Wireless Tracker (TFT, compatibility build) |
+| `heltec-vision-master-t190` | Heltec Vision Master T190 (TFT, compatibility build) |
+| `heltec-wireless-paper` | Heltec Wireless Paper (E-Ink, compatibility build) |
+| `heltec-vision-master-e213` | Heltec Vision Master E213 (E-Ink, compatibility build) |
+| `heltec-vision-master-e290` | Heltec Vision Master E290 (E-Ink, compatibility build) |
+| `heltec-capsule-sensor-v3` | Heltec Capsule Sensor V3 (no display, compatibility build) |
 | `lilygo-t-display` | LilyGO T-Display |
 | `lilygo-t-display-s3` | LilyGO T-Display S3 |
 | `lilygo-t3-s3` | LilyGO T3-S3 |
@@ -231,8 +253,8 @@ Minimum values to check:
 ```c
 #define DEFAULT_CALLSIGN "9M2PJU"
 #define DEFAULT_FOX_ID "MOE"
-#define DEFAULT_TRANSMIT_SECONDS 30
-#define DEFAULT_IDLE_SECONDS 90
+#define DEFAULT_TRANSMIT_SECONDS 60
+#define DEFAULT_IDLE_SECONDS 240
 ```
 
 See [configuration.md](configuration.md) for the full setup guide.

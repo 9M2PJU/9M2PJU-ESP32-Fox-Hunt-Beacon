@@ -97,7 +97,7 @@ void menuToggle(int idx) {
     case MENU_WIFI_AP:
       config.wifiApEnabled = !config.wifiApEnabled;
       if (config.wifiApEnabled) {
-        webAdminInit("FoxBeacon");
+        webAdminInit("9M2PJU-Fox");
       } else {
         webAdminStop();
       }
@@ -722,7 +722,7 @@ void handleSetCommand(String key, String value) {
     }
     config.wifiApEnabled = parsed;
     if (parsed && !webAdminIsRunning()) {
-      webAdminInit("FoxBeacon");
+      webAdminInit("9M2PJU-Fox");
     } else if (!parsed && webAdminIsRunning()) {
       webAdminStop();
     }
@@ -875,7 +875,7 @@ void setup() {
   }
 
   if (config.wifiApEnabled) {
-    webAdminInit("FoxBeacon");
+    webAdminInit("9M2PJU-Fox");
   }
 
   printConfig();

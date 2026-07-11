@@ -180,7 +180,7 @@ show
 
 **Web Admin UI** (no cable needed after first upload):
 
-After boot, look for a WiFi network named `FoxBeacon-XXXX` on your phone or
+After boot, look for a WiFi network named `9M2PJU-Fox-XXXX` on your phone or
 laptop. Connect to it and browse to `http://10.0.0.8/` if the captive portal
 does not auto-open. The web UI has forms for all settings and buttons for test,
 PTT test, defaults, and reboot.

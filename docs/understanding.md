@@ -183,7 +183,7 @@ The beacon supports three configuration methods:
 1. **Compile-time**: Edit `include/beacon_config.h` before building.
 2. **Serial Monitor**: USB commands at 115200 baud after flashing.
 3. **Web Admin UI**: WiFi AP with captive portal — connect from a phone or
-   laptop to `FoxBeacon-XXXX` and browse to `http://10.0.0.8/`. The AP
+   laptop to `9M2PJU-Fox-XXXX` and browse to `http://10.0.0.8/`. The AP
    auto-offs after a configurable timeout (default 10 min) of no activity to
    save power. The web server uses ESPAsyncWebServer for non-blocking request
    handling, and web assets (HTML/CSS/JS) are gzip-compressed at build time and

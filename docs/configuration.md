@@ -19,7 +19,7 @@ monitor.
 ## Web Admin UI
 
 The beacon hosts a WiFi access point with a captive portal. On boot, look for a
-WiFi network named `FoxBeacon-XXXX` (last 4 hex of MAC address). Connect to it
+WiFi network named `9M2PJU-Fox-XXXX` (last 4 hex of MAC address). Connect to it
 from a phone or laptop — the configuration page should auto-open. If it does
 not, browse to `http://10.0.0.8/`.
 

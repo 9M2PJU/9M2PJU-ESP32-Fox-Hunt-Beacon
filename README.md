@@ -554,7 +554,7 @@ Command meanings:
 The beacon hosts a WiFi access point with a captive portal web UI for
 phone/laptop configuration. This works on all ESP32 boards (all have WiFi).
 
-On boot, the ESP32 starts a WiFi AP named `FoxBeacon-XXXX` (last 4 hex of MAC).
+On boot, the ESP32 starts a WiFi AP named `9M2PJU-Fox-XXXX` (last 4 hex of MAC).
 Connect to it from a phone or laptop and the captive portal should auto-open the
 configuration page. If it does not, browse to `http://10.0.0.8/`.
 

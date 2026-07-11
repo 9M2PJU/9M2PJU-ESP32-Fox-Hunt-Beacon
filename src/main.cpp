@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <Preferences.h>
+#include <OneButton.h>
 #include "beacon_config.h"
 #include "display.h"
 #include "web_admin.h"
@@ -8,8 +9,6 @@ constexpr uint8_t AUDIO_CHANNEL = 0;
 constexpr uint8_t AUDIO_RESOLUTION_BITS = 10;
 constexpr uint16_t AUDIO_DUTY = 512;
 constexpr uint32_t SERIAL_BAUD = 115200;
-constexpr uint32_t BUTTON_HOLD_MS = 35;
-constexpr uint32_t BUTTON_DOUBLE_CLICK_MS = 400;
 constexpr uint32_t LED_IDLE_BLINK_MS = 1800;
 constexpr uint32_t LED_TX_BLINK_MS = 160;
 constexpr uint32_t LED_LOW_BATTERY_BLINK_MS = 350;
@@ -17,6 +16,7 @@ constexpr uint32_t PTT_TEST_MS = 1200;
 constexpr uint32_t STARTUP_SCREEN_MS = 3000;
 constexpr uint32_t MENU_TIMEOUT_MS = 30000;
 constexpr uint32_t DISPLAY_ECO_TIMEOUT_MS = 15000;
+constexpr uint32_t DISPLAY_ECO_GRACE_MS = 10000;  // no eco sleep for first 10s after boot
 
 Preferences preferences;
 BeaconConfig config;
@@ -39,6 +39,11 @@ uint32_t displayModeEnteredAt = 0;
 int menuIndex = 0;
 uint32_t lastActivityAt = 0;
 bool displaySleeping = false;
+
+// OneButton instance for debounced multi-click detection.
+#ifdef BUTTON_PIN
+OneButton button(BUTTON_PIN, true);  // active LOW with internal pull-up
+#endif
 
 // Menu items: on/off toggles that can be changed from the display menu.
 // Full settings (callsign, fox ID, timing, CW, PTT, etc.) require the web UI.
@@ -158,8 +163,9 @@ void updateDisplay() {
   if (displayMode == DisplayMode::Status && millis() - lastDisplayUpdateAt < 1000) return;
   lastDisplayUpdateAt = millis();
 
-  // Eco mode: sleep display after inactivity
+  // Eco mode: sleep display after inactivity (with startup grace period)
   if (displayMode == DisplayMode::Status && config.displayEcoMode) {
+    if (millis() < DISPLAY_ECO_GRACE_MS) return;  // grace period after boot
     if (!displaySleeping && elapsedSince(lastActivityAt) > DISPLAY_ECO_TIMEOUT_MS) {
       displaySleeping = true;
       displayPower(false);
@@ -791,86 +797,63 @@ void readSerialCommands() {
   }
 }
 
+// --- OneButton handlers ---
+
+static void onSingleClick() {
+  lastActivityAt = millis();
+  if (displaySleeping) {
+    displaySleeping = false;
+    displayPower(true);
+    return;
+  }
+  if (displayMode == DisplayMode::Menu) {
+    menuIndex = (menuIndex + 1) % MENU_COUNT;
+  } else if (displayMode == DisplayMode::Status) {
+    forceTransmit = true;
+    Serial.println(F("Button test transmission queued."));
+  }
+}
+
+static void onDoubleClick() {
+  lastActivityAt = millis();
+  if (displaySleeping) {
+    displaySleeping = false;
+    displayPower(true);
+    return;
+  }
+  if (displayMode == DisplayMode::Menu) {
+    menuToggle(menuIndex);
+  } else if (displayMode == DisplayMode::Status) {
+    displayMode = DisplayMode::Menu;
+    displayModeEnteredAt = millis();
+    menuIndex = 0;
+  }
+}
+
+static void onLongPress() {
+  lastActivityAt = millis();
+  if (displayMode == DisplayMode::Menu) {
+    displayMode = DisplayMode::Status;
+    displayModeEnteredAt = millis();
+  }
+}
+
 void checkButton() {
-  static bool wasPressed = false;
-  static uint32_t pressedAt = 0;
-  static uint32_t lastReleaseAt = 0;
-  static bool clickPending = false;
-  const bool pressed = digitalRead(BUTTON_PIN) == LOW;
-
-  if (pressed && !wasPressed) {
-    pressedAt = millis();
-  }
-
-  if (!pressed && wasPressed) {
-    const uint32_t heldFor = elapsedSince(pressedAt);
-    if (heldFor >= BUTTON_HOLD_MS) {
-      // Valid short press released
-      if (clickPending && elapsedSince(lastReleaseAt) < BUTTON_DOUBLE_CLICK_MS) {
-        // Double click — toggle menu or select item
-        clickPending = false;
-        lastActivityAt = millis();
-        if (displaySleeping) {
-          displaySleeping = false;
-          displayPower(true);
-          return;
-        }
-        if (displayMode == DisplayMode::Menu) {
-          // Double click in menu = toggle selected item
-          menuToggle(menuIndex);
-        } else if (displayMode == DisplayMode::Status) {
-          // Double click on status = open menu
-          displayMode = DisplayMode::Menu;
-          displayModeEnteredAt = millis();
-          menuIndex = 0;
-        }
-      } else {
-        // First click — wait to see if a second comes
-        clickPending = true;
-        lastReleaseAt = millis();
-      }
-    } else {
-      // Very short press (bounce) — ignore
-    }
-  }
-
-  // Process single click after double-click window expires
-  if (clickPending && elapsedSince(lastReleaseAt) >= BUTTON_DOUBLE_CLICK_MS) {
-    clickPending = false;
-    lastActivityAt = millis();
-    if (displaySleeping) {
-      displaySleeping = false;
-      displayPower(true);
-      return;
-    }
-    if (displayMode == DisplayMode::Menu) {
-      // Single click in menu = move to next item
-      menuIndex = (menuIndex + 1) % MENU_COUNT;
-    } else if (displayMode == DisplayMode::Status) {
-      // Single click on status = queue test transmission
-      forceTransmit = true;
-      Serial.println(F("Button test transmission queued."));
-    }
-  }
-
-  // Long hold = exit menu (or test TX on status screen)
-  if (pressed && wasPressed && displayMode == DisplayMode::Menu) {
-    if (elapsedSince(pressedAt) >= 2000) {
-      displayMode = DisplayMode::Status;
-      displayModeEnteredAt = millis();
-      lastActivityAt = millis();
-      // Wait for release to avoid re-triggering
-      while (digitalRead(BUTTON_PIN) == LOW) delay(10);
-    }
-  }
-
-  wasPressed = pressed;
+#ifdef BUTTON_PIN
+  button.tick();
+#endif
 }
 
 void setup() {
   pinMode(PTT_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
+#ifdef BUTTON_PIN
   pinMode(BUTTON_PIN, INPUT_PULLUP);
+  button.attachClick(onSingleClick);
+  button.attachDoubleClick(onDoubleClick);
+  button.attachLongPressStart(onLongPress);
+  button.setPressMs(2000);  // long press = 2 seconds
+#endif
   setPtt(false);
   setLed(false);
 

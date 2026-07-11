@@ -1,5 +1,9 @@
 # 9M2PJU ESP32 Fox Hunt Beacon
 
+<p align="center">
+  <img src="images/fox-beacon-logo.png" alt="9M2PJU ESP32 Fox Hunt Beacon" width="600">
+</p>
+
 ESP32 firmware for an amateur radio fox hunting beacon using cheap handheld
 walkie-talkies. The ESP32 handles timing, identification, audio tones,
 configuration, battery monitoring, and push-to-talk control. The walkie-talkie

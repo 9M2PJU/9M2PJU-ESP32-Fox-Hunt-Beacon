@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fox Beacon Admin</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<h1>&#129418; Fox Beacon Admin</h1>
+<div class="status" id="status">Loading...</div>
+<div id="msg" class="msg"></div>
+
+<h2>Identification</h2>
+<div class="field"><label>Callsign</label><input id="call" type="text" maxlength="12"></div>
+<div class="field"><label>Fox ID</label><input id="fox" type="text" maxlength="8"></div>
+<div class="field"><label>Mode</label><select id="mode"><option value="fox">Fox (scheduled)</option><option value="beacon">Beacon (continuous)</option></select></div>
+<div class="field"><label>Fox sync</label><select id="fox_sync"><option value="on">On</option><option value="off">Off</option></select></div>
+
+<h2>Timing (seconds)</h2>
+<div class="field"><label>Startup delay</label><input id="startup" type="number" min="0" max="3600"></div>
+<div class="field"><label>Transmit time</label><input id="tx" type="number" min="3" max="600"></div>
+<div class="field"><label>Idle time</label><input id="idle" type="number" min="5" max="3600"></div>
+<div class="field"><label>Beacon ID interval</label><input id="beacon_id" type="number" min="10" max="600"></div>
+
+<h2>CW / Audio</h2>
+<div class="field"><label>CW speed (WPM)</label><input id="wpm" type="number" min="5" max="35"></div>
+<div class="field"><label>CW tone (Hz)</label><input id="tone" type="number" min="300" max="1800"></div>
+<div class="field"><label>Warble</label><select id="warble"><option value="on">On</option><option value="off">Off</option></select></div>
+<div class="field"><label>Warble low (Hz)</label><input id="warble_low" type="number" min="300" max="1800"></div>
+<div class="field"><label>Warble high (Hz)</label><input id="warble_high" type="number" min="300" max="1800"></div>
+<div class="field"><label>Warble step (ms)</label><input id="warble_step" type="number" min="100" max="3000"></div>
+
+<h2>PTT</h2>
+<div class="field"><label>PTT polarity</label><select id="ptt"><option value="active_high">Active HIGH</option><option value="active_low">Active LOW</option></select></div>
+<div class="field"><label>PTT lead (ms)</label><input id="lead" type="number" min="50" max="3000"></div>
+<div class="field"><label>PTT tail (ms)</label><input id="tail" type="number" min="50" max="3000"></div>
+
+<h2>Battery</h2>
+<div class="field"><label>Battery monitor</label><select id="battery"><option value="on">On</option><option value="off">Off</option></select></div>
+<div class="field"><label>Battery scale</label><input id="battery_scale" type="number" step="0.01" min="1.0" max="10.0"></div>
+<div class="field"><label>Low battery (V)</label><input id="low_battery" type="number" step="0.01" min="2.5" max="15.0"></div>
+
+<h2>Display &amp; WiFi</h2>
+<div class="field"><label>WiFi AP / Web Admin</label><select id="wifi_ap"><option value="on">On</option><option value="off">Off</option></select></div>
+<div class="field"><label>AP auto-off (min)</label><input id="wifi_ap_timeout" type="number" min="0" max="1440"><small class="hint">0=never</small></div>
+<div class="field"><label>Display eco mode</label><select id="eco_mode"><option value="on">On</option><option value="off">Off</option></select></div>
+
+<div class="btns">
+<button class="btn-save" onclick="save()">Save</button>
+<button class="btn-test" onclick="cmd('test')">Test TX</button>
+<button class="btn-ptt" onclick="cmd('ptt_test')">PTT Test</button>
+<button class="btn-defaults" onclick="cmd('defaults')">Defaults</button>
+<button class="btn-reboot" onclick="cmd('reboot')">Reboot</button>
+</div>
+
+<script src="/script.js"></script>
+</body>
+</html>

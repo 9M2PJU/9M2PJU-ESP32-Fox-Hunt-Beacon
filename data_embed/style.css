@@ -1,0 +1,22 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#1a1a2e;color:#eee;padding:12px;max-width:600px;margin:auto}
+h1{font-size:1.4em;color:#0ff;margin-bottom:8px}
+h2{font-size:1.1em;color:#0f0;margin:16px 0 8px;border-bottom:1px solid #333;padding-bottom:4px}
+.status{background:#16213e;padding:10px;border-radius:8px;margin-bottom:12px;font-size:.9em}
+.status span{color:#0ff}
+.field{display:flex;justify-content:space-between;align-items:center;padding:6px 0;gap:8px}
+.field label{flex:0 0 45%;font-size:.85em;color:#aaa}
+.field input,.field select{flex:1;padding:6px;background:#0f0f23;border:1px solid #444;border-radius:4px;color:#eee;font-size:.85em}
+.field input:focus,.field select:focus{border-color:#0ff}
+.hint{color:#888;font-size:.7em}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+button{padding:10px 18px;border:none;border-radius:6px;font-size:.9em;cursor:pointer}
+.btn-save{background:#0a7;color:#fff}
+.btn-test{background:#c80;color:#000}
+.btn-ptt{background:#c40;color:#fff}
+.btn-defaults{background:#666;color:#fff}
+.btn-reboot{background:#c00;color:#fff}
+.msg{padding:8px;margin:8px 0;border-radius:4px;display:none}
+.msg-ok{background:#0a52}
+.msg-err{background:#a30}
+a{color:#0ff}

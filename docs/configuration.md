@@ -21,7 +21,7 @@ monitor.
 The beacon hosts a WiFi access point with a captive portal. On boot, look for a
 WiFi network named `FoxBeacon-XXXX` (last 4 hex of MAC address). Connect to it
 from a phone or laptop — the configuration page should auto-open. If it does
-not, browse to `http://192.168.4.1/`.
+not, browse to `http://10.0.0.8/`.
 
 The web UI provides forms for all settings, plus buttons for test transmission,
 PTT test, restore defaults, and reboot. No app or internet connection is needed.

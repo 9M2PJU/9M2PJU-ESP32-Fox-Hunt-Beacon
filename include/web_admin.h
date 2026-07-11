@@ -19,7 +19,7 @@ void webAdminStop();
 // The async web server itself does not need polling.
 void webAdminLoop();
 
-// Returns the AP IP address string (e.g. "192.168.4.1").
+// Returns the AP IP address string (e.g. "10.0.0.8").
 String webAdminGetIp();
 
 // Returns the AP SSID string.

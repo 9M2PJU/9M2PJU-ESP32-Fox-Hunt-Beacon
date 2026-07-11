@@ -36,7 +36,7 @@ behave as expected in the field.
 | Symptom | Check |
 | --- | --- |
 | Cannot find FoxBeacon WiFi | The AP starts on boot (if WiFi AP is enabled). Wait 5-10 seconds after power-on. Check the serial monitor for the AP name and IP. If WiFi AP was turned off from the menu, double-click the button to open settings and turn it back on. The AP may also have auto-off'd after the timeout (default 10 min) — turn it back on the same way or use `set wifi_ap on`. |
-| Captive portal does not auto-open | Browse to `http://192.168.4.1/` manually. Some phones block captive portals. |
+| Captive portal does not auto-open | Browse to `http://10.0.0.8/` manually. Some phones block captive portals. |
 | Page loads but settings do not save | Make sure you clicked Save and wait for the confirmation message. Try rebooting from the web UI. |
 | Web UI is slow or unresponsive | The web server pauses during active transmissions. Try again during an idle period. |
 | Display is blank on a display board | Check that the correct board environment was built. Display pins vary per board. |

@@ -11,7 +11,7 @@ Use this checklist before hiding a beacon for an amateur radio fox hunt.
 - For a finish beacon, set `mode beacon` and confirm the beacon ID interval.
 - Run `show` in Serial Monitor and confirm the saved configuration.
 - Connect to the `FoxBeacon-XXXX` WiFi AP from a phone and verify the web UI
-  loads at `http://192.168.4.1/`. Confirm settings are editable and save.
+  loads at `http://10.0.0.8/`. Confirm settings are editable and save.
 - Verify the AP auto-off timeout is configured (default 10 min). Disconnect from
   the AP and wait for the timeout — confirm the AP disappears. Turn it back on
   via the on-screen menu or `set wifi_ap on`.

@@ -22,7 +22,7 @@ static AsyncWebServer server(80);
 static DNSServer dnsServer;
 static bool running = false;
 static String apSsid;
-static String apIp = "192.168.4.1";
+static String apIp = "10.0.0.8";
 
 static uint32_t lastActivityMs = 0;
 
@@ -196,7 +196,7 @@ static void handleReboot(AsyncWebServerRequest *request) {
 static void handleNotFound(AsyncWebServerRequest *request) {
   markActivity();
   // Captive portal: redirect all unknown URLs to root.
-  request->redirect("http://192.168.4.1/");
+  request->redirect("http://10.0.0.8/");
 }
 
 // --- Public API ---
@@ -209,6 +209,7 @@ void webAdminInit(const char *apNamePrefix) {
   apSsid = String(apNamePrefix) + "-" + macSuffix;
 
   WiFi.mode(WIFI_AP);
+  WiFi.softAPConfig(IPAddress(10, 0, 0, 8), IPAddress(10, 0, 0, 8), IPAddress(255, 255, 255, 0));
   WiFi.softAP(apSsid.c_str());
   apIp = WiFi.softAPIP().toString();
 

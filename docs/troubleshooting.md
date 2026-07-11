@@ -47,7 +47,7 @@ behave as expected in the field.
 | --- | --- |
 | Double-click does not open menu | Make sure two clicks happen within 400ms. Practice the timing — it's a quick double tap. |
 | Menu disappears too quickly | The menu auto-exits after 30 seconds of inactivity. Single-click to reset the timer. |
-| Display is off and won't wake | Eco mode turns the display off after 15s. Single-click the button to wake it. |
+| Display is off and won't wake | Eco mode turns the display off after 15s (with a 10s grace period after boot). Single-click the button to wake it. |
 | Toggled WiFi AP but cannot connect | After toggling WiFi AP on, wait 5-10 seconds for the AP to start. Check serial monitor for the SSID. |
 | Menu shows but items don't toggle | Double-click to toggle (not single click). Single click only moves the cursor. |
 

@@ -185,7 +185,9 @@ The beacon supports three configuration methods:
 3. **Web Admin UI**: WiFi AP with captive portal — connect from a phone or
    laptop to `FoxBeacon-XXXX` and browse to `http://192.168.4.1/`. The AP
    auto-offs after a configurable timeout (default 10 min) of no activity to
-   save power.
+   save power. The web server uses ESPAsyncWebServer for non-blocking request
+   handling, and web assets (HTML/CSS/JS) are gzip-compressed at build time and
+   embedded into firmware flash — no SPIFFS needed.
 
 All three control the same settings. The web UI is the easiest for field use
 since no cable is needed after the first upload.

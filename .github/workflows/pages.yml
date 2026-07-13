@@ -28,6 +28,27 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Download firmware binaries from latest release
+        run: |
+          mkdir -p flasher/firmware
+          # Get the latest release tag
+          LATEST=$(curl -sL https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .tag_name)
+          if [ -z "$LATEST" ] || [ "$LATEST" = "null" ]; then
+            echo "No release found — deploying flasher without firmware binaries"
+            exit 0
+          fi
+          echo "Latest release: $LATEST"
+          # Download all firmware-*.bin assets from the release
+          curl -sL "https://api.github.com/repos/${{ github.repository }}/releases/$LATEST/assets" | \
+            jq -r '.[] | select(.name | startswith("firmware-")) | .browser_download_url' | \
+            while read -r url; do
+              filename=$(basename "$url")
+              echo "Downloading $filename ..."
+              curl -sL -o "flasher/firmware/$filename" "$url"
+            done
+          echo "Downloaded binaries:"
+          ls -la flasher/firmware/
+
       - name: Setup Pages
         uses: actions/configure-pages@v6
 

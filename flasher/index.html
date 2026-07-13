@@ -486,15 +486,136 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
       <p>Before connecting a radio, run <code>ptt_test</code>. Check the PTT output with an LED or multimeter. It should turn on for about 1.2 seconds, then turn off.</p>
 
       <h3 class="subsection">Default Firmware Pins</h3>
+      <p>Pin assignments vary by board family. Find your board in the tables below to get the correct GPIO pins for PTT, audio, status LED, test button, and battery ADC.</p>
+
+      <h4 class="sub-subsection">Generic ESP32 boards</h4>
+      <p>Applies to: ESP32 DevKit, DOIT DevKit V1, WEMOS LOLIN32</p>
       <table>
-        <tr><th>Function</th><th>ESP32 GPIO</th></tr>
+        <tr><th>Function</th><th>GPIO</th></tr>
         <tr><td>PTT control</td><td>25</td></tr>
         <tr><td>Audio tone</td><td>26</td></tr>
         <tr><td>Status LED</td><td>2</td></tr>
         <tr><td>Test button</td><td>0</td></tr>
         <tr><td>Battery ADC</td><td>34</td></tr>
       </table>
-      <p>ESP32-S3 and ESP32-C3 boards use different default pins because those chips expose different ADC and boot-safe pins. Check your board's pinout diagram for the correct pins.</p>
+
+      <h4 class="sub-subsection">Generic ESP32-S3 DevKitC-1</h4>
+      <table>
+        <tr><th>Function</th><th>GPIO</th></tr>
+        <tr><td>PTT control</td><td>25</td></tr>
+        <tr><td>Audio tone</td><td>17</td></tr>
+        <tr><td>Status LED</td><td>2</td></tr>
+        <tr><td>Test button</td><td>0</td></tr>
+        <tr><td>Battery ADC</td><td>4</td></tr>
+      </table>
+
+      <h4 class="sub-subsection">Generic ESP32-C3 DevKitM-1</h4>
+      <table>
+        <tr><th>Function</th><th>GPIO</th></tr>
+        <tr><td>PTT control</td><td>7</td></tr>
+        <tr><td>Audio tone</td><td>5</td></tr>
+        <tr><td>Status LED</td><td>8</td></tr>
+        <tr><td>Test button</td><td>9</td></tr>
+        <tr><td>Battery ADC</td><td>3</td></tr>
+      </table>
+
+      <h4 class="sub-subsection">Heltec classic ESP32 boards (OLED)</h4>
+      <p>Applies to: WiFi Kit 32, WiFi Kit 32 V2, WiFi LoRa 32, WiFi LoRa 32 V2, Wireless Stick, Wireless Stick Lite</p>
+      <table>
+        <tr><th>Function</th><th>GPIO</th></tr>
+        <tr><td>PTT control</td><td>13</td></tr>
+        <tr><td>Audio tone</td><td>17</td></tr>
+        <tr><td>Status LED</td><td>25</td></tr>
+        <tr><td>Test button</td><td>0</td></tr>
+        <tr><td>Battery ADC</td><td>36</td></tr>
+      </table>
+
+      <h4 class="sub-subsection">Heltec ESP32-S3 boards (OLED)</h4>
+      <p>Applies to: WiFi Kit 32 V3, WiFi LoRa 32 V3, Wireless Stick Lite V3</p>
+      <table>
+        <tr><th>Function</th><th>GPIO</th></tr>
+        <tr><td>PTT control</td><td>6</td></tr>
+        <tr><td>Audio tone</td><td>7</td></tr>
+        <tr><td>Status LED</td><td>35</td></tr>
+        <tr><td>Test button</td><td>0</td></tr>
+        <tr><td>Battery ADC</td><td>1</td></tr>
+      </table>
+
+      <h4 class="sub-subsection">Heltec Wireless Tracker (ESP32-S3, TFT)</h4>
+      <table>
+        <tr><th>Function</th><th>GPIO</th></tr>
+        <tr><td>PTT control</td><td>7</td></tr>
+        <tr><td>Audio tone</td><td>6</td></tr>
+        <tr><td>Status LED</td><td>18</td></tr>
+        <tr><td>Test button</td><td>0</td></tr>
+        <tr><td>Battery ADC</td><td>1</td></tr>
+      </table>
+
+      <h4 class="sub-subsection">Heltec Vision Master &amp; Capsule Sensor V3 (ESP32-S3)</h4>
+      <p>Applies to: Vision Master T190 (TFT), Wireless Paper (E-Ink), Vision Master E213 (E-Ink), Vision Master E290 (E-Ink), Capsule Sensor V3 (no display)</p>
+      <table>
+        <tr><th>Function</th><th>GPIO</th></tr>
+        <tr><td>PTT control</td><td>4</td></tr>
+        <tr><td>Audio tone</td><td>3</td></tr>
+        <tr><td>Status LED</td><td>18</td></tr>
+        <tr><td>Test button</td><td>0</td></tr>
+        <tr><td>Battery ADC</td><td>6</td></tr>
+      </table>
+
+      <h4 class="sub-subsection">LilyGO/TTGO classic ESP32 boards</h4>
+      <p>Applies to: T-Display (TFT), T-Watch (TFT), T1, T7 V1.3 Mini32, T7 V1.4 Mini32</p>
+      <table>
+        <tr><th>Function</th><th>GPIO</th></tr>
+        <tr><td>PTT control</td><td>25</td></tr>
+        <tr><td>Audio tone</td><td>26</td></tr>
+        <tr><td>Status LED</td><td>2</td></tr>
+        <tr><td>Test button</td><td>0</td></tr>
+        <tr><td>Battery ADC</td><td>34</td></tr>
+      </table>
+
+      <h4 class="sub-subsection">LilyGO/TTGO LoRa ESP32 boards (OLED)</h4>
+      <p>Applies to: TTGO LoRa32 V1, V2, V2.1.6</p>
+      <table>
+        <tr><th>Function</th><th>GPIO</th></tr>
+        <tr><td>PTT control</td><td>25</td></tr>
+        <tr><td>Audio tone</td><td>13</td></tr>
+        <tr><td>Status LED</td><td>2</td></tr>
+        <tr><td>Test button</td><td>0</td></tr>
+        <tr><td>Battery ADC</td><td>35</td></tr>
+      </table>
+
+      <h4 class="sub-subsection">TTGO T-Beam (OLED)</h4>
+      <table>
+        <tr><th>Function</th><th>GPIO</th></tr>
+        <tr><td>PTT control</td><td>25</td></tr>
+        <tr><td>Audio tone</td><td>13</td></tr>
+        <tr><td>Status LED</td><td>4</td></tr>
+        <tr><td>Test button</td><td>0</td></tr>
+        <tr><td>Battery ADC</td><td>35</td></tr>
+      </table>
+
+      <h4 class="sub-subsection">LilyGO ESP32-S3 boards</h4>
+      <p>Applies to: T-Display S3 (TFT), T3-S3 (no display)</p>
+      <table>
+        <tr><th>Function</th><th>GPIO</th></tr>
+        <tr><td>PTT control</td><td>6</td></tr>
+        <tr><td>Audio tone</td><td>7</td></tr>
+        <tr><td>Status LED</td><td>38</td></tr>
+        <tr><td>Test button</td><td>0</td></tr>
+        <tr><td>Battery ADC</td><td>4</td></tr>
+      </table>
+
+      <h4 class="sub-subsection">TTGO T-OI Plus (ESP32-C3, no display)</h4>
+      <table>
+        <tr><th>Function</th><th>GPIO</th></tr>
+        <tr><td>PTT control</td><td>7</td></tr>
+        <tr><td>Audio tone</td><td>5</td></tr>
+        <tr><td>Status LED</td><td>8</td></tr>
+        <tr><td>Test button</td><td>9</td></tr>
+        <tr><td>Battery ADC</td><td>3</td></tr>
+      </table>
+
+      <div class="callout callout-warning">Always confirm pins against your board's silkscreen and pinout diagram before wiring. Some board revisions reserve pins for displays, LoRa modules, GNSS, battery charging, or power-control circuits.</div>
 
       <h3 class="subsection">First Test</h3>
       <ol>

@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>9M2PJU Fox Hunt Beacon — Web Flasher</title>
+  <link rel="canonical" href="https://fox.hamradio.my/">
+  <meta name="description" content="Browser-based flasher and full documentation for the 9M2PJU ESP32 Fox Hunt Beacon firmware. Flash any of 32 supported ESP32 boards directly from Chrome, Edge, or Opera with no software install.">
+  <style>
+    :root {
+      --bg: #0a1c1c;
+      --card: #0f2127;
+      --card-alt: #1a2e30;
+      --border: #2a4a4d;
+      --text: #c7e2ea;
+      --muted: #7dacbf;
+      --accent: #3b7490;
+      --accent-hover: #4a8da8;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --red: #f85149;
+      --purple: #a371f7;
+      --code-bg: #072239;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .banner {
+      width: 100%;
+      background: linear-gradient(180deg, #1a2e30 0%, #0a1c1c 100%);
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+    .banner img {
+      display: block;
+      width: 100%;
+      max-width: 700px;
+      height: auto;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 1rem;
+    }
+    .banner .tagline {
+      color: var(--muted);
+      font-size: 1rem;
+      padding: 0 1rem 1.5rem;
+    }
+    .container {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+    h2.section-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 2.25rem 0 0.75rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    h3.subsection {
+      font-size: 1.02rem;
+      font-weight: 600;
+      margin: 1.25rem 0 0.5rem;
+      color: var(--text);
+    }
+    h4.sub-subsection {
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin: 1rem 0 0.4rem;
+      color: var(--accent);
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .card p, .card li {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .card p strong, .card li strong { color: var(--text); }
+    .card ul, .card ol {
+      padding-left: 1.25rem;
+      margin: 0.5rem 0;
+    }
+    .card li { margin-bottom: 0.3rem; }
+    .install-section {
+      text-align: center;
+      padding: 1.5rem;
+    }
+    /* Install flow */
+    .board-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.6rem;
+      margin: 1rem 0;
+      text-align: left;
+    }
+    .board-card {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem 0.9rem;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .board-card:hover {
+      border-color: var(--accent);
+      background: rgba(59,116,144,0.06);
+    }
+    .board-card.selected {
+      border-color: var(--accent);
+      background: rgba(59,116,144,0.12);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+    .board-card .bc-name {
+      color: var(--text);
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+    .board-card .bc-chip {
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+    .board-card .bc-tag {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.1rem 0.4rem;
+      border-radius: 8px;
+      display: inline-block;
+      margin-top: 0.2rem;
+      width: fit-content;
+    }
+    .tag-oled { background: rgba(59,116,144,0.15); color: var(--accent); }
+    .tag-tft  { background: rgba(210,153,34,0.15); color: var(--yellow); }
+    .tag-eink { background: rgba(163,113,247,0.15); color: var(--purple); }
+    .tag-none { background: rgba(63,185,80,0.15); color: var(--green); }
+    .board-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 0.75rem 0;
+      justify-content: center;
+    }
+    .filter-btn {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.35rem 0.8rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+    .filter-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #c7e2ea;
+    }
+    .selected-board-bar {
+      display: none;
+      background: rgba(59,116,144,0.08);
+      border: 1px solid rgba(59,116,144,0.3);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+      text-align: center;
+    }
+    .selected-board-bar.show { display: block; }
+    .selected-board-bar .sbb-name {
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    .selected-board-bar .sbb-chip {
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin-bottom: 0.75rem;
+    }
+    .selected-board-bar .clear-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.3rem 0.7rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      margin-left: 0.5rem;
+    }
+    .selected-board-bar .clear-btn:hover { border-color: var(--red); color: var(--red); }
+    .install-section esp-web-install-button {
+      display: inline-block;
+      margin: 0.5rem 0;
+    }
+    .install-btn {
+      display: inline-block;
+      padding: 12px 36px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #c7e2ea;
+      background: var(--accent);
+      border: none;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .install-btn:hover { background: var(--accent-hover); }
+    .install-btn:active { transform: scale(0.98); }
+    .install-prompt {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin: 0.75rem 0 0.25rem;
+    }
+    .browser-warning {
+      display: none;
+      background: #3d2e00;
+      border: 1px solid #6b4f00;
+      color: #ffd33d;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0 0;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+    .browser-warning.show { display: block; }
+    .release-link {
+      display: inline-block;
+      margin-top: 0.5rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+    .release-link:hover { text-decoration: underline; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.85rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th {
+      color: var(--text);
+      font-weight: 600;
+      background: var(--card-alt);
+    }
+    td { color: var(--muted); }
+    td:first-child { color: var(--text); }
+    code {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.1rem 0.35rem;
+      font-size: 0.82rem;
+      color: var(--text);
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      overflow-x: auto;
+      margin: 0.75rem 0;
+    }
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 0.82rem;
+      color: var(--text);
+      white-space: pre;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      margin-left: 0.4rem;
+      vertical-align: middle;
+    }
+    .badge-green { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+    .badge-yellow { background: rgba(210,153,34,0.15); color: var(--yellow); border: 1px solid rgba(210,153,34,0.3); }
+    .badge-blue { background: rgba(59,116,144,0.15); color: var(--accent); border: 1px solid rgba(59,116,144,0.3); }
+    .badge-purple { background: rgba(163,113,247,0.15); color: var(--purple); border: 1px solid rgba(163,113,247,0.3); }
+    .diagram-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+      overflow-x: auto;
+    }
+    .diagram-wrap svg {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-top: 2.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+    .toc {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.85rem 1.25rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+    }
+    .toc .toc-title {
+      color: var(--text);
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+    .toc a {
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-block;
+      margin-right: 0.85rem;
+      margin-bottom: 0.2rem;
+    }
+    .toc a:hover { text-decoration: underline; }
+    .callout {
+      background: rgba(59,116,144,0.08);
+      border-left: 3px solid var(--accent);
+      padding: 0.75rem 1rem;
+      border-radius: 0 6px 6px 0;
+      margin: 0.75rem 0;
+      font-size: 0.88rem;
+      color: var(--text);
+    }
+    .callout-warning {
+      background: rgba(248,81,73,0.08);
+      border-left-color: var(--red);
+    }
+    .callout-info {
+      background: rgba(163,113,247,0.08);
+      border-left-color: var(--purple);
+    }
+    @media (max-width: 600px) {
+      .banner img { padding: 1rem 0.5rem 0.5rem; }
+      .container { padding: 1rem 0.75rem 2rem; }
+      .card { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Banner -->
+  <div class="banner">
+    <img src="logo.png" alt="9M2PJU Fox Hunt Beacon">
+    <div class="tagline">ESP32 firmware for amateur radio fox hunting &middot; Flash directly from your browser</div>
+  </div>
+
+  <div class="container">
+
+    <!-- TOC -->
+    <nav class="toc">
+      <div class="toc-title">On this page</div>
+      <a href="#install">Install</a>
+      <a href="#prereq">Prerequisites</a>
+      <a href="#wiring">Wiring Diagram</a>
+    </nav>
+
+    <!-- Install -->
+    <h2 class="section-title" id="install">Install Firmware</h2>
+    <div class="card install-section">
+      <p><strong>Step 1:</strong> Select your ESP32 board from the list below.</p>
+      <p><strong>Step 2:</strong> Click <em>Install Firmware</em> and connect your board via USB when prompted.</p>
+
+      <div class="board-filter" id="board-filter">
+        <button class="filter-btn active" data-filter="all">All (32)</button>
+        <button class="filter-btn" data-filter="none">No display</button>
+        <button class="filter-btn" data-filter="oled">OLED</button>
+        <button class="filter-btn" data-filter="tft">TFT</button>
+        <button class="filter-btn" data-filter="eink">E-Ink</button>
+      </div>
+
+      <div class="board-grid" id="board-grid"></div>
+
+      <div id="selected-board-bar" class="selected-board-bar">
+        <div class="sbb-name" id="sbb-name"></div>
+        <div class="sbb-chip" id="sbb-chip"></div>
+        <esp-web-install-button id="ewt-button">
+          <button slot="activate" class="install-btn">Install Firmware</button>
+          <span slot="unsupported">
+            <div class="browser-warning show">
+              <strong>Browser not supported.</strong> This web flasher requires a
+              Chromium-based browser with Web Serial support (Google Chrome,
+              Microsoft Edge, or Opera). Firefox and Safari are not supported.
+              Please switch to a supported browser to install firmware.
+            </div>
+          </span>
+          <span slot="not-allowed">
+            <div class="browser-warning show">
+              <strong>HTTPS required.</strong> The web flasher needs a secure
+              (HTTPS) context to access Web Serial. If testing locally, use
+              <code>http://localhost</code> or <code>http://127.0.0.1</code>.
+            </div>
+          </span>
+        </esp-web-install-button>
+        <button class="clear-btn" id="clear-selection">Change board</button>
+      </div>
+
+      <div id="no-selection-prompt" class="install-prompt">
+        Select a board above to begin installation.
+      </div>
+
+      <div id="browser-warning-fallback" class="browser-warning">
+        <strong>Browser not supported.</strong> This web flasher requires a
+        Chromium-based browser with Web Serial support (Google Chrome,
+        Microsoft Edge, or Opera). Firefox and Safari are not supported.
+        Please switch to a supported browser to install firmware.
+      </div>
+
+      <div>
+        <a class="release-link" href="#prereq">
+          New to web flashing? See the prerequisites above &rarr;
+        </a>
+      </div>
+    </div>
+
+    <!-- Prerequisites -->
+    <h2 class="section-title" id="prereq">Prerequisites</h2>
+    <div class="card">
+      <ul>
+        <li><strong>USB cable with data lines</strong> — many cheap cables are charge-only. Use one that supports data.</li>
+        <li><strong>Chrome, Edge, or Opera</strong> browser (Web Serial API required). Firefox and Safari do not support Web Serial.</li>
+        <li><strong>ESP32 board in bootloader mode</strong> if it does not auto-reset: hold <code>BOOT</code>, tap <code>EN/RST</code>, release <code>BOOT</code>.</li>
+        <li><strong>USB drivers</strong> for your board's USB-UART bridge: CP2102 (Silicon Labs), CH340 (WCH), or FT232 depending on the board.</li>
+        <li><strong>3.3 V logic</strong> only on ESP32 GPIO pins. Do not drive pins above 3.3 V.</li>
+      </ul>
+    </div>
+
+    <!-- Wiring Diagram -->
+    <h2 class="section-title" id="wiring">Wiring Diagram</h2>
+    <div class="card">
+      <p>This firmware is designed for cheap handheld radios that expose microphone, ground, and push-to-talk wiring through an accessory connector. Many low-cost radios use a Kenwood-style two-pin connector, but pinouts still vary. <strong>Confirm the radio pinout before wiring.</strong></p>
+
+      <div class="diagram-wrap">
+        <img src="wiring-diagram.svg" alt="ESP32 to handheld radio wiring diagram" style="width:100%;max-width:900px;height:auto;">
+      </div>
+
+      <h3 class="subsection">Recommended Interface</h3>
+      <p>Use isolation or transistor switching. Do not connect an ESP32 GPIO directly to a radio PTT line until you know the radio voltage and current.</p>
+      <pre><code>ESP32 GPIO 25 ---- resistor ---- NPN base
+NPN emitter -------------------- radio/accessory ground
+NPN collector ------------------ radio PTT line
+
+ESP32 GPIO 26 ---- RC filter ---- coupling capacitor ---- level pot ---- radio mic input
+ESP32 GND ----------------------------------------------- radio/accessory ground</code></pre>
+      <p>For better protection, replace the NPN PTT switch with an optocoupler. This is especially useful if the radio accessory ground is noisy or if the radio is powered from a different battery.</p>
+
+      <h3 class="subsection">Audio Level</h3>
+      <p>Start with the ESP32 audio level very low. Handheld microphone inputs are sensitive and will over-deviate easily.</p>
+      <pre><code>GPIO 26 -> 1 k resistor -> 100 nF capacitor to ground -> 1 uF coupling capacitor -> 10 k trimpot -> mic input</code></pre>
+      <p>Set the radio volume low while testing. Listen on a second receiver and adjust the trimpot until the CW and tone are clean but not distorted.</p>
+
+      <h3 class="subsection">PTT Notes</h3>
+      <p>Most simple handhelds transmit when the radio PTT line is shorted to radio ground. With the recommended NPN transistor wiring above, the ESP32 GPIO goes HIGH, the transistor turns on, and the radio PTT line is pulled to ground. That means the firmware should use <code>active_high</code>, which is the default.</p>
+      <pre><code>set ptt active_high    (recommended NPN/MOSFET/opto driver)
+set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
+      <p>Before connecting a radio, run <code>ptt_test</code>. Check the PTT output with an LED or multimeter. It should turn on for about 1.2 seconds, then turn off.</p>
+
+      <h3 class="subsection">Default Firmware Pins</h3>
+      <table>
+        <tr><th>Function</th><th>ESP32 GPIO</th></tr>
+        <tr><td>PTT control</td><td>25</td></tr>
+        <tr><td>Audio tone</td><td>26</td></tr>
+        <tr><td>Status LED</td><td>2</td></tr>
+        <tr><td>Test button</td><td>0</td></tr>
+        <tr><td>Battery ADC</td><td>34</td></tr>
+      </table>
+      <p>ESP32-S3 and ESP32-C3 boards use different default pins because those chips expose different ADC and boot-safe pins. Check your board's pinout diagram for the correct pins.</p>
+
+      <h3 class="subsection">First Test</h3>
+      <ol>
+        <li>Flash the firmware using the web flasher above.</li>
+        <li>Connect only an LED or multimeter to the PTT output first.</li>
+        <li>Open the serial monitor at 115200 baud.</li>
+        <li>Type <code>ptt_test</code>.</li>
+        <li>Confirm that PTT switching works and releases reliably.</li>
+        <li>Connect the PTT interface to the radio.</li>
+        <li>Type <code>test</code> and confirm that audio output works.</li>
+        <li>Test into a dummy load or at the lowest practical power.</li>
+        <li>Connect audio only after the PTT switching is reliable.</li>
+      </ol>
+
+      <h3 class="subsection">Cheap Radio Caveats</h3>
+      <ul>
+        <li>Some radios combine mic bias, PTT, and audio in ways that need extra resistors.</li>
+        <li>Some speaker-mic cables use non-obvious wire colors.</li>
+        <li>Some radios produce RF noise that can reset a nearby ESP32. Keep wires short, add decoupling, and use a separate enclosure ground plan if needed.</li>
+        <li>VOX can work for tests, but wired PTT is more predictable for a beacon.</li>
+      </ul>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      9M2PJU Fox Hunt Beacon &middot; Firmware v1.1.0 &middot; GPLv3-or-later
+      <div style="margin-top:0.4rem;">Amateur radio fox hunting beacon firmware for ESP32</div>
+    </div>
+
+  </div>
+
+  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+  <script>
+    // Board database — all 32 build environments.
+    // tag: none=web admin only, oled=OLED 128x64, tft=TFT, eink=E-Ink
+    const BOARDS = [
+      // Generic
+      { env: "esp32dev",              name: "ESP32 DevKit",          chip: "ESP32",     tag: "none" },
+      { env: "esp32doit-devkit-v1",   name: "DOIT DevKit V1",        chip: "ESP32",     tag: "none" },
+      { env: "lolin32",               name: "WEMOS LOLIN32",         chip: "ESP32",     tag: "none" },
+      { env: "esp32-s3-devkitc-1",    name: "ESP32-S3 DevKitC-1",    chip: "ESP32-S3",  tag: "none" },
+      { env: "esp32-c3-devkitm-1",    name: "ESP32-C3 DevKitM-1",    chip: "ESP32-C3",  tag: "none" },
+      // Heltec OLED
+      { env: "heltec-wifi-kit-32",        name: "Heltec WiFi Kit 32",        chip: "ESP32",    tag: "oled" },
+      { env: "heltec-wifi-kit-32-v2",     name: "Heltec WiFi Kit 32 V2",     chip: "ESP32",    tag: "oled" },
+      { env: "heltec-wifi-kit-32-v3",     name: "Heltec WiFi Kit 32 V3",     chip: "ESP32-S3", tag: "oled" },
+      { env: "heltec-wifi-lora-32",       name: "Heltec WiFi LoRa 32",       chip: "ESP32",    tag: "oled" },
+      { env: "heltec-wifi-lora-32-v2",    name: "Heltec WiFi LoRa 32 V2",    chip: "ESP32",    tag: "oled" },
+      { env: "heltec-wifi-lora-32-v3",    name: "Heltec WiFi LoRa 32 V3",    chip: "ESP32-S3", tag: "oled" },
+      { env: "heltec-wireless-stick",     name: "Heltec Wireless Stick",     chip: "ESP32",    tag: "oled" },
+      { env: "heltec-wireless-stick-lite",name: "Heltec Wireless Stick Lite",chip: "ESP32",    tag: "oled" },
+      { env: "heltec-wireless-stick-lite-v3", name: "Heltec WS Stick Lite V3", chip: "ESP32-S3", tag: "oled" },
+      // Heltec TFT
+      { env: "heltec-wireless-tracker",   name: "Heltec Wireless Tracker",   chip: "ESP32-S3", tag: "tft" },
+      { env: "heltec-vision-master-t190", name: "Heltec Vision Master T190", chip: "ESP32-S3", tag: "tft" },
+      // Heltec E-Ink
+      { env: "heltec-wireless-paper",     name: "Heltec Wireless Paper",     chip: "ESP32-S3", tag: "eink" },
+      { env: "heltec-vision-master-e213", name: "Heltec Vision Master E213", chip: "ESP32-S3", tag: "eink" },
+      { env: "heltec-vision-master-e290", name: "Heltec Vision Master E290", chip: "ESP32-S3", tag: "eink" },
+      // Heltec no-display
+      { env: "heltec-capsule-sensor-v3",  name: "Heltec Capsule Sensor V3",  chip: "ESP32-S3", tag: "none" },
+      // LilyGO/TTGO OLED
+      { env: "ttgo-lora32-v1",        name: "TTGO LoRa32 V1",        chip: "ESP32",    tag: "oled" },
+      { env: "ttgo-lora32-v2",        name: "TTGO LoRa32 V2",        chip: "ESP32",    tag: "oled" },
+      { env: "ttgo-lora32-v21",       name: "TTGO LoRa32 V2.1.6",    chip: "ESP32",    tag: "oled" },
+      { env: "ttgo-t-beam",           name: "TTGO T-Beam",           chip: "ESP32",    tag: "oled" },
+      // LilyGO/TTGO TFT
+      { env: "lilygo-t-display",      name: "LilyGO T-Display",      chip: "ESP32",    tag: "tft" },
+      { env: "lilygo-t-display-s3",   name: "LilyGO T-Display S3",   chip: "ESP32-S3", tag: "tft" },
+      { env: "ttgo-t-watch",          name: "TTGO T-Watch",          chip: "ESP32",    tag: "tft" },
+      // LilyGO/TTGO no-display
+      { env: "lilygo-t3-s3",          name: "LilyGO T3 S3",          chip: "ESP32-S3", tag: "none" },
+      { env: "ttgo-t-oi-plus",        name: "TTGO T-OI Plus",        chip: "ESP32-C3", tag: "none" },
+      { env: "ttgo-t1",               name: "TTGO T1",               chip: "ESP32",    tag: "none" },
+      { env: "ttgo-t7-v13-mini32",    name: "TTGO T7 V1.3 Mini32",   chip: "ESP32",    tag: "none" },
+      { env: "ttgo-t7-v14-mini32",    name: "TTGO T7 V1.4 Mini32",   chip: "ESP32",    tag: "none" },
+    ];
+
+    const TAG_LABELS = { none: "No display", oled: "OLED 128x64", tft: "TFT", eink: "E-Ink" };
+    const RELEASE_BASE = "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-";
+
+    var selectedBoard = null;
+    var currentFilter = "all";
+
+    function renderBoards() {
+      var grid = document.getElementById("board-grid");
+      if (!grid) return;
+      grid.innerHTML = "";
+      BOARDS.forEach(function (b) {
+        if (currentFilter !== "all" && b.tag !== currentFilter) return;
+        var card = document.createElement("div");
+        card.className = "board-card";
+        if (selectedBoard && selectedBoard.env === b.env) card.classList.add("selected");
+        card.dataset.env = b.env;
+        card.innerHTML =
+          '<div class="bc-name">' + b.name + '</div>' +
+          '<div class="bc-chip">' + b.chip + '</div>' +
+          '<span class="bc-tag tag-' + b.tag + '">' + TAG_LABELS[b.tag] + '</span>';
+        card.addEventListener("click", function () { selectBoard(b); });
+        grid.appendChild(card);
+      });
+    }
+
+    function selectBoard(b) {
+      selectedBoard = b;
+      // Update card highlight
+      document.querySelectorAll(".board-card").forEach(function (c) {
+        c.classList.toggle("selected", c.dataset.env === b.env);
+      });
+      // Show selected bar
+      var bar = document.getElementById("selected-board-bar");
+      var prompt = document.getElementById("no-selection-prompt");
+      document.getElementById("sbb-name").textContent = b.name;
+      document.getElementById("sbb-chip").textContent = b.chip + " · " + TAG_LABELS[b.tag];
+      bar.classList.add("show");
+      if (prompt) prompt.style.display = "none";
+      // Build dynamic manifest with only the selected board
+      var manifest = {
+        name: "9M2PJU Fox Hunt Beacon",
+        version: "latest",
+        new_install_prompt_erase: true,
+        builds: [
+          {
+            chipFamily: b.chip,
+            name: b.name,
+            parts: [
+              { path: RELEASE_BASE + b.env + ".bin", offset: 0 }
+            ]
+          }
+        ]
+      };
+      var blob = new Blob([JSON.stringify(manifest)], { type: "application/json" });
+      var url = URL.createObjectURL(blob);
+      var ewt = document.getElementById("ewt-button");
+      if (ewt) ewt.manifest = url;
+      // Scroll the selected bar into view
+      bar.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function clearSelection() {
+      selectedBoard = null;
+      document.querySelectorAll(".board-card").forEach(function (c) {
+        c.classList.remove("selected");
+      });
+      var bar = document.getElementById("selected-board-bar");
+      var prompt = document.getElementById("no-selection-prompt");
+      bar.classList.remove("show");
+      if (prompt) prompt.style.display = "block";
+    }
+
+    // Filter buttons
+    document.getElementById("board-filter").addEventListener("click", function (e) {
+      if (!e.target.classList.contains("filter-btn")) return;
+      document.querySelectorAll(".filter-btn").forEach(function (b) {
+        b.classList.remove("active");
+      });
+      e.target.classList.add("active");
+      currentFilter = e.target.dataset.filter;
+      renderBoards();
+    });
+
+    // Clear button
+    document.getElementById("clear-selection").addEventListener("click", clearSelection);
+
+    // Initial render
+    renderBoards();
+
+    // Show browser warning fallback if no Web Serial
+    (function () {
+      if (!('serial' in navigator)) {
+        var w = document.getElementById("browser-warning-fallback");
+        if (w) w.classList.add("show");
+      }
+    })();
+  </script>
+</body>
+</html>

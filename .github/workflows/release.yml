@@ -1,0 +1,125 @@
+name: Release Firmware
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag name to publish (must already exist as a git tag)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.env }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        env:
+          # Generic ESP32 boards
+          - esp32dev
+          - esp32doit-devkit-v1
+          - lolin32
+          - esp32-s3-devkitc-1
+          - esp32-c3-devkitm-1
+          # Heltec OLED boards
+          - heltec-wifi-kit-32
+          - heltec-wifi-kit-32-v2
+          - heltec-wifi-kit-32-v3
+          - heltec-wifi-lora-32
+          - heltec-wifi-lora-32-v2
+          - heltec-wifi-lora-32-v3
+          - heltec-wireless-stick
+          - heltec-wireless-stick-lite
+          - heltec-wireless-stick-lite-v3
+          # Heltec TFT boards
+          - heltec-wireless-tracker
+          - heltec-vision-master-t190
+          # Heltec E-Ink boards
+          - heltec-wireless-paper
+          - heltec-vision-master-e213
+          - heltec-vision-master-e290
+          # Heltec no-display boards
+          - heltec-capsule-sensor-v3
+          # LilyGO / TTGO OLED boards
+          - ttgo-lora32-v1
+          - ttgo-lora32-v2
+          - ttgo-lora32-v21
+          - ttgo-t-beam
+          # LilyGO / TTGO TFT boards
+          - lilygo-t-display
+          - lilygo-t-display-s3
+          - ttgo-t-watch
+          # LilyGO / TTGO no-display boards
+          - lilygo-t3-s3
+          - ttgo-t-oi-plus
+          - ttgo-t1
+          - ttgo-t7-v13-mini32
+          - ttgo-t7-v14-mini32
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      - name: Install PlatformIO
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade platformio
+
+      - name: Build ${{ matrix.env }}
+        run: pio run -e ${{ matrix.env }}
+
+      - name: Rename firmware artifact
+        run: |
+          mkdir -p release
+          cp .pio/build/${{ matrix.env }}/firmware.bin release/firmware-${{ matrix.env }}.bin
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: firmware-${{ matrix.env }}
+          path: release/firmware-${{ matrix.env }}.bin
+          if-no-files-found: error
+          retention-days: 1
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Determine tag
+        id: tag
+        run: |
+          if [ -n "${{ github.event.inputs.tag }}" ]; then
+            echo "name=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download all firmware artifacts
+        uses: actions/download-artifact@v6
+        with:
+          path: release
+          pattern: firmware-*
+          merge-multiple: true
+
+      - name: List downloaded artifacts
+        run: ls -la release/
+
+      - name: Create or update release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.name }}
+          name: ${{ steps.tag.outputs.name }}
+          generate_release_notes: true
+          files: release/firmware-*.bin

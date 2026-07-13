@@ -1,0 +1,231 @@
+{
+  "name": "9M2PJU Fox Hunt Beacon",
+  "version": "latest",
+  "new_install_prompt_erase": true,
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "name": "Generic ESP32 DevKit",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-esp32dev.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "ESP32 DOIT DevKit V1",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-esp32doit-devkit-v1.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "WEMOS LOLIN32",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-lolin32.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-S3",
+      "name": "Generic ESP32-S3 DevKitC-1",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-esp32-s3-devkitc-1.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-C3",
+      "name": "Generic ESP32-C3 DevKitM-1",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-esp32-c3-devkitm-1.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "Heltec WiFi Kit 32 (OLED)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-heltec-wifi-kit-32.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "Heltec WiFi Kit 32 V2 (OLED)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-heltec-wifi-kit-32-v2.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-S3",
+      "name": "Heltec WiFi Kit 32 V3 (OLED)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-heltec-wifi-kit-32-v3.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "Heltec WiFi LoRa 32 (OLED)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-heltec-wifi-lora-32.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "Heltec WiFi LoRa 32 V2 (OLED)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-heltec-wifi-lora-32-v2.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-S3",
+      "name": "Heltec WiFi LoRa 32 V3 (OLED)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-heltec-wifi-lora-32-v3.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "Heltec Wireless Stick (OLED)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-heltec-wireless-stick.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "Heltec Wireless Stick Lite (OLED)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-heltec-wireless-stick-lite.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-S3",
+      "name": "Heltec Wireless Stick Lite V3 (OLED)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-heltec-wireless-stick-lite-v3.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-S3",
+      "name": "Heltec Wireless Tracker (TFT 160x80)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-heltec-wireless-tracker.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-S3",
+      "name": "Heltec Vision Master T190 (TFT 170x320)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-heltec-vision-master-t190.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-S3",
+      "name": "Heltec Wireless Paper (E-Ink 250x122)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-heltec-wireless-paper.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-S3",
+      "name": "Heltec Vision Master E213 (E-Ink 250x122)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-heltec-vision-master-e213.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-S3",
+      "name": "Heltec Vision Master E290 (E-Ink 296x128)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-heltec-vision-master-e290.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-S3",
+      "name": "Heltec Capsule Sensor V3 (no display)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-heltec-capsule-sensor-v3.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "TTGO LoRa32 V1 (OLED)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-ttgo-lora32-v1.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "TTGO LoRa32 V2 (OLED)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-ttgo-lora32-v2.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "TTGO LoRa32 V2.1.6 (OLED)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-ttgo-lora32-v21.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "TTGO T-Beam (OLED)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-ttgo-t-beam.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "LilyGO T-Display (TFT 135x240)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-lilygo-t-display.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-S3",
+      "name": "LilyGO T-Display S3 (TFT 170x320)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-lilygo-t-display-s3.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "TTGO T-Watch (TFT 240x240)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-ttgo-t-watch.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-S3",
+      "name": "LilyGO T3 S3 (no display)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-lilygo-t3-s3.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-C3",
+      "name": "TTGO T-OI Plus (no display)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-ttgo-t-oi-plus.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "TTGO T1 (no display)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-ttgo-t1.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "TTGO T7 V1.3 Mini32 (no display)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-ttgo-t7-v13-mini32.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "name": "TTGO T7 V1.4 Mini32 (no display)",
+      "parts": [
+        { "path": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon/releases/latest/download/firmware-ttgo-t7-v14-mini32.bin", "offset": 0 }
+      ]
+    }
+  ]
+}

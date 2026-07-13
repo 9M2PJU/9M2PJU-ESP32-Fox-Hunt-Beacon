@@ -9,9 +9,33 @@ walkie-talkies. The ESP32 handles timing, identification, audio tones,
 configuration, battery monitoring, and push-to-talk control. The walkie-talkie
 generates the actual RF signal.
 
-The first firmware version is built with PlatformIO and the Arduino framework
-for ESP32 boards. It is designed to key a handheld radio through a simple PTT
-interface and feed CW or warble tone into the radio microphone input.
+The firmware is built with PlatformIO and the Arduino framework for ESP32
+boards. It is designed to key a handheld radio through a simple PTT interface
+and feed CW or warble tone into the radio microphone input.
+
+## Flash The Firmware
+
+Install the firmware directly from your browser — no software install, no
+build tools, no command line.
+
+**Web Flasher: <https://fox.hamradio.my>**
+
+Requirements:
+
+- Google Chrome, Microsoft Edge, or Opera (Web Serial API required).
+  Firefox and Safari are not supported.
+- USB cable with data lines (many cheap cables are charge-only).
+- USB-UART driver for your board (CP2102, CH340, or FT232 depending on board).
+
+Open the web flasher, select your board from the list, click **Install
+Firmware**, and connect your board via USB when prompted. The flasher downloads
+the correct prebuilt firmware for your board and writes it to the ESP32 over
+USB through the browser.
+
+After flashing, the board boots into WiFi AP mode. Connect to the
+`9M2PJU-Fox-XXXX` WiFi network from a phone or laptop and browse to
+`http://10.0.0.8/` to configure callsign, fox ID, timing, PTT, audio, and
+other settings.
 
 ## Documentation
 
@@ -23,26 +47,24 @@ polarity, audio level, and local radio-rule setup.
 Recommended reading order:
 
 1. [Understanding The Beacon](docs/understanding.md)
-2. [Installation And Upload](docs/installation.md)
-3. [Configuration Guide](docs/configuration.md)
-4. [Heltec Board Support](docs/heltec-boards.md)
-5. [LilyGO Board Support](docs/lilygo-boards.md)
-6. [Wiring Guide](docs/wiring.md)
-7. [Field Checklist](docs/field-checklist.md)
-8. [Troubleshooting](docs/troubleshooting.md)
+2. [Configuration Guide](docs/configuration.md)
+3. [Heltec Board Support](docs/heltec-boards.md)
+4. [LilyGO Board Support](docs/lilygo-boards.md)
+5. [Wiring Guide](docs/wiring.md)
+6. [Field Checklist](docs/field-checklist.md)
+7. [Troubleshooting](docs/troubleshooting.md)
 
 Quick guide map:
 
 | Guide | Use it for |
 | --- | --- |
 | [Understanding The Beacon](docs/understanding.md) | ARDF basics, what the beacon sends, and how the ESP32/radio parts work together. |
-| [Installation And Upload](docs/installation.md) | Using VS Code or PlatformIO CLI to choose a board, configure, build, upload, and run the first bench test. |
 | [Configuration Guide](docs/configuration.md) | Callsign, ARDF fox IDs, timing, warble, PTT, battery, and Serial Monitor commands. |
-| [Heltec Board Support](docs/heltec-boards.md) | PlatformIO environments and pin notes for popular Heltec ESP32 boards. |
-| [LilyGO Board Support](docs/lilygo-boards.md) | PlatformIO environments and pin notes for popular LilyGO and TTGO ESP32 boards. |
+| [Heltec Board Support](docs/heltec-boards.md) | Pin notes for popular Heltec ESP32 boards. |
+| [LilyGO Board Support](docs/lilygo-boards.md) | Pin notes for popular LilyGO and TTGO ESP32 boards. |
 | [Wiring Guide](docs/wiring.md) | PTT/audio interface notes for cheap handheld radios. |
 | [Field Checklist](docs/field-checklist.md) | Pre-hunt bench checks, radio setup, power setup, deployment, and recovery. |
-| [Troubleshooting](docs/troubleshooting.md) | Build, upload, serial, PTT, audio, battery, timing, and RF problems. |
+| [Troubleshooting](docs/troubleshooting.md) | Flashing, serial, PTT, audio, battery, timing, and RF problems. |
 
 ## Can This Be Made With ESP32 Boards?
 
@@ -82,7 +104,6 @@ requirements, power limits, and event safety rules.
 
 ## Firmware Features
 
-- PlatformIO project for common ESP32 boards.
 - Configurable callsign and fox ID stored in ESP32 flash.
 - IARU standard 5-fox timing defaults (60 s TX, 240 s idle, 300 s cycle).
 - Fox-slot synchronization: auto-derive startup delay from fox ID for round-robin.
@@ -94,10 +115,10 @@ requirements, power limits, and event safety rules.
 - Optional battery voltage measurement using a resistor divider.
 - Status LED patterns for idle, transmit, and low battery.
 - Test button for immediate transmission.
-- Compile-time configuration file for default beacon behavior.
 - Serial monitor configuration at 115200 baud.
 - Web admin UI: WiFi AP with captive portal for phone/laptop configuration.
-- On-screen status display for boards with OLED or TFT screens.
+- On-screen status display for boards with OLED, TFT, or E-Ink screens.
+- Display eco mode (auto-off after 15 s) for battery saving.
 
 Planned later features:
 
@@ -107,61 +128,41 @@ Planned later features:
 
 ## Supported ESP32 Boards
 
-The design should work with most 3.3 V ESP32 development boards that expose
-GPIO pins, ADC input, and USB programming.
+The firmware supports 32 ESP32 board environments, all available through the
+web flasher at <https://fox.hamradio.my>.
 
-Recommended boards:
-
-| Board | Status | Notes |
+| Board | Chip | Display |
 | --- | --- | --- |
-| ESP32 DevKit v1 / DOIT ESP32 DevKit | Recommended | Cheap, common, many GPIO pins, easy for prototypes. |
-| Espressif ESP32-DevKitC | Recommended | Reliable reference-style development board. |
-| ESP32-WROOM-32 boards | Recommended | Good default module family for this project. |
-| ESP32-WROVER boards | Supported | Extra PSRAM is not required, but the board should work. |
-| ESP32-S3 DevKit boards | Supported | Good modern option; pin mapping may differ. |
-| ESP32-C3 boards | Limited | Usable for a simple beacon, but fewer GPIO pins and only one core. |
-| TTGO / LilyGO ESP32 boards | Supported | T-Display, T3-S3, LoRa32, T-Beam, T-Watch, T1, T7, and T-OI Plus build targets. See [docs/lilygo-boards.md](docs/lilygo-boards.md). |
-| Heltec ESP32 boards | Supported | WiFi Kit, WiFi LoRa 32, Wireless Stick, Wireless Stick Lite, and a Wireless Tracker compatibility build. See [docs/heltec-boards.md](docs/heltec-boards.md). |
-| ESP32 LoRa boards | Conditional | Good for non-amateur LoRa experiments, but LoRa is not a normal VHF FM fox hunt transmitter. |
+| Generic ESP32 DevKit | ESP32 | No display |
+| ESP32 DOIT DevKit V1 | ESP32 | No display |
+| WEMOS LOLIN32 | ESP32 | No display |
+| Generic ESP32-S3 DevKitC-1 | ESP32-S3 | No display |
+| Generic ESP32-C3 DevKitM-1 | ESP32-C3 | No display |
+| Heltec WiFi Kit 32 (V1/V2/V3) | ESP32 / S3 | OLED 128x64 |
+| Heltec WiFi LoRa 32 (V1/V2/V3) | ESP32 / S3 | OLED 128x64 |
+| Heltec Wireless Stick | ESP32 | OLED 128x64 |
+| Heltec Wireless Stick Lite | ESP32 | OLED 128x64 |
+| Heltec Wireless Stick Lite V3 | ESP32-S3 | OLED 128x64 |
+| Heltec Wireless Tracker | ESP32-S3 | TFT 160x80 |
+| Heltec Vision Master T190 | ESP32-S3 | TFT 170x320 |
+| Heltec Wireless Paper | ESP32-S3 | E-Ink 250x122 |
+| Heltec Vision Master E213 | ESP32-S3 | E-Ink 250x122 |
+| Heltec Vision Master E290 | ESP32-S3 | E-Ink 296x128 |
+| Heltec Capsule Sensor V3 | ESP32-S3 | No display |
+| LilyGO T-Display | ESP32 | TFT 135x240 |
+| LilyGO T-Display S3 | ESP32-S3 | TFT 170x320 |
+| LilyGO T3-S3 | ESP32-S3 | No display |
+| TTGO LoRa32 V1 | ESP32 | OLED 128x64 |
+| TTGO LoRa32 V2 | ESP32 | OLED 128x64 |
+| TTGO LoRa32 V2.1.6 | ESP32 | OLED 128x64 |
+| TTGO T-Beam | ESP32 | OLED 128x64 |
+| TTGO T-OI Plus | ESP32-C3 | No display |
+| TTGO T-Watch | ESP32 | TFT 240x240 |
+| TTGO T1 | ESP32 | No display |
+| TTGO T7 V1.3 Mini32 | ESP32 | No display |
+| TTGO T7 V1.4 Mini32 | ESP32 | No display |
 
-Tested PlatformIO build environments:
-
-| Environment | Target board |
-| --- | --- |
-| `esp32dev` | Generic ESP32 Dev Module |
-| `esp32doit-devkit-v1` | DOIT ESP32 DevKit v1 |
-| `lolin32` | WEMOS LOLIN32 |
-| `esp32-s3-devkitc-1` | ESP32-S3-DevKitC-1 |
-| `esp32-c3-devkitm-1` | ESP32-C3-DevKitM-1 |
-| `heltec-wifi-kit-32` | Heltec WiFi Kit 32 |
-| `heltec-wifi-kit-32-v2` | Heltec WiFi Kit 32 V2 |
-| `heltec-wifi-kit-32-v3` | Heltec WiFi Kit 32 V3 |
-| `heltec-wifi-lora-32` | Heltec WiFi LoRa 32 |
-| `heltec-wifi-lora-32-v2` | Heltec WiFi LoRa 32 V2 |
-| `heltec-wifi-lora-32-v3` | Heltec WiFi LoRa 32 V3 |
-| `heltec-wireless-stick` | Heltec Wireless Stick |
-| `heltec-wireless-stick-lite` | Heltec Wireless Stick Lite |
-| `heltec-wireless-stick-lite-v3` | Heltec Wireless Stick Lite V3 compatibility build |
-| `heltec-wireless-tracker` | Heltec Wireless Tracker (TFT, compatibility build) |
-| `heltec-vision-master-t190` | Heltec Vision Master T190 (TFT, compatibility build) |
-| `heltec-wireless-paper` | Heltec Wireless Paper (E-Ink, compatibility build) |
-| `heltec-vision-master-e213` | Heltec Vision Master E213 (E-Ink, compatibility build) |
-| `heltec-vision-master-e290` | Heltec Vision Master E290 (E-Ink, compatibility build) |
-| `heltec-capsule-sensor-v3` | Heltec Capsule Sensor V3 (no display, compatibility build) |
-| `lilygo-t-display` | LilyGO T-Display |
-| `lilygo-t-display-s3` | LilyGO T-Display S3 |
-| `lilygo-t3-s3` | LilyGO T3-S3 |
-| `ttgo-lora32-v1` | TTGO LoRa32 OLED V1 |
-| `ttgo-lora32-v2` | TTGO LoRa32 OLED V2 |
-| `ttgo-lora32-v21` | TTGO LoRa32 OLED v2.1.6 |
-| `ttgo-t-beam` | TTGO T-Beam |
-| `ttgo-t-oi-plus` | TTGO T-OI Plus ESP32-C3 |
-| `ttgo-t-watch` | TTGO T-Watch |
-| `ttgo-t1` | TTGO T1 |
-| `ttgo-t7-v13-mini32` | TTGO T7 V1.3 Mini32 |
-| `ttgo-t7-v14-mini32` | TTGO T7 V1.4 Mini32 |
-
-Boards to avoid for the first version:
+Boards to avoid:
 
 - Boards without exposed GPIO pins.
 - 5 V-only boards or accessories that drive ESP32 pins above 3.3 V.
@@ -173,7 +174,7 @@ Boards to avoid for the first version:
 
 ### Option A: ESP32 + Cheap Walkie-Talkie
 
-This is the main target for the current firmware.
+This is the main target for the firmware.
 
 Typical parts:
 
@@ -199,8 +200,8 @@ See [docs/wiring.md](docs/wiring.md) for wiring notes.
 
 ### Option B: ESP32 + VHF FM Transmitter Module
 
-This is a possible standalone beacon design, but the current firmware is tuned
-first for handheld radios.
+This is a possible standalone beacon design, but the firmware is tuned first
+for handheld radios.
 
 Typical parts:
 
@@ -271,216 +272,45 @@ With fox sync enabled, fox 2 (MOI) starts at 01:00, fox 3 (MOS) at 02:00, fox 4
 (MOH) at 03:00, and fox 5 (MO5) at 04:00. All five beacons share one frequency
 and take turns in the standard round-robin.
 
-## Firmware
-
-The repository includes a first working PlatformIO firmware in `src/main.cpp`.
-It uses the Arduino framework for ESP32.
-
-Source layout:
-
-```text
-platformio.ini
-include/
-  beacon_config.h
-  display_config.h
-  display.h
-  web_admin.h
-src/
-  main.cpp
-  display.cpp
-  web_admin.cpp
-docs/
-  understanding.md
-  installation.md
-  configuration.md
-  heltec-boards.md
-  lilygo-boards.md
-  wiring.md
-  field-checklist.md
-  troubleshooting.md
-```
-
-The main user configuration file is `include/beacon_config.h`. Edit that file
-before building when you want the firmware image to contain your preferred
-default callsign, fox ID, replay time, delay, timer, tone, PTT, battery, and pin
-settings.
-
-Implemented modules:
-
-- beacon scheduler (`main.cpp`)
-- CW keyer (`main.cpp`)
-- PWM audio tone generator (`main.cpp`)
-- PTT control (`main.cpp`)
-- battery monitor (`main.cpp`)
-- flash configuration storage (`main.cpp`)
-- serial command parser (`main.cpp`)
-- web admin UI with WiFi AP and captive portal (`web_admin.cpp`)
-- on-screen status display for OLED/TFT boards (`display.cpp`)
-
-Build the default ESP32 DevKit firmware:
-
-```sh
-pio run
-```
-
-Upload:
-
-```sh
-pio run -t upload
-```
-
-Open serial monitor:
-
-```sh
-pio device monitor -b 115200
-```
-
-Available PlatformIO environments:
-
-```text
-esp32dev
-esp32doit-devkit-v1
-lolin32
-esp32-s3-devkitc-1
-esp32-c3-devkitm-1
-heltec-wifi-kit-32
-heltec-wifi-kit-32-v2
-heltec-wifi-kit-32-v3
-heltec-wifi-lora-32
-heltec-wifi-lora-32-v2
-heltec-wifi-lora-32-v3
-heltec-wireless-stick
-heltec-wireless-stick-lite
-heltec-wireless-stick-lite-v3
-heltec-wireless-tracker
-heltec-vision-master-t190
-heltec-wireless-paper
-heltec-vision-master-e213
-heltec-vision-master-e290
-heltec-capsule-sensor-v3
-lilygo-t-display
-lilygo-t-display-s3
-lilygo-t3-s3
-ttgo-lora32-v1
-ttgo-lora32-v2
-ttgo-lora32-v21
-ttgo-t-beam
-ttgo-t-oi-plus
-ttgo-t-watch
-ttgo-t1
-ttgo-t7-v13-mini32
-ttgo-t7-v14-mini32
-```
-
-Example build for ESP32-C3:
-
-```sh
-pio run -e esp32-c3-devkitm-1
-```
-
 ## Configuration
 
-There are two ways to configure the beacon.
+There are two ways to configure the beacon after flashing:
 
-1. Edit `include/beacon_config.h` before uploading firmware.
-2. Use Serial Monitor commands after uploading firmware.
+1. Use the WiFi web admin UI at `http://10.0.0.8`.
+2. Use Serial Monitor commands at 115200 baud.
 
-Serial Monitor settings are saved in ESP32 flash memory and take priority over
-the defaults in `include/beacon_config.h`. This is useful in the field because
-you can change timing or ID without recompiling. If you want to restore the
-values from `include/beacon_config.h`, open Serial Monitor and run:
+Both methods save settings to ESP32 flash memory and persist across reboots. Run
+`defaults` over serial to restore the factory defaults.
 
-```text
-defaults
-```
+### Web Admin UI
 
-### Main Configuration File
+The beacon hosts a WiFi access point with a captive portal web UI for
+phone/laptop configuration. This works on all ESP32 boards (all have WiFi).
 
-Edit [include/beacon_config.h](include/beacon_config.h) for firmware defaults.
+On boot, the ESP32 starts a WiFi AP named `9M2PJU-Fox-XXXX` (last 4 hex of MAC).
+Connect to it from a phone or laptop and the captive portal should auto-open the
+configuration page. If it does not, browse to `http://10.0.0.8/`.
 
-| Setting | Meaning | Default |
-| --- | --- | --- |
-| `DEFAULT_CALLSIGN` | Main callsign sent in CW at the start of TX. | `9M2PJU` |
-| `DEFAULT_FOX_ID` | ARDF fox identifier sent after the callsign. | `MOE` |
-| `DEFAULT_STARTUP_DELAY_SECONDS` | Wait time after power-on before the beacon schedule starts. Overridden by fox sync when enabled. | `10` |
-| `DEFAULT_TRANSMIT_SECONDS` | How long the radio transmits each cycle. IARU standard is 60 s. | `60` |
-| `DEFAULT_IDLE_SECONDS` | Replay/quiet time between transmissions. IARU standard is 240 s for a 5-fox cycle. | `240` |
-| `DEFAULT_FOX_SYNC_ENABLED` | Auto-derive startup delay from fox ID for IARU round-robin scheduling. | `1` |
-| `DEFAULT_BEACON_MODE` | Continuous beacon (MO6 finish-line) mode. | `0` |
-| `DEFAULT_BEACON_ID_INTERVAL_SECONDS` | CW ID repeat interval in continuous beacon mode. | `60` |
-| `DEFAULT_CW_WPM` | Morse speed for callsign and fox ID. | `12` |
-| `DEFAULT_CW_TONE_HZ` | Audio tone frequency for CW. | `700` |
-| `DEFAULT_WARBLE_ENABLED` | Sends alternating tone after CW until TX time ends. Disabled by default for IARU standard (steady carrier). | `0` |
-| `DEFAULT_WARBLE_LOW_HZ` | Low warble tone. | `700` |
-| `DEFAULT_WARBLE_HIGH_HZ` | High warble tone. | `900` |
-| `DEFAULT_WARBLE_STEP_MS` | How fast the warble alternates. | `350` |
-| `DEFAULT_PTT_ACTIVE_LOW` | ESP32 GPIO active level. Use `0` for the recommended NPN/MOSFET/opto interface where GPIO HIGH keys the radio. | `0` |
-| `DEFAULT_PTT_LEAD_MS` | Delay after keying PTT before audio starts. | `350` |
-| `DEFAULT_PTT_TAIL_MS` | Delay before releasing PTT after audio stops. | `350` |
-| `DEFAULT_BATTERY_ENABLED` | Enables low-battery cutoff when a divider is connected. | `0` |
-| `DEFAULT_BATTERY_SCALE` | Voltage divider multiplier for battery readings. | `2.0` |
-| `DEFAULT_LOW_BATTERY_VOLTAGE` | Voltage where firmware stops transmitting. | `3.40` |
-| `PTT_PIN` | ESP32 pin that controls the walkie-talkie PTT circuit. | `25` |
-| `AUDIO_PIN` | ESP32 PWM audio output pin. | `26` |
-| `LED_PIN` | Status LED pin. | `2` |
-| `BUTTON_PIN` | Test transmit button pin. | `0` |
-| `BATTERY_PIN` | ADC pin for battery divider. | `34` |
+The web UI lets you:
 
-### Timing Example
+- View current status (state, battery, fox slot, AP name, IP)
+- Edit all settings: callsign, fox ID, mode, fox sync, timing, CW, warble, PTT,
+  battery, WiFi AP on/off, AP auto-off timeout, display eco mode
+- Save settings to flash (same as serial `set` commands)
+- Trigger a test transmission or PTT test
+- Restore factory defaults
+- Reboot the ESP32
 
-With the default IARU settings and fox sync enabled:
+The web UI is served on all boards. No router or internet connection is needed.
+The AP has no password by default so it is open for easy field access.
 
-```c
-#define DEFAULT_TRANSMIT_SECONDS 60
-#define DEFAULT_IDLE_SECONDS 240
-#define DEFAULT_FOX_SYNC_ENABLED 1
-```
+The WiFi AP can be turned on or off from the on-screen settings menu or the web
+UI. When off, the WiFi radio is disabled to save power in the field.
 
-For fox 1 (`MOE`), the beacon starts immediately after power-on, transmits for
-60 seconds, stays quiet for 240 seconds, and repeats. The full cycle is 300
-seconds (5 minutes). For fox 2 (`MOI`), the startup delay is automatically set
-to 60 seconds so it takes the second slot in the round-robin. Fox 3 starts at
-120 s, fox 4 at 180 s, fox 5 at 240 s. All five beacons share one frequency and
-take turns.
-
-### What The Beacon Sends
-
-During each transmit window, the firmware sends:
-
-```text
-CALLSIGN in CW -> short gap -> FOX_ID in CW -> steady carrier until TX timer ends
-```
-
-For example, with `DEFAULT_CALLSIGN` set to `9M2PJU` and `DEFAULT_FOX_ID` set to
-`MOE`, the radio sends `9M2PJU MOE` in Morse code and then holds a steady carrier
-until `DEFAULT_TRANSMIT_SECONDS` is finished. This matches the IARU ARDF
-standard signal format.
-
-If `DEFAULT_WARBLE_ENABLED` is `1`, it sends the CW ID sequence and then
-alternates a warble tone between `DEFAULT_WARBLE_LOW_HZ` and
-`DEFAULT_WARBLE_HIGH_HZ` until the TX timer ends. This is non-standard but
-useful for training.
-
-ARDF means Amateur Radio Direction Finding. In a typical ARDF event, several
-hidden transmitters, or "foxes", take turns transmitting short Morse
-identifiers so competitors can tell which fox they are hearing. The conventional
-2 m/80 m ARDF identifiers are `MOE`, `MOI`, `MOS`, `MOH`, and `MO5`.
-
-Set `DEFAULT_FOX_ID` or run `set fox <identifier>` based on which transmitter
-this unit will be in the event:
-
-| Fox | CW identifier |
-| --- | --- |
-| 1 | `MOE` |
-| 2 | `MOI` |
-| 3 | `MOS` |
-| 4 | `MOH` |
-| 5 | `MO5` |
-
-For a single training beacon, `MOE` is a good default. For multi-fox events,
-program each beacon with a different identifier and timing plan so hunters can
-separate the transmitters. Keep `DEFAULT_CALLSIGN` set to the licensed station
-callsign required for your local amateur radio identification rules.
+The AP has an **auto-off timeout** (default 10 minutes). If no client is
+connected and no web requests are received for the timeout period, the AP shuts
+down automatically to save power. Set to 0 to keep the AP on indefinitely. To
+turn it back on, use the on-screen menu (WiFi AP toggle) or `set wifi_ap on`.
 
 ### Serial Configuration
 
@@ -517,6 +347,11 @@ set battery on
 set battery off
 set battery_scale 2.0
 set low_battery 3.4
+set wifi_ap on
+set wifi_ap off
+set wifi_ap_timeout 10
+set eco_mode on
+set eco_mode off
 ```
 
 Command meanings:
@@ -526,7 +361,7 @@ Command meanings:
 | `show` | Print current saved configuration. |
 | `test` | Queue one immediate transmission. |
 | `ptt_test` | Key only the PTT line for about 1.2 seconds with no audio. |
-| `defaults` | Restore values from `include/beacon_config.h` and save them to flash. |
+| `defaults` | Restore factory defaults and save them to flash. |
 | `reboot` | Restart the ESP32. |
 | `set call <text>` | Set the callsign sent in CW. |
 | `set fox <text>` | Set the ARDF fox identifier sent after the callsign, such as `MOE`, `MOI`, `MOS`, `MOH`, or `MO5`. |
@@ -548,40 +383,57 @@ Command meanings:
 | `set battery on/off` | Enable or disable low-battery protection. |
 | `set battery_scale <number>` | Set battery divider multiplier. |
 | `set low_battery <volts>` | Set low-battery cutoff voltage. |
+| `set wifi_ap on/off` | Turn WiFi AP on or off. |
+| `set wifi_ap_timeout <minutes>` | AP auto-off timeout (0 = never). |
+| `set eco_mode on/off` | Enable or disable display eco mode. |
 
-## Web Admin UI
+### Timing Example
 
-The beacon hosts a WiFi access point with a captive portal web UI for
-phone/laptop configuration. This works on all ESP32 boards (all have WiFi).
+With the default IARU settings and fox sync enabled, the beacon transmits for
+60 seconds, stays quiet for 240 seconds, and repeats. The full cycle is 300
+seconds (5 minutes). For fox 1 (`MOE`), the beacon starts immediately after
+power-on. For fox 2 (`MOI`), the startup delay is automatically set to 60
+seconds so it takes the second slot in the round-robin. Fox 3 starts at 120 s,
+fox 4 at 180 s, fox 5 at 240 s. All five beacons share one frequency and take
+turns.
 
-On boot, the ESP32 starts a WiFi AP named `9M2PJU-Fox-XXXX` (last 4 hex of MAC).
-Connect to it from a phone or laptop and the captive portal should auto-open the
-configuration page. If it does not, browse to `http://10.0.0.8/`.
+### What The Beacon Sends
 
-The web UI lets you:
+During each transmit window, the firmware sends:
 
-- View current status (state, battery, fox slot, AP name, IP)
-- Edit all settings: callsign, fox ID, mode, fox sync, timing, CW, warble, PTT,
-  battery, WiFi AP on/off, AP auto-off timeout, display eco mode
-- Save settings to flash (same as serial `set` commands)
-- Trigger a test transmission or PTT test
-- Restore compile-time defaults
-- Reboot the ESP32
+```text
+CALLSIGN in CW -> short gap -> FOX_ID in CW -> steady carrier until TX timer ends
+```
 
-The web UI is served on all boards. No router or internet connection is needed.
-The AP has no password by default so it is open for easy field access.
+For example, with the callsign set to `9M2PJU` and the fox ID set to `MOE`, the
+radio sends `9M2PJU MOE` in Morse code and then holds a steady carrier until the
+transmit timer ends. This matches the IARU ARDF standard signal format.
 
-The WiFi AP can be turned on or off from the on-screen settings menu or the web
-UI. When off, the WiFi radio is disabled to save power in the field.
+If warble is enabled, it sends the CW ID sequence and then alternates a warble
+tone between the low and high warble frequencies until the TX timer ends. This
+is non-standard but useful for training.
 
-The AP has an **auto-off timeout** (default 10 minutes). If no client is
-connected and no web requests are received for the timeout period, the AP shuts
-down automatically to save power. Set to 0 to keep the AP on indefinitely. To
-turn it back on, use the on-screen menu (WiFi AP toggle) or `set wifi_ap on`.
+ARDF means Amateur Radio Direction Finding. In a typical ARDF event, several
+hidden transmitters, or "foxes", take turns transmitting short Morse
+identifiers so competitors can tell which fox they are hearing. The conventional
+2 m/80 m ARDF identifiers are `MOE`, `MOI`, `MOS`, `MOH`, and `MO5`.
+
+| Fox | CW identifier |
+| --- | --- |
+| 1 | `MOE` |
+| 2 | `MOI` |
+| 3 | `MOS` |
+| 4 | `MOH` |
+| 5 | `MO5` |
+
+For a single training beacon, `MOE` is a good default. For multi-fox events,
+program each beacon with a different identifier and timing plan so hunters can
+separate the transmitters. Keep the callsign set to the licensed station
+callsign required for your local amateur radio identification rules.
 
 ## On-Screen Status Display
 
-Boards with an OLED or TFT screen show a live status display.
+Boards with an OLED, TFT, or E-Ink screen show a live status display.
 
 ### Startup Screen
 
@@ -654,17 +506,24 @@ Supported display boards:
 | TTGO LoRa32 V2 | OLED SSD1306 128x64 | U8g2 |
 | TTGO LoRa32 V2.1.6 | OLED SSD1306 128x64 | U8g2 |
 | TTGO T-Beam | OLED SSD1306 128x64 | U8g2 |
+| Heltec Wireless Tracker | TFT ST7735 160x80 | TFT_eSPI |
+| Heltec Vision Master T190 | TFT ST7789 170x320 | TFT_eSPI |
 | LilyGO T-Display | TFT ST7789 135x240 | TFT_eSPI |
 | LilyGO T-Display S3 | TFT ST7789 170x320 | TFT_eSPI |
 | TTGO T-Watch | TFT ST7789 240x240 | TFT_eSPI |
+| Heltec Wireless Paper | E-Ink SSD1680 250x122 | GxEPD2 |
+| Heltec Vision Master E213 | E-Ink SSD1680 250x122 | GxEPD2 |
+| Heltec Vision Master E290 | E-Ink SSD1680 296x128 | GxEPD2 |
 
 Boards without displays (ESP32 DevKit, ESP32-S3 DevKit, ESP32-C3, TTGO T1, T7,
-T-OI Plus, T3-S3) still get the web admin UI — they just have no screen.
+T-OI Plus, T3-S3, Heltec Capsule Sensor V3) still get the web admin UI — they
+just have no screen.
 
 ## Default Pin Plan
 
 These defaults are chosen for common ESP32 DevKit boards. ESP32-S3 and ESP32-C3
-environments override some pins in `platformio.ini`.
+boards use different default pins because those chips expose different ADC and
+boot-safe pins.
 
 | Function | Default GPIO | Notes |
 | --- | ---: | --- |
@@ -680,8 +539,7 @@ Important pin notes:
 - Do not connect transmitter audio or PTT lines directly unless the voltage
   levels are known.
 - Use a transistor, optocoupler, or level shifting where needed.
-- For the wiring in `docs/wiring.md`, keep `DEFAULT_PTT_ACTIVE_LOW` set to `0`
-  or run `set ptt active_high`.
+- For the wiring in [docs/wiring.md](docs/wiring.md), use `set ptt active_high`.
 - Avoid ESP32 boot strapping pins for critical external circuits unless the
   design is tested carefully.
 
@@ -697,8 +555,8 @@ Firmware reliability features:
   thresholds are constrained to sane ranges.
 - `ptt_test` verifies the keying circuit without generating audio.
 - `test` sends one complete beacon cycle on demand.
-- Settings are stored in ESP32 flash and can be restored to compile-time
-  defaults with `defaults`.
+- Settings are stored in ESP32 flash and can be restored to factory defaults
+  with `defaults`.
 - Optional low-battery cutoff halts transmission instead of sending a weak or
   unstable signal.
 
@@ -758,43 +616,6 @@ Design reminders:
 - Make sure the beacon can be shut down quickly.
 - Label the beacon with owner contact information for public-area events.
 
-## Build Plan
-
-### Phase 1: Minimal Beacon
-
-- ESP32 controls one PTT pin. Done.
-- ESP32 generates CW ID tone. Done.
-- ESP32 generates optional warble tone. Done.
-- Test using a handheld radio or dummy load setup.
-
-### Phase 2: Configurable Beacon
-
-- Store callsign and timing in flash. Done.
-- Add serial command configuration. Done.
-- Add battery voltage reading. Done.
-- Add LED status patterns. Done.
-
-### Phase 3: Field-Ready Beacon
-
-- Add Wi-Fi setup mode for phone configuration. Done (web admin UI with AP and
-  captive portal).
-- Add on-screen status display for boards with OLED/TFT screens. Done.
-- Add enclosure, switch, charge connector, and antenna connector.
-- Add low-battery cutoff. Done.
-- Add field checklist and wiring diagram. Done.
-- Add a tested schematic for common Kenwood-style speaker-mic plugs.
-- Add weatherproof field enclosure notes.
-
-### Phase 4: Multi-Fox Event Support
-
-- Store multiple fox profiles.
-- Support unique tone/CW pattern per beacon.
-- Add staggered start delay. Done (fox-slot sync).
-- Add optional GPS time or phone-based setup workflow.
-- Add event mode for Fox 1 through Fox 5 timing patterns. Done (IARU defaults
-  with fox sync).
-- Add continuous beacon (MO6) finish mode. Done.
-
 ## Example Configuration
 
 ```text
@@ -817,7 +638,7 @@ low_battery_voltage = 3.4
 
 ## First Prototype Checklist
 
-- ESP32 board can be programmed over USB.
+- ESP32 board is flashed with the correct firmware from the web flasher.
 - PTT output toggles correctly with an LED before connecting a radio.
 - `ptt_test` keys and releases the PTT circuit reliably.
 - Audio output produces the expected tone on a small amplified speaker or scope.
@@ -827,19 +648,6 @@ low_battery_voltage = 3.4
 - Battery voltage reading is calibrated.
 - RF output is tested into a dummy load before field use.
 - Event frequency, power, ID, and timing are approved.
-
-## Next Development Steps
-
-1. Test on an ESP32 DevKit v1 with a cheap handheld radio interface.
-2. Tune audio filter and trimpot values for common walkie-talkies.
-3. Add example wiring photos or schematic.
-4. Add support notes for SA818V/DRA818V style modules.
-5. Add optional deep sleep for long battery hunts.
-6. Add release binaries for common ESP32 boards.
-7. Add hardware-tested profiles for common Baofeng/Kenwood-style speaker-mic
-   cables after confirming pinouts on real units.
-8. Add on-screen menu navigation with buttons for display boards.
-9. Add WiFi station mode option for connecting to an existing network.
 
 ## License
 

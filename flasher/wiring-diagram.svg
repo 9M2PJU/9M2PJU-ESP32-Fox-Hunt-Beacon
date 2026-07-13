@@ -1,0 +1,220 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#c7e2ea">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7dacbf"/>
+    </marker>
+    <linearGradient id="esp32grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a2e30"/>
+      <stop offset="100%" stop-color="#0f2127"/>
+    </linearGradient>
+    <linearGradient id="radiograd" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a1f1f"/>
+      <stop offset="100%" stop-color="#1f1818"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="620" fill="#0a1c1c"/>
+
+  <!-- Title -->
+  <text x="450" y="28" text-anchor="middle" font-size="16" font-weight="600" fill="#c7e2ea">ESP32 Fox Hunt Beacon — Wiring Diagram</text>
+  <text x="450" y="46" text-anchor="middle" font-size="11" fill="#7dacbf">Default pins (classic ESP32 DevKit). NPN transistor PTT + RC-filtered audio into handheld radio.</text>
+
+  <!-- ============ ESP32 board ============ -->
+  <rect x="60" y="80" width="200" height="440" rx="8" fill="url(#esp32grad)" stroke="#2a4a4d" stroke-width="1.5"/>
+  <text x="160" y="105" text-anchor="middle" font-size="14" font-weight="600" fill="#3b7490">ESP32 DevKit</text>
+  <text x="160" y="122" text-anchor="middle" font-size="10" fill="#7dacbf">(3.3 V logic)</text>
+
+  <!-- Pin labels (left side = GPIO outputs) -->
+  <g font-size="11">
+    <!-- GPIO 25 PTT -->
+    <circle cx="60" cy="160" r="4" fill="#f85149"/>
+    <text x="75" y="164" fill="#c7e2ea">GPIO 25</text>
+    <text x="75" y="178" fill="#7dacbf" font-size="10">PTT out</text>
+
+    <!-- GPIO 26 Audio -->
+    <circle cx="60" cy="220" r="4" fill="#d29922"/>
+    <text x="75" y="224" fill="#c7e2ea">GPIO 26</text>
+    <text x="75" y="238" fill="#7dacbf" font-size="10">Audio out</text>
+
+    <!-- GPIO 2 LED -->
+    <circle cx="60" cy="280" r="4" fill="#3fb950"/>
+    <text x="75" y="284" fill="#c7e2ea">GPIO 2</text>
+    <text x="75" y="298" fill="#7dacbf" font-size="10">Status LED</text>
+
+    <!-- GPIO 0 Button -->
+    <circle cx="60" cy="340" r="4" fill="#3b7490"/>
+    <text x="75" y="344" fill="#c7e2ea">GPIO 0</text>
+    <text x="75" y="358" fill="#7dacbf" font-size="10">Test button</text>
+
+    <!-- GPIO 34 Battery -->
+    <circle cx="60" cy="400" r="4" fill="#a371f7"/>
+    <text x="75" y="404" fill="#c7e2ea">GPIO 34</text>
+    <text x="75" y="418" fill="#7dacbf" font-size="10">Battery ADC</text>
+
+    <!-- GND -->
+    <circle cx="60" cy="460" r="4" fill="#6e7681"/>
+    <text x="75" y="464" fill="#c7e2ea">GND</text>
+  </g>
+
+  <!-- ============ PTT interface (NPN) ============ -->
+  <rect x="330" y="120" width="180" height="120" rx="6" fill="#0f2127" stroke="#2a4a4d" stroke-width="1"/>
+  <text x="420" y="142" text-anchor="middle" font-size="12" font-weight="600" fill="#f85149">PTT Interface</text>
+  <text x="420" y="158" text-anchor="middle" font-size="10" fill="#7dacbf">NPN transistor (e.g. 2N2222 / BC547)</text>
+
+  <!-- NPN transistor symbol -->
+  <g transform="translate(390,185)">
+    <circle cx="20" cy="20" r="18" fill="none" stroke="#c7e2ea" stroke-width="1.2"/>
+    <!-- Base -->
+    <line x1="0" y1="20" x2="14" y2="20" stroke="#c7e2ea" stroke-width="1.2"/>
+    <text x="-2" y="14" text-anchor="end" font-size="9" fill="#7dacbf">B</text>
+    <!-- Collector -->
+    <line x1="20" y1="2" x2="20" y2="14" stroke="#c7e2ea" stroke-width="1.2"/>
+    <line x1="20" y1="14" x2="28" y2="6" stroke="#c7e2ea" stroke-width="1.2"/>
+    <text x="32" y="8" font-size="9" fill="#7dacbf">C</text>
+    <!-- Emitter -->
+    <line x1="20" y1="26" x2="20" y2="38" stroke="#c7e2ea" stroke-width="1.2"/>
+    <line x1="20" y1="26" x2="28" y2="34" stroke="#c7e2ea" stroke-width="1.2"/>
+    <text x="32" y="36" font-size="9" fill="#7dacbf">E</text>
+    <!-- arrow on emitter -->
+    <polygon points="27,33 24,30 26,29" fill="#c7e2ea"/>
+  </g>
+  <!-- Base resistor label -->
+  <text x="420" y="225" text-anchor="middle" font-size="10" fill="#d29922">R: 1 kΩ (base)</text>
+
+  <!-- ============ Audio filter ============ -->
+  <rect x="330" y="260" width="180" height="120" rx="6" fill="#0f2127" stroke="#2a4a4d" stroke-width="1"/>
+  <text x="420" y="282" text-anchor="middle" font-size="12" font-weight="600" fill="#d29922">Audio Filter</text>
+  <text x="420" y="298" text-anchor="middle" font-size="10" fill="#7dacbf">RC low-pass + coupling + level</text>
+
+  <!-- Filter components -->
+  <g transform="translate(345,320)">
+    <!-- 1k resistor (zigzag) -->
+    <polyline points="0,10 8,10 12,4 20,16 28,4 36,16 44,10 52,10" fill="none" stroke="#c7e2ea" stroke-width="1.2"/>
+    <text x="26" y="30" text-anchor="middle" font-size="9" fill="#7dacbf">1 kΩ</text>
+    <!-- 100nF to ground -->
+    <line x1="52" y1="10" x2="60" y2="10" stroke="#c7e2ea" stroke-width="1.2"/>
+    <line x1="60" y1="4" x2="60" y2="16" stroke="#c7e2ea" stroke-width="1.5"/>
+    <line x1="64" y1="4" x2="64" y2="16" stroke="#c7e2ea" stroke-width="1.5"/>
+    <line x1="64" y1="10" x2="72" y2="10" stroke="#c7e2ea" stroke-width="1.2"/>
+    <line x1="62" y1="16" x2="62" y2="28" stroke="#c7e2ea" stroke-width="1.2"/>
+    <text x="62" y="40" text-anchor="middle" font-size="9" fill="#7dacbf">100 nF</text>
+    <!-- 1uF coupling cap -->
+    <line x1="72" y1="10" x2="84" y2="10" stroke="#c7e2ea" stroke-width="1.2"/>
+    <line x1="84" y1="3" x2="84" y2="17" stroke="#c7e2ea" stroke-width="1.5"/>
+    <line x1="88" y1="3" x2="88" y2="17" stroke="#c7e2ea" stroke-width="1.5"/>
+    <line x1="88" y1="10" x2="100" y2="10" stroke="#c7e2ea" stroke-width="1.2"/>
+    <text x="86" y="30" text-anchor="middle" font-size="9" fill="#7dacbf">1 µF</text>
+    <!-- 10k trimpot -->
+    <line x1="100" y1="10" x2="112" y2="10" stroke="#c7e2ea" stroke-width="1.2"/>
+    <rect x="112" y="4" width="20" height="12" fill="none" stroke="#c7e2ea" stroke-width="1.2"/>
+    <line x1="122" y1="0" x2="122" y2="4" stroke="#d29922" stroke-width="1.5"/>
+    <text x="122" y="30" text-anchor="middle" font-size="9" fill="#7dacbf">10 kΩ pot</text>
+    <line x1="132" y1="10" x2="145" y2="10" stroke="#c7e2ea" stroke-width="1.2"/>
+  </g>
+
+  <!-- ============ Battery divider ============ -->
+  <rect x="330" y="400" width="180" height="80" rx="6" fill="#0f2127" stroke="#2a4a4d" stroke-width="1"/>
+  <text x="420" y="422" text-anchor="middle" font-size="12" font-weight="600" fill="#a371f7">Battery Divider</text>
+  <text x="420" y="438" text-anchor="middle" font-size="10" fill="#7dacbf">2:1 resistor divider (optional)</text>
+  <g transform="translate(360,455)">
+    <rect x="0" y="0" width="40" height="10" fill="none" stroke="#c7e2ea" stroke-width="1.2"/>
+    <text x="20" y="-2" text-anchor="middle" font-size="9" fill="#7dacbf">R1</text>
+    <rect x="50" y="0" width="40" height="10" fill="none" stroke="#c7e2ea" stroke-width="1.2"/>
+    <text x="70" y="-2" text-anchor="middle" font-size="9" fill="#7dacbf">R2</text>
+    <line x1="40" y1="5" x2="50" y2="5" stroke="#c7e2ea" stroke-width="1.2"/>
+    <line x1="45" y1="5" x2="45" y2="18" stroke="#a371f7" stroke-width="1.2"/>
+    <text x="45" y="30" text-anchor="middle" font-size="9" fill="#a371f7">to ADC</text>
+  </g>
+
+  <!-- ============ Radio ============ -->
+  <rect x="640" y="120" width="200" height="360" rx="8" fill="url(#radiograd)" stroke="#6b4f00" stroke-width="1.5"/>
+  <text x="740" y="145" text-anchor="middle" font-size="14" font-weight="600" fill="#d29922">Handheld Radio</text>
+  <text x="740" y="162" text-anchor="middle" font-size="10" fill="#7dacbf">(Kenwood-style accessory)</text>
+
+  <!-- Radio accessory pins -->
+  <g font-size="11">
+    <!-- PTT pin -->
+    <circle cx="840" cy="200" r="4" fill="#f85149"/>
+    <text x="825" y="204" text-anchor="end" fill="#c7e2ea">PTT</text>
+    <text x="825" y="218" text-anchor="end" font-size="10" fill="#7dacbf">(short to GND = TX)</text>
+
+    <!-- MIC pin -->
+    <circle cx="840" cy="280" r="4" fill="#d29922"/>
+    <text x="825" y="284" text-anchor="end" fill="#c7e2ea">MIC</text>
+    <text x="825" y="298" text-anchor="end" font-size="10" fill="#7dacbf">(audio input)</text>
+
+    <!-- GND pin -->
+    <circle cx="840" cy="360" r="4" fill="#6e7681"/>
+    <text x="825" y="364" text-anchor="end" fill="#c7e2ea">GND</text>
+    <text x="825" y="378" text-anchor="end" font-size="10" fill="#7dacbf">(common ground)</text>
+
+    <!-- Antenna -->
+    <line x1="740" y1="120" x2="740" y2="95" stroke="#c7e2ea" stroke-width="1.5"/>
+    <line x1="735" y1="100" x2="745" y2="100" stroke="#c7e2ea" stroke-width="1.5"/>
+    <line x1="737" y1="106" x2="743" y2="106" stroke="#c7e2ea" stroke-width="1.5"/>
+    <text x="755" y="100" font-size="10" fill="#7dacbf">ANT</text>
+  </g>
+
+  <!-- ============ Status LED ============ -->
+  <g transform="translate(150,510)">
+    <circle cx="0" cy="0" r="8" fill="none" stroke="#3fb950" stroke-width="1.5"/>
+    <line x1="0" y1="-8" x2="0" y2="-20" stroke="#3fb950" stroke-width="1.2"/>
+    <line x1="0" y1="8" x2="0" y2="20" stroke="#6e7681" stroke-width="1.2"/>
+    <text x="14" y="4" font-size="10" fill="#3fb950">LED (GPIO 2)</text>
+  </g>
+
+  <!-- ============ Test button ============ -->
+  <g transform="translate(150,560)">
+    <rect x="-15" y="-10" width="30" height="20" rx="3" fill="none" stroke="#3b7490" stroke-width="1.5"/>
+    <text x="22" y="4" font-size="10" fill="#3b7490">Button (GPIO 0)</text>
+  </g>
+
+  <!-- ============ Wires ============ -->
+  <!-- GPIO 25 -> NPN base (via 1k resistor) -->
+  <path d="M 60 160 L 30 160 L 30 195 L 388 195" fill="none" stroke="#f85149" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="200" y="190" font-size="9" fill="#f85149">PTT (GPIO HIGH = TX)</text>
+
+  <!-- NPN collector -> Radio PTT -->
+  <path d="M 510 175 L 580 175 L 580 200 L 840 200" fill="none" stroke="#f85149" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- NPN emitter -> GND bus -->
+  <path d="M 420 223 L 420 240 L 580 240 L 580 360 L 840 360" fill="none" stroke="#6e7681" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="600" y="356" font-size="9" fill="#7dacbf">emitter → GND</text>
+
+  <!-- GPIO 26 -> Audio filter input -->
+  <path d="M 60 220 L 30 220 L 30 330 L 345 330" fill="none" stroke="#d29922" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="180" y="325" font-size="9" fill="#d29922">Audio (PWM tone)</text>
+
+  <!-- Audio filter output -> Radio MIC -->
+  <path d="M 490 330 L 580 330 L 580 280 L 840 280" fill="none" stroke="#d29922" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="600" y="276" font-size="9" fill="#d29922">filtered audio → MIC</text>
+
+  <!-- GPIO 2 -> LED -->
+  <path d="M 60 280 L 30 280 L 30 510 L 150 510" fill="none" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- GPIO 0 -> Button -->
+  <path d="M 60 340 L 30 340 L 30 560 L 135 560" fill="none" stroke="#3b7490" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- GPIO 34 -> Battery divider -->
+  <path d="M 60 400 L 30 400 L 30 460 L 405 460" fill="none" stroke="#a371f7" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ESP32 GND -> GND bus -->
+  <path d="M 60 460 L 30 460 L 30 600 L 580 600 L 580 360" fill="none" stroke="#6e7681" stroke-width="1.5"/>
+
+  <!-- GND bus label -->
+  <text x="300" y="595" font-size="9" fill="#6e7681">common ground (ESP32 GND = radio GND)</text>
+
+  <!-- Legend -->
+  <g transform="translate(640,500)">
+    <text x="0" y="0" font-size="11" font-weight="600" fill="#c7e2ea">Legend</text>
+    <line x1="0" y1="14" x2="20" y2="14" stroke="#f85149" stroke-width="1.5"/>
+    <text x="26" y="18" font-size="10" fill="#7dacbf">PTT line</text>
+    <line x1="0" y1="30" x2="20" y2="30" stroke="#d29922" stroke-width="1.5"/>
+    <text x="26" y="34" font-size="10" fill="#7dacbf">Audio line</text>
+    <line x1="0" y1="46" x2="20" y2="46" stroke="#a371f7" stroke-width="1.5"/>
+    <text x="26" y="50" font-size="10" fill="#7dacbf">Battery sense</text>
+    <line x1="0" y1="62" x2="20" y2="62" stroke="#6e7681" stroke-width="1.5"/>
+    <text x="26" y="66" font-size="10" fill="#7dacbf">Ground</text>
+  </g>
+</svg>

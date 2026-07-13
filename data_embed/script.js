@@ -19,7 +19,7 @@ function loadConfig(){
     setSel('wifi_ap',c.wifiAp?'on':'off');
     set('wifi_ap_timeout',c.wifiApTimeout);
     setSel('eco_mode',c.ecoMode?'on':'off');
-    var s='<b>State:</b> <span>'+c.state+'</span> | <b>Battery:</b> <span>'+c.battery+' V</span>';
+    var s='<b>State:</b> <span>'+c.state+'</span> | <b>Battery:</b> <span>'+c.battery+' V'+(c.batteryPct!=null?' ('+c.batteryPct+'%)':'')+'</span>';
     if(c.foxSync&&!c.beaconMode&&c.foxNum>0)s+=' | <b>Slot:</b> <span>'+c.foxNum+'</span> (start '+c.startupResolved+'s)';
     s+='<br><b>AP:</b> <span>'+c.apSsid+'</span> | <b>IP:</b> <span>'+c.ip+'</span>';
     document.getElementById('status').innerHTML=s;

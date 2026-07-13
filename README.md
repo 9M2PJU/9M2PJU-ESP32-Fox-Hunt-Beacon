@@ -112,13 +112,15 @@ requirements, power limits, and event safety rules.
 - Optional warble tone for the rest of the transmit window (disabled by default).
 - PTT control with guard time before and after audio.
 - PTT-only test command for checking radio keying before audio tests.
-- Optional battery voltage measurement using a resistor divider.
+- Optional battery voltage measurement with Li-ion state-of-charge percentage.
 - Status LED patterns for idle, transmit, and low battery.
 - Test button for immediate transmission.
 - Serial monitor configuration at 115200 baud.
 - Web admin UI: WiFi AP with captive portal for phone/laptop configuration.
 - On-screen status display for boards with OLED, TFT, or E-Ink screens.
-- Display eco mode (auto-off after 15 s) for battery saving.
+- Display eco mode (on by default, auto-off after 4 s) for battery saving.
+- Color-themed display: navy blue header bar, state-coded accent colors (TFT),
+  inverted header/highlights on OLED and E-Ink.
 
 Planned later features:
 
@@ -293,7 +295,7 @@ configuration page. If it does not, browse to `http://10.0.0.8/`.
 
 The web UI lets you:
 
-- View current status (state, battery, fox slot, AP name, IP)
+- View current status (state, battery voltage + percentage, fox slot, AP name, IP)
 - Edit all settings: callsign, fox ID, mode, fox sync, timing, CW, warble, PTT,
   battery, WiFi AP on/off, AP auto-off timeout, display eco mode
 - Save settings to flash (same as serial `set` commands)
@@ -387,6 +389,10 @@ Command meanings:
 | `set wifi_ap_timeout <minutes>` | AP auto-off timeout (0 = never). |
 | `set eco_mode on/off` | Enable or disable display eco mode. |
 
+The `show` command prints the live battery reading as both voltage and
+Li-ion percentage, e.g. `now 4.12 V (87%)`. The percentage uses a
+piecewise-linear Li-ion discharge curve (3.2 V = 0%, 4.2 V = 100%).
+
 ### Timing Example
 
 With the default IARU settings and fox sync enabled, the beacon transmits for
@@ -452,12 +458,19 @@ After 3 seconds, it transitions to the status screen.
 
 The status screen shows:
 
-- Callsign and fox ID
+- Callsign and fox ID (in a navy blue header bar on TFT, inverted header on
+  OLED/E-Ink)
 - Mode (FOX or BEACON)
-- Current state (STARTUP, IDLE, TX, BEACON, LOWBAT)
+- Current state (STARTUP, IDLE, TX, BEACON, LOWBAT) — color-coded on TFT
+  (green=TX, red=LOWBAT, orange=STARTUP, cyan=IDLE), inverted/highlighted on
+  OLED and E-Ink
 - Timing (TX and idle seconds)
-- Battery voltage (if battery monitoring is enabled)
+- Battery voltage and Li-ion percentage, e.g. `4.12V 87%` (if battery
+  monitoring is enabled)
 - Web admin AP IP address (if WiFi AP is enabled)
+- 2px status accent bar on the left edge — green (TX), red (LOWBAT), orange
+  (STARTUP), grey (IDLE) on TFT; pattern-coded (solid/dashed/dotted) on OLED
+  and E-Ink
 
 The display updates once per second.
 
@@ -473,7 +486,7 @@ provides quick on/off toggles for field use without needing a phone or laptop:
 | Fox Sync | Enable/disable fox slot synchronization |
 | Battery | Enable/disable battery monitoring |
 | Mode | Toggle between FOX and BEACON mode |
-| Eco Disp | Enable/disable display eco mode (auto-off after 15s) |
+| Eco Disp | Enable/disable display eco mode (auto-off after 4s, on by default) |
 | Exit | Return to status screen |
 
 Menu navigation:
@@ -489,9 +502,14 @@ on-screen menu is limited to on/off toggles for quick field adjustments.
 
 ### Display Eco Mode
 
-When eco mode is enabled, the display turns off after 15 seconds of inactivity
-to save power. Any button press wakes the display. This is useful for extended
-field operations where battery life matters more than constant status visibility.
+Eco mode is **enabled by default**. When on, the display turns off after 4
+seconds of inactivity to save power — important for a battery-powered fox hunt
+beacon. Any button press wakes the display for another 4-second glance. A
+10-second grace period after boot keeps the display on long enough to verify
+the startup screen and initial status.
+
+Eco mode can be turned off via the on-screen menu, serial `set eco_mode off`,
+or the web admin UI if you want the display to stay on continuously.
 
 Supported display boards:
 

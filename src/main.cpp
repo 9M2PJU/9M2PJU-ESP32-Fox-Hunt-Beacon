@@ -15,7 +15,7 @@ constexpr uint32_t LED_LOW_BATTERY_BLINK_MS = 350;
 constexpr uint32_t PTT_TEST_MS = 1200;
 constexpr uint32_t STARTUP_SCREEN_MS = 3000;
 constexpr uint32_t MENU_TIMEOUT_MS = 30000;
-constexpr uint32_t DISPLAY_ECO_TIMEOUT_MS = 15000;
+constexpr uint32_t DISPLAY_ECO_TIMEOUT_MS = 4000;
 constexpr uint32_t DISPLAY_ECO_GRACE_MS = 10000;  // no eco sleep for first 10s after boot
 
 Preferences preferences;
@@ -72,6 +72,7 @@ int beaconStateValue() {
 }
 
 float readBatteryVoltage();
+uint8_t readBatteryPercent();
 void saveConfig();
 void loadDefaultConfig();
 void enterState(BeaconState nextState);
@@ -194,9 +195,10 @@ void updateDisplay() {
            static_cast<unsigned long>(config.transmitSeconds),
            static_cast<unsigned long>(config.idleSeconds));
 
-  char batteryStr[16] = "";
+  char batteryStr[20] = "";
   if (config.batteryEnabled) {
-    snprintf(batteryStr, sizeof(batteryStr), "%.2fV", readBatteryVoltage());
+    snprintf(batteryStr, sizeof(batteryStr), "%.2fV %u%%",
+             readBatteryVoltage(), readBatteryPercent());
   }
 
   displayUpdate(config.callSign.c_str(),
@@ -293,6 +295,39 @@ float readBatteryVoltage() {
 
   const float pinVoltage = (totalMillivolts / static_cast<float>(samples)) / 1000.0f;
   return pinVoltage * config.batteryScale;
+}
+
+// Estimate state-of-charge (%) for a single-cell Li-ion battery from its
+// resting open-circuit voltage. The curve is a piecewise-linear fit to a
+// typical 18650 / LiPo discharge profile. For multi-cell packs the scaled
+// voltage must fall in the single-cell range (3.2–4.2 V); otherwise the
+// percentage is clamped to 0 or 100.
+//
+// Reference points (V -> %):
+//   4.20=100  4.10=90  4.00=80  3.90=70  3.80=55
+//   3.70=40   3.60=24  3.50=12  3.40=5   3.30=1  3.20=0
+uint8_t readBatteryPercent() {
+  if (!config.batteryEnabled) return 0;
+  const float v = readBatteryVoltage();
+
+  static const struct { float v; uint8_t pct; } pts[] = {
+    {4.20f, 100}, {4.10f, 90}, {4.00f, 80}, {3.90f, 70},
+    {3.80f, 55},  {3.70f, 40}, {3.60f, 24}, {3.50f, 12},
+    {3.40f, 5},   {3.30f, 1},  {3.20f, 0},
+  };
+  constexpr uint8_t n = sizeof(pts) / sizeof(pts[0]);
+
+  if (v >= pts[0].v) return 100;
+  if (v <= pts[n - 1].v) return 0;
+
+  for (uint8_t i = 1; i < n; ++i) {
+    if (v >= pts[i].v) {
+      const float dv = pts[i - 1].v - pts[i].v;
+      const float dp = pts[i - 1].pct - pts[i].pct;
+      return pts[i].pct + static_cast<uint8_t>((v - pts[i].v) / dv * dp + 0.5f);
+    }
+  }
+  return 0;
 }
 
 bool isLowBattery() {
@@ -504,7 +539,7 @@ void printConfig() {
                 config.batteryScale,
                 config.lowBatteryVoltage);
   if (config.batteryEnabled) {
-    Serial.printf(", now %.2f V", readBatteryVoltage());
+    Serial.printf(", now %.2f V (%u%%)", readBatteryVoltage(), readBatteryPercent());
   }
   Serial.println();
   Serial.printf("WiFi AP:        %s", config.wifiApEnabled ? "on" : "off");

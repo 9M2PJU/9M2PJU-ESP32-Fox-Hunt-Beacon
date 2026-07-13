@@ -58,7 +58,7 @@
     "operatingSystem": "ESP32",
     "applicationCategory": "EmbeddedFirmware",
     "softwareVersion": "1.1.0",
-    "description": "ESP32 firmware for amateur radio fox hunting (ARDF) beacons. Controls a handheld radio via PTT and audio interface to transmit CW identification and optional warble tones. Supports 32 ESP32 board variants with web-based browser flashing, WiFi admin UI, OLED/TFT/E-Ink displays, battery monitoring, and IARU standard fox timing.",
+    "description": "ESP32 firmware for amateur radio fox hunting (ARDF) beacons. Controls a handheld radio via PTT and audio interface to transmit CW identification and optional warble tones. Supports 32 ESP32 board variants with web-based browser flashing, WiFi admin UI, OLED/TFT/E-Ink displays with color-themed UI, battery voltage and percentage monitoring, display eco mode, and IARU standard fox timing.",
     "url": "https://fox.hamradio.my/",
     "downloadUrl": "https://fox.hamradio.my/",
     "author": {
@@ -87,9 +87,9 @@
       "Continuous beacon mode for finish-line MO6",
       "Optional warble tone for training",
       "PTT control with configurable lead/tail guard time",
-      "Battery voltage monitoring with low-battery cutoff",
-      "OLED, TFT, and E-Ink display support",
-      "Display eco mode for power saving",
+      "Battery voltage monitoring with Li-ion percentage and low-battery cutoff",
+      "OLED, TFT, and E-Ink display support with color-themed UI",
+      "Display eco mode (on by default, 4s timeout) for power saving",
       "Serial monitor configuration (115200 baud)",
       "Open source GPLv3-or-later"
     ],
@@ -888,14 +888,14 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
         <tr><td>Battery scale</td><td><code>2.0</code></td><td>1.0 - 10.0</td><td>Voltage divider multiplier. If using two equal resistors (e.g. 100k + 100k), set to 2.0. Calibrate by comparing the reported voltage with a multimeter.</td></tr>
         <tr><td>Low battery (V)</td><td><code>3.4</code></td><td>2.5 - 15.0</td><td>Voltage at which the firmware stops transmitting to protect the battery. For a single Li-ion cell, 3.4 V is a safe cutoff.</td></tr>
       </table>
-      <div class="callout callout-info">When battery voltage drops below the cutoff, the beacon stops transmitting and the status LED flashes a low-battery pattern. The beacon resumes when the voltage recovers above the cutoff.</div>
+      <div class="callout callout-info">When enabled, the display and web admin show both battery voltage and Li-ion state-of-charge percentage (e.g. <code>4.12V 87%</code>). The percentage uses a piecewise-linear Li-ion discharge curve (3.2 V = 0%, 4.2 V = 100%). When voltage drops below the cutoff, the beacon stops transmitting and the status LED flashes a low-battery pattern. The beacon resumes when the voltage recovers above the cutoff.</div>
 
       <h3 class="subsection">Display &amp; WiFi</h3>
       <table>
         <tr><th>Setting</th><th>Default</th><th>Range</th><th>Description</th></tr>
         <tr><td>WiFi AP / Web Admin</td><td><code>On</code></td><td>On / Off</td><td>Turns the WiFi access point and web admin UI on or off. When off, WiFi is disabled to save power. Re-enable from the on-screen menu (double-click the button) or via serial <code>set wifi_ap on</code>.</td></tr>
         <tr><td>AP auto-off (min)</td><td><code>10</code></td><td>0 - 1440</td><td>If no phone or laptop connects and no web requests are received for this duration, the AP shuts down to save power. Set to <code>0</code> to keep the AP on indefinitely.</td></tr>
-        <tr><td>Display eco mode</td><td><code>Off</code></td><td>On / Off</td><td>When enabled, the display turns off after 15 seconds of inactivity to save power. Any button press wakes the display. A 10-second grace period keeps the display on after boot. Only applies to boards with a display.</td></tr>
+        <tr><td>Display eco mode</td><td><code>On</code></td><td>On / Off</td><td>When enabled (default), the display turns off after 4 seconds of inactivity to save power. Any button press wakes the display for another 4-second glance. A 10-second grace period keeps the display on after boot. Only applies to boards with a display.</td></tr>
       </table>
 
       <h3 class="subsection">Action Buttons</h3>

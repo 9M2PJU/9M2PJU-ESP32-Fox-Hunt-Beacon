@@ -14,6 +14,7 @@ extern void loadDefaultConfig();
 extern bool forceTransmit;
 extern void testPttOnly();
 extern float readBatteryVoltage();
+extern uint8_t readBatteryPercent();
 extern uint8_t foxNumberFromId(const String &id);
 extern uint32_t resolvedStartupDelaySeconds();
 extern int beaconStateValue();
@@ -101,6 +102,7 @@ static void handleGetConfig(AsyncWebServerRequest *request) {
   json += "\"state\":\"" + stateName(beaconStateValue()) + "\",";
   if (config.batteryEnabled) {
     json += "\"battery\":\"" + String(readBatteryVoltage(), 2) + "\",";
+    json += "\"batteryPct\":" + String(readBatteryPercent()) + ",";
   } else {
     json += "\"battery\":\"N/A\",";
   }

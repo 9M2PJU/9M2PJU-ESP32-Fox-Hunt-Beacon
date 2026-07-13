@@ -60,6 +60,11 @@
 #define DEFAULT_BATTERY_SCALE 2.0f
 #define DEFAULT_LOW_BATTERY_VOLTAGE 3.40f
 
+// Display eco mode. When enabled, the display sleeps after a short period of
+// inactivity to save power — desirable for a battery-powered fox hunt beacon.
+// Wakes on any button press.
+#define DEFAULT_DISPLAY_ECO_MODE 1
+
 // Default pins for classic ESP32 DevKit-style boards. Some board environments
 // override these in platformio.ini.
 #ifndef PTT_PIN
@@ -107,7 +112,7 @@ struct BeaconConfig {
   uint16_t beaconIdIntervalSeconds = DEFAULT_BEACON_ID_INTERVAL_SECONDS;
   bool wifiApEnabled = true;       // WiFi AP + web admin UI on/off
   uint16_t wifiApTimeoutMinutes = 10; // Auto-off AP after N minutes of no activity (0 = never)
-  bool displayEcoMode = false;     // Turn off display after inactivity
+  bool displayEcoMode = DEFAULT_DISPLAY_ECO_MODE;     // Turn off display after inactivity
 };
 
 // Beacon state machine states.

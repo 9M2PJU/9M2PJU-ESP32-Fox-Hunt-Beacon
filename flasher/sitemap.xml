@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://fox.hamradio.my/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://fox.hamradio.my/logo.png</image:loc>
+      <image:title>9M2PJU ESP32 Fox Hunt Beacon logo</image:title>
+      <image:caption>ESP32 firmware for amateur radio fox hunting with browser-based web flasher</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://fox.hamradio.my/wiring-diagram.svg</image:loc>
+      <image:title>ESP32 to handheld radio wiring diagram</image:title>
+      <image:caption>Wiring diagram for connecting ESP32 to a handheld radio via PTT and audio interface</image:caption>
+    </image:image>
+  </url>
+</urlset>

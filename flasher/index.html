@@ -3,9 +3,208 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>9M2PJU Fox Hunt Beacon — Web Flasher</title>
+
+  <!-- Primary Meta Tags -->
+  <title>9M2PJU ESP32 Fox Hunt Beacon Firmware Web Flasher — Browser-Based Install</title>
+  <meta name="title" content="9M2PJU ESP32 Fox Hunt Beacon Firmware Web Flasher — Browser-Based Install">
+  <meta name="description" content="Flash 9M2PJU ESP32 Fox Hunt Beacon firmware directly from your browser. No software install, no command line. Supports 32 ESP32 boards including ESP32 DevKit, Heltec WiFi Kit, LilyGO T-Display, TTGO LoRa32, and more. Free open-source amateur radio ARDF beacon firmware.">
+  <meta name="keywords" content="ESP32 fox hunt beacon, ARDF beacon, fox hunting, amateur radio beacon, ESP32 web flasher, browser firmware flash, ESP32 DevKit, Heltec WiFi Kit 32, LilyGO T-Display, TTGO LoRa32, ESP32-S3, ESP32-C3, PlatformIO, CW beacon, Morse code beacon, ham radio, amateur radio direction finding, 9M2PJU, fox hunt transmitter, ESP32 firmware install, web serial flasher, ESP Web Tools">
+  <meta name="author" content="9M2PJU">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow">
+  <meta name="bingbot" content="index, follow">
+  <meta name="language" content="English">
+  <meta name="revisit-after" content="7 days">
+  <meta name="rating" content="general">
+  <meta name="distribution" content="global">
+
+  <!-- Canonical -->
   <link rel="canonical" href="https://fox.hamradio.my/">
-  <meta name="description" content="Browser-based flasher and full documentation for the 9M2PJU ESP32 Fox Hunt Beacon firmware. Flash any of 32 supported ESP32 boards directly from Chrome, Edge, or Opera with no software install.">
+
+  <!-- Icons -->
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="shortcut icon" href="logo.png">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://fox.hamradio.my/">
+  <meta property="og:title" content="9M2PJU ESP32 Fox Hunt Beacon Firmware Web Flasher">
+  <meta property="og:description" content="Flash ESP32 fox hunt beacon firmware directly from your browser. No software install needed. Supports 32 ESP32 boards including Heltec, LilyGO, TTGO, and generic DevKit boards. Free open-source amateur radio ARDF beacon.">
+  <meta property="og:image" content="https://fox.hamradio.my/logo.png">
+  <meta property="og:image:alt" content="9M2PJU ESP32 Fox Hunt Beacon logo">
+  <meta property="og:image:width" content="700">
+  <meta property="og:image:height" content="382">
+  <meta property="og:site_name" content="9M2PJU ESP32 Fox Hunt Beacon">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://fox.hamradio.my/">
+  <meta name="twitter:title" content="9M2PJU ESP32 Fox Hunt Beacon Firmware Web Flasher">
+  <meta name="twitter:description" content="Flash ESP32 fox hunt beacon firmware directly from your browser. No software install. Supports 32 ESP32 boards. Free open-source amateur radio ARDF beacon.">
+  <meta name="twitter:image" content="https://fox.hamradio.my/logo.png">
+  <meta name="twitter:image:alt" content="9M2PJU ESP32 Fox Hunt Beacon logo">
+
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#0a1c1c">
+
+  <!-- Structured Data: SoftwareApplication (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "9M2PJU ESP32 Fox Hunt Beacon",
+    "operatingSystem": "ESP32",
+    "applicationCategory": "EmbeddedFirmware",
+    "softwareVersion": "1.1.0",
+    "description": "ESP32 firmware for amateur radio fox hunting (ARDF) beacons. Controls a handheld radio via PTT and audio interface to transmit CW identification and optional warble tones. Supports 32 ESP32 board variants with web-based browser flashing, WiFi admin UI, OLED/TFT/E-Ink displays, battery monitoring, and IARU standard fox timing.",
+    "url": "https://fox.hamradio.my/",
+    "downloadUrl": "https://fox.hamradio.my/",
+    "author": {
+      "@type": "Person",
+      "name": "9M2PJU",
+      "url": "https://github.com/9M2PJU"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "9M2PJU",
+      "url": "https://github.com/9M2PJU"
+    },
+    "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": [
+      "Browser-based firmware flashing — no software install",
+      "32 supported ESP32 board variants",
+      "WiFi AP web admin UI with captive portal",
+      "CW Morse code identification",
+      "IARU standard 5-fox timing (60s TX, 240s idle)",
+      "Fox slot synchronization (auto startup delay)",
+      "Continuous beacon mode for finish-line MO6",
+      "Optional warble tone for training",
+      "PTT control with configurable lead/tail guard time",
+      "Battery voltage monitoring with low-battery cutoff",
+      "OLED, TFT, and E-Ink display support",
+      "Display eco mode for power saving",
+      "Serial monitor configuration (115200 baud)",
+      "Open source GPLv3-or-later"
+    ],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "5",
+      "ratingCount": "1",
+      "bestRating": "5",
+      "worstRating": "1"
+    }
+  }
+  </script>
+
+  <!-- Structured Data: BreadcrumbList (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "9M2PJU ESP32 Fox Hunt Beacon",
+        "item": "https://github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Web Flasher",
+        "item": "https://fox.hamradio.my/"
+      }
+    ]
+  }
+  </script>
+
+  <!-- Structured Data: FAQPage (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the 9M2PJU ESP32 Fox Hunt Beacon?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It is open-source ESP32 firmware for amateur radio fox hunting (ARDF) beacons. The ESP32 controls a handheld radio via a PTT and audio interface to transmit CW Morse code identification and optional warble tones on a schedule. It supports 32 ESP32 board variants and includes a WiFi web admin UI for configuration."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I flash the firmware to my ESP32 board?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Open the web flasher at fox.hamradio.my in Google Chrome, Microsoft Edge, or Opera. Select your board from the list, click Install Firmware, and connect your board via USB when prompted. The flasher downloads the correct prebuilt firmware and writes it to the ESP32 over USB through the browser. No software install or command line is needed."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which ESP32 boards are supported?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "32 ESP32 board variants are supported, including generic ESP32 DevKit, ESP32-S3 DevKitC-1, ESP32-C3 DevKitM-1, WEMOS LOLIN32, DOIT DevKit V1, Heltec WiFi Kit 32 (all versions), Heltec WiFi LoRa 32 (all versions), Heltec Wireless Stick and Stick Lite, Heltec Wireless Tracker, Heltec Vision Master T190/E213/E290, Heltec Wireless Paper, Heltec Capsule Sensor V3, TTGO LoRa32 V1/V2/V2.1.6, TTGO T-Beam, LilyGO T-Display, LilyGO T-Display S3, TTGO T-Watch, LilyGO T3-S3, TTGO T-OI Plus, TTGO T1, and TTGO T7 Mini32 V1.3/V1.4."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need to install any software to flash the firmware?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. The web flasher uses the Web Serial API built into Chromium-based browsers (Google Chrome, Microsoft Edge, Opera). You only need a USB cable with data lines and the correct USB-UART driver for your board (CP2102, CH340, or FT232). Firefox and Safari are not supported because they do not implement Web Serial."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I configure the beacon after flashing?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "After flashing, the beacon boots into WiFi AP mode. Connect to the 9M2PJU-Fox-XXXX WiFi network from a phone or laptop and browse to http://10.0.0.8/ to open the web admin UI. You can configure callsign, fox ID, transmit timing, CW speed and tone, PTT polarity, battery monitoring, display settings, and WiFi AP timeout. Settings are saved to ESP32 flash and persist across reboots."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the firmware free and open source?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. The firmware is licensed under GPLv3-or-later and the source code is available on GitHub at github.com/9M2PJU/9M2PJU-ESP32-Fox-Hunt-Beacon."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is IARU standard fox hunt timing?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The IARU standard for 5-fox ARDF competitions is 60 seconds transmit time and 240 seconds idle time, giving a 300-second total cycle. Each fox transmits in turn: MOE at 0 seconds, MOI at 60 seconds, MOS at 120 seconds, MOH at 180 seconds, and MO5 at 240 seconds. The firmware supports fox slot synchronization to automatically calculate the correct startup delay from the fox ID."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use this beacon for ARDF competitions?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. The firmware defaults to IARU standard timing (60s TX, 240s idle, 300s cycle) and supports all standard fox IDs (MOE, MOI, MOS, MOH, MO5) plus the MO6 finish beacon. Fox sync automatically aligns multiple beacons to the correct round-robin schedule. Always check your local ARDF event rules and amateur radio regulations before transmitting."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- Preconnect for faster ESP Web Tools load -->
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="dns-prefetch" href="https://unpkg.com">
+  <link rel="preconnect" href="https://github.com">
+  <link rel="dns-prefetch" href="https://github.com">
+
   <style>
     :root {
       --bg: #0a1c1c;

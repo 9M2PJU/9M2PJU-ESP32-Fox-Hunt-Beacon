@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://fox.hamradio.my/sitemap.xml

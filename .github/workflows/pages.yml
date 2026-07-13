@@ -38,9 +38,9 @@ jobs:
             exit 0
           fi
           echo "Latest release: $LATEST"
-          # Download all firmware-*.bin assets from the release
-          curl -sL "https://api.github.com/repos/${{ github.repository }}/releases/$LATEST/assets" | \
-            jq -r '.[] | select(.name | startswith("firmware-")) | .browser_download_url' | \
+          # Download all firmware-*.bin assets from the release (look up by tag)
+          curl -sL "https://api.github.com/repos/${{ github.repository }}/releases/tags/$LATEST" | \
+            jq -r '.assets[] | select(.name | startswith("firmware-")) | .browser_download_url' | \
             while read -r url; do
               filename=$(basename "$url")
               echo "Downloading $filename ..."

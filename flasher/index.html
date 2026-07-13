@@ -382,6 +382,7 @@
       <a href="#install">Install</a>
       <a href="#prereq">Prerequisites</a>
       <a href="#wiring">Wiring Diagram</a>
+      <a href="#settings">Web Admin Settings</a>
     </nav>
 
     <!-- Install -->
@@ -515,6 +516,90 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
         <li>Some radios produce RF noise that can reset a nearby ESP32. Keep wires short, add decoupling, and use a separate enclosure ground plan if needed.</li>
         <li>VOX can work for tests, but wired PTT is more predictable for a beacon.</li>
       </ul>
+    </div>
+
+    <!-- Web Admin Settings -->
+    <h2 class="section-title" id="settings">Web Admin UI Settings</h2>
+    <div class="card">
+      <p>After flashing, the beacon boots into WiFi AP mode. Connect to the <code>9M2PJU-Fox-XXXX</code> WiFi network from a phone or laptop and browse to <code>http://10.0.0.8/</code> to open the web admin UI. Every setting below is available on that page. Settings are saved to ESP32 flash and persist across reboots.</p>
+
+      <h3 class="subsection">Identification</h3>
+      <table>
+        <tr><th>Setting</th><th>Default</th><th>Description</th></tr>
+        <tr><td>Callsign</td><td><code>9M2PJU</code></td><td>The amateur radio callsign sent in CW at the start of each transmission. Set this to your own licensed callsign as required by local regulations.</td></tr>
+        <tr><td>Fox ID</td><td><code>MOE</code></td><td>The ARDF fox identifier sent after the callsign. Standard IDs: <code>MOE</code> (fox 1), <code>MOI</code> (fox 2), <code>MOS</code> (fox 3), <code>MOH</code> (fox 4), <code>MO5</code> (fox 5), <code>MO6</code> (finish beacon).</td></tr>
+        <tr><td>Mode</td><td><code>Fox</code></td><td><strong>Fox (scheduled)</strong>: transmits for the TX time, then waits for the idle time, and repeats. <strong>Beacon (continuous)</strong>: keys PTT continuously and re-sends the CW ID at the beacon ID interval. Use beacon mode for a finish-line MO6 transmitter on a separate frequency.</td></tr>
+        <tr><td>Fox sync</td><td><code>On</code></td><td>When enabled, the startup delay is automatically calculated from the Fox ID so that five beacons powered on at the same time fall into the correct IARU round-robin order (MOE=0 s, MOI=60 s, MOS=120 s, MOH=180 s, MO5=240 s). Disable to set the startup delay manually.</td></tr>
+      </table>
+
+      <h3 class="subsection">Timing (seconds)</h3>
+      <table>
+        <tr><th>Setting</th><th>Default</th><th>Range</th><th>Description</th></tr>
+        <tr><td>Startup delay</td><td><code>10</code></td><td>0 - 3600</td><td>Wait time after power-on before the beacon schedule starts. Gives the operator time to hide the beacon. Overridden by fox sync when enabled.</td></tr>
+        <tr><td>Transmit time</td><td><code>60</code></td><td>3 - 600</td><td>How long the radio transmits each cycle. IARU standard is 60 seconds.</td></tr>
+        <tr><td>Idle time</td><td><code>240</code></td><td>5 - 3600</td><td>Quiet time between transmissions. IARU standard is 240 seconds for a 5-fox cycle (total cycle = 300 s).</td></tr>
+        <tr><td>Beacon ID interval</td><td><code>60</code></td><td>10 - 600</td><td>In beacon (continuous) mode, how often the CW ID is repeated while PTT is held. Ignored in fox mode.</td></tr>
+      </table>
+
+      <h3 class="subsection">CW / Audio</h3>
+      <table>
+        <tr><th>Setting</th><th>Default</th><th>Range</th><th>Description</th></tr>
+        <tr><td>CW speed (WPM)</td><td><code>12</code></td><td>5 - 35</td><td>Morse code speed in words per minute. Lower values are easier to copy by ear.</td></tr>
+        <tr><td>CW tone (Hz)</td><td><code>700</code></td><td>300 - 1800</td><td>Audio tone frequency for the CW ID and steady carrier. 700 Hz is a common ARDF standard tone.</td></tr>
+        <tr><td>Warble</td><td><code>Off</code></td><td>On / Off</td><td>When enabled, an alternating warble tone plays after the CW ID until the TX timer ends. Non-standard but useful for training. Disabled by default for IARU compliance.</td></tr>
+        <tr><td>Warble low (Hz)</td><td><code>700</code></td><td>300 - 1800</td><td>Low frequency of the warble alternation.</td></tr>
+        <tr><td>Warble high (Hz)</td><td><code>900</code></td><td>300 - 1800</td><td>High frequency of the warble alternation.</td></tr>
+        <tr><td>Warble step (ms)</td><td><code>350</code></td><td>100 - 3000</td><td>How fast the warble alternates between low and high frequencies. Higher values = slower alternation.</td></tr>
+      </table>
+
+      <h3 class="subsection">PTT</h3>
+      <table>
+        <tr><th>Setting</th><th>Default</th><th>Range</th><th>Description</th></tr>
+        <tr><td>PTT polarity</td><td><code>Active HIGH</code></td><td>HIGH / LOW</td><td>GPIO level that keys the radio. Use <strong>Active HIGH</strong> for the recommended NPN transistor, MOSFET, or optocoupler interface (GPIO goes HIGH to key). Use <strong>Active LOW</strong> only if your circuit keys when GPIO is LOW.</td></tr>
+        <tr><td>PTT lead (ms)</td><td><code>350</code></td><td>50 - 3000</td><td>Delay after keying PTT before audio starts. Gives the radio time to fully transmit before audio is sent.</td></tr>
+        <tr><td>PTT tail (ms)</td><td><code>350</code></td><td>50 - 3000</td><td>Delay before releasing PTT after audio stops. Ensures the final CW character is fully transmitted before unkeying.</td></tr>
+      </table>
+      <div class="callout callout-warning">Test PTT with an LED or multimeter before connecting a radio. Use <code>ptt_test</code> to key PTT for 1.2 seconds without audio.</div>
+
+      <h3 class="subsection">Battery</h3>
+      <table>
+        <tr><th>Setting</th><th>Default</th><th>Range</th><th>Description</th></tr>
+        <tr><td>Battery monitor</td><td><code>Off</code></td><td>On / Off</td><td>Enables low-battery cutoff via a voltage divider on the ADC pin. Leave off until a divider is installed and calibrated.</td></tr>
+        <tr><td>Battery scale</td><td><code>2.0</code></td><td>1.0 - 10.0</td><td>Voltage divider multiplier. If using two equal resistors (e.g. 100k + 100k), set to 2.0. Calibrate by comparing the reported voltage with a multimeter.</td></tr>
+        <tr><td>Low battery (V)</td><td><code>3.4</code></td><td>2.5 - 15.0</td><td>Voltage at which the firmware stops transmitting to protect the battery. For a single Li-ion cell, 3.4 V is a safe cutoff.</td></tr>
+      </table>
+      <div class="callout callout-info">When battery voltage drops below the cutoff, the beacon stops transmitting and the status LED flashes a low-battery pattern. The beacon resumes when the voltage recovers above the cutoff.</div>
+
+      <h3 class="subsection">Display &amp; WiFi</h3>
+      <table>
+        <tr><th>Setting</th><th>Default</th><th>Range</th><th>Description</th></tr>
+        <tr><td>WiFi AP / Web Admin</td><td><code>On</code></td><td>On / Off</td><td>Turns the WiFi access point and web admin UI on or off. When off, WiFi is disabled to save power. Re-enable from the on-screen menu (double-click the button) or via serial <code>set wifi_ap on</code>.</td></tr>
+        <tr><td>AP auto-off (min)</td><td><code>10</code></td><td>0 - 1440</td><td>If no phone or laptop connects and no web requests are received for this duration, the AP shuts down to save power. Set to <code>0</code> to keep the AP on indefinitely.</td></tr>
+        <tr><td>Display eco mode</td><td><code>Off</code></td><td>On / Off</td><td>When enabled, the display turns off after 15 seconds of inactivity to save power. Any button press wakes the display. A 10-second grace period keeps the display on after boot. Only applies to boards with a display.</td></tr>
+      </table>
+
+      <h3 class="subsection">Action Buttons</h3>
+      <p>The web admin UI also has five action buttons at the bottom of the page:</p>
+      <table>
+        <tr><th>Button</th><th>Action</th></tr>
+        <tr><td>Save</td><td>Saves all settings to ESP32 flash memory. Settings persist across reboots.</td></tr>
+        <tr><td>Test TX</td><td>Triggers one complete beacon transmission immediately. Useful for verifying the radio interface without waiting for the schedule.</td></tr>
+        <tr><td>PTT Test</td><td>Keys PTT for about 1.2 seconds with no audio. Use this to verify the PTT circuit before connecting audio.</td></tr>
+        <tr><td>Defaults</td><td>Restores all settings to factory defaults and saves them to flash.</td></tr>
+        <tr><td>Reboot</td><td>Restarts the ESP32. Required for some settings (like WiFi AP on/off) to take effect.</td></tr>
+      </table>
+
+      <h3 class="subsection">Connecting To The Web Admin UI</h3>
+      <ol>
+        <li>After flashing, power on the ESP32 board.</li>
+        <li>Wait 5-10 seconds for the WiFi AP to start.</li>
+        <li>On a phone or laptop, open WiFi settings and look for a network named <code>9M2PJU-Fox-XXXX</code> (last 4 hex of the board's MAC address).</li>
+        <li>Connect to it (open network, no password by default).</li>
+        <li>A captive portal page should auto-open. If it does not, browse to <code>http://10.0.0.8/</code> manually.</li>
+        <li>Configure your settings and click <strong>Save</strong>.</li>
+        <li>Use <strong>Test TX</strong> or <strong>PTT Test</strong> to verify the radio interface.</li>
+      </ol>
+      <div class="callout callout-info">The WiFi AP auto-turns off after 10 minutes of inactivity by default. To turn it back on, double-click the board's button to open the on-screen menu and toggle WiFi AP, or connect via serial and run <code>set wifi_ap on</code>.</div>
     </div>
 
     <!-- Footer -->

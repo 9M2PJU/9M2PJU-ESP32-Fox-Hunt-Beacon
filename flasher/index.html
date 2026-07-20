@@ -628,6 +628,10 @@
         Select a board above to begin installation.
       </div>
 
+      <div id="downloadCounter" style="margin-top:18px;font-size:.9rem;color:#64748b;text-align:center;">
+        <span id="counterLabel">Loading install count&hellip;</span>
+      </div>
+
       <div id="browser-warning-fallback" class="browser-warning">
         <strong>Browser not supported.</strong> This web flasher requires a
         Chromium-based browser with Web Serial support (Google Chrome,
@@ -1073,6 +1077,34 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
         if (w) w.classList.add("show");
       }
     })();
+  </script>
+
+  <!-- Install counter — counts real successful installs via counter.hamradio.my
+       Cloudflare Worker (not blocked by ad blockers). Listens for the "closed"
+       event from the esp-web-install-button dialog and only increments when
+       state === 'finished'. -->
+  <script>
+  (function() {
+    var API_BASE = 'https://counter.hamradio.my/esp32-fox-hunt';
+    var counterLabel = document.getElementById('counterLabel');
+    function renderCount(n) {
+      counterLabel.innerHTML = '<strong style="font-size:1.3em;color:#07b6d3;">' + n + '</strong> installs via this page';
+    }
+    fetch(API_BASE + '/')
+      .then(function(r) { return r.json(); })
+      .then(function(data) { renderCount(data.count || 0); })
+      .catch(function() { counterLabel.textContent = ''; });
+    document.body.addEventListener('closed', function(e) {
+      var dialog = e.target;
+      var state = dialog && dialog._installState;
+      if (state && state.state === 'finished') {
+        fetch(API_BASE + '/up')
+          .then(function(r) { return r.json(); })
+          .then(function(data) { renderCount(data.count || 0); })
+          .catch(function() {});
+      }
+    });
+  })();
   </script>
 </body>
 </html>

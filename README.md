@@ -708,6 +708,10 @@ development going:
 - PayPal: <https://www.paypal.me/9m2pju>
 - Buy Me a Coffee: <https://www.buymeacoffee.com/9m2pju>
 
+<p align="center">
+  <img src="https://callsign.hamradio.my/qr.png?v=20261105" alt="Donation QR code" width="200">
+</p>
+
 ## Support
 
 For setup and field help, start with the guides in [`docs/`](docs/) and the

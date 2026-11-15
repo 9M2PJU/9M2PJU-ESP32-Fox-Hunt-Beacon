@@ -10,7 +10,8 @@ configuration, battery monitoring, and push-to-talk control. The walkie-talkie
 generates the actual RF signal.
 
 <p align="center">
-  <a href="https://paypal.me/9M2PJU"><img src="https://img.shields.io/badge/Donate-PayPal-blue.svg" alt="Donate with PayPal"></a>
+  <a href="https://www.paypal.me/9m2pju"><img src="https://img.shields.io/badge/Donate-PayPal-blue.svg" alt="Donate with PayPal"></a>
+  <a href="https://www.buymeacoffee.com/9m2pju"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee"></a>
 </p>
 
 The firmware is built with PlatformIO and the Arduino framework for ESP32
@@ -704,9 +705,8 @@ This project is licensed under the GNU General Public License v3.0 or later
 If this firmware helped your fox hunt, please consider a small donation to keep
 development going:
 
-<p align="center">
-  <a href="https://paypal.me/9M2PJU"><img src="https://img.shields.io/badge/Donate-PayPal-blue.svg" alt="Donate with PayPal"></a>
-</p>
+- PayPal: <https://www.paypal.me/9m2pju>
+- Buy Me a Coffee: <https://www.buymeacoffee.com/9m2pju>
 
 ## Support
 

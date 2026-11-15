@@ -3,7 +3,7 @@
 #include <Arduino.h>
 
 // Firmware version shown on startup screen and web admin UI.
-#define FIRMWARE_VERSION "1.2.0"
+#define FIRMWARE_VERSION "1.2.1"
 
 // Preferences schema version. Bumped when new keys are added.
 #define CONFIG_VERSION 2

@@ -1217,6 +1217,15 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
 
       // Show on every visit.
       setTimeout(function () { modal.classList.add("show"); }, 800);
+
+      // Show again after a successful web flash install.
+      document.body.addEventListener("closed", function (e) {
+        var dialog = e.target;
+        var st = dialog && dialog._installState;
+        if (st && st.state === "finished") {
+          setTimeout(function () { modal.classList.add("show"); }, 1200);
+        }
+      });
     })();
 
     // Initial render

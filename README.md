@@ -9,6 +9,10 @@ walkie-talkies. The ESP32 handles timing, identification, audio tones,
 configuration, battery monitoring, and push-to-talk control. The walkie-talkie
 generates the actual RF signal.
 
+<p align="center">
+  <a href="https://paypal.me/9M2PJU"><img src="https://img.shields.io/badge/Donate-PayPal-blue.svg" alt="Donate with PayPal"></a>
+</p>
+
 The firmware is built with PlatformIO and the Arduino framework for ESP32
 boards. It is designed to key a handheld radio through a simple PTT interface
 and feed CW or warble tone into the radio microphone input.
@@ -695,8 +699,16 @@ wifi_password = (empty=open)
 This project is licensed under the GNU General Public License v3.0 or later
 (`GPL-3.0-or-later`). See [LICENSE](LICENSE) for the full license text.
 
+## Donate
+
+If this firmware helped your fox hunt, please consider a small donation to keep
+development going:
+
+<p align="center">
+  <a href="https://paypal.me/9M2PJU"><img src="https://img.shields.io/badge/Donate-PayPal-blue.svg" alt="Donate with PayPal"></a>
+</p>
+
 ## Support
 
-If you find this project useful, please consider supporting it:
-
-[![Donate with PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://paypal.me/9M2PJU)
+For setup and field help, start with the guides in [`docs/`](docs/) and the
+[web flasher](https://fox.hamradio.my).

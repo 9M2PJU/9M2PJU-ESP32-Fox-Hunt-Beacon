@@ -249,8 +249,81 @@
     .banner .tagline {
       color: var(--muted);
       font-size: 1rem;
-      padding: 0 1rem 1.5rem;
+      padding: 0 1rem 1rem;
     }
+    .donate-btn {
+      display: inline-block;
+      background: transparent;
+      border: 1px solid var(--yellow);
+      color: var(--yellow);
+      padding: 0.4rem 1.2rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 1.25rem;
+      transition: background 0.15s, color 0.15s;
+    }
+    .donate-btn:hover {
+      background: rgba(210,153,34,0.15);
+    }
+    .donate-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.65);
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .donate-modal.show { display: flex; }
+    .donate-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem 1.75rem;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+    }
+    .donate-box h3 {
+      color: var(--text);
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    .donate-box p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-bottom: 1rem;
+    }
+    .donate-box .paypal-link {
+      display: inline-block;
+      background: var(--yellow);
+      color: #1a1a1a;
+      font-weight: 600;
+      padding: 0.6rem 2rem;
+      border-radius: 9999px;
+      text-decoration: none;
+      font-size: 0.92rem;
+    }
+    .donate-box .paypal-link:hover { filter: brightness(1.1); }
+    .donate-close {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.75rem;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.3rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .donate-close:hover { color: var(--text); }
     .container {
       max-width: 880px;
       margin: 0 auto;
@@ -573,6 +646,7 @@
   <div class="banner">
     <img src="logo.png" alt="9M2PJU Fox Hunt Beacon">
     <div class="tagline">9M2PJU ESP32 firmware for amateur radio fox hunting &middot; Flash directly from your browser</div>
+    <button class="donate-btn" id="donate-open" type="button">Donate</button>
   </div>
 
   <div class="container">
@@ -671,7 +745,8 @@
 
       <h3 class="subsection">Recommended Interface</h3>
       <p>Use isolation or transistor switching. Do not connect an ESP32 GPIO directly to a radio PTT line until you know the radio voltage and current.</p>
-      <pre><code>ESP32 GPIO 25 ---- resistor ---- NPN base
+      <pre><code>ESP32 GPIO 25 ---- 1 k resistor ---- NPN base
+NPN base ---- 10 k resistor ---- radio/accessory ground (pull-down)
 NPN emitter -------------------- radio/accessory ground
 NPN collector ------------------ radio PTT line
 
@@ -822,6 +897,13 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
 
       <div class="callout callout-warning">Always confirm pins against your board's silkscreen and pinout diagram before wiring. Some board revisions reserve pins for displays, LoRa modules, GNSS, battery charging, or power-control circuits.</div>
 
+      <h3 class="subsection">Radio Checks (Do These First)</h3>
+      <ol>
+        <li>Measure the radio PTT open-circuit voltage with a multimeter. Confirm it is within the switching transistor rating.</li>
+        <li>Confirm the interface stays open-collector: radio voltage must never reach an ESP32 pin.</li>
+        <li>Confirm the microphone bias polarity before connecting audio. The coupling capacitor blocks DC, but reversed wiring still fails.</li>
+      </ol>
+
       <h3 class="subsection">First Test</h3>
       <ol>
         <li>Flash the firmware using the web flasher above.</li>
@@ -891,7 +973,7 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
       <table>
         <tr><th>Setting</th><th>Default</th><th>Range</th><th>Description</th></tr>
         <tr><td>Battery monitor</td><td><code>Off</code></td><td>On / Off</td><td>Enables low-battery cutoff via a voltage divider on the ADC pin. Leave off until a divider is installed and calibrated.</td></tr>
-        <tr><td>Battery scale</td><td><code>2.0</code></td><td>1.0 - 10.0</td><td>Voltage divider multiplier. If using two equal resistors (e.g. 100k + 100k), set to 2.0. Calibrate by comparing the reported voltage with a multimeter.</td></tr>
+        <tr><td>Battery scale</td><td><code>2.0</code></td><td>1.0 - 10.0</td><td>Voltage divider multiplier. With equal resistors (e.g. 100k + 100k, recommended with a 100 nF capacitor from the ADC pin to ground), set to 2.0. Calibrate by comparing the reported voltage with a multimeter. The 2:1 ratio suits single-cell Li-ion or USB 5 V only; recompute for other packs so the ADC pin never sees more than 3.3 V.</td></tr>
         <tr><td>Low battery (V)</td><td><code>3.4</code></td><td>2.5 - 15.0</td><td>Voltage at which the firmware stops transmitting to protect the battery. For a single Li-ion cell, 3.4 V is a safe cutoff.</td></tr>
       </table>
       <div class="callout callout-info">When enabled, the display and web admin show both battery voltage and Li-ion state-of-charge percentage (e.g. <code>4.12V 87%</code>). The percentage uses a piecewise-linear Li-ion discharge curve (3.2 V = 0%, 4.2 V = 100%). When voltage drops below the cutoff, the beacon stops transmitting and the status LED flashes a low-battery pattern. The beacon resumes when the voltage recovers above the cutoff.</div>
@@ -933,8 +1015,19 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
     <div class="footer">
       9M2PJU Fox Hunt Beacon &middot; Firmware v1.2.1 &middot; GPLv3-or-later
       <div style="margin-top:0.4rem;">Amateur radio fox hunting beacon firmware for ESP32</div>
+      <div style="margin-top:0.6rem;"><a href="#" id="donate-open-footer" style="color:var(--yellow);text-decoration:none;">Donate via PayPal</a></div>
     </div>
 
+  </div>
+
+  <!-- Donate popup -->
+  <div class="donate-modal" id="donate-modal" role="dialog" aria-modal="true" aria-labelledby="donate-title">
+    <div class="donate-box">
+      <button class="donate-close" id="donate-close" type="button" aria-label="Close">&times;</button>
+      <h3 id="donate-title">Support this project</h3>
+      <p>If this firmware helped your fox hunt, consider a small donation to keep development going.</p>
+      <a class="paypal-link" href="https://paypal.me/9M2PJU" target="_blank" rel="noopener">Donate with PayPal</a>
+    </div>
   </div>
 
   <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
@@ -1069,6 +1162,29 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
 
     // Clear button
     document.getElementById("clear-selection").addEventListener("click", clearSelection);
+
+    // Donate popup
+    (function () {
+      var modal = document.getElementById("donate-modal");
+      if (!modal) return;
+      function openDonate(e) {
+        if (e) e.preventDefault();
+        modal.classList.add("show");
+      }
+      function closeDonate() { modal.classList.remove("show"); }
+      var openBtn = document.getElementById("donate-open");
+      var openFooter = document.getElementById("donate-open-footer");
+      var closeBtn = document.getElementById("donate-close");
+      if (openBtn) openBtn.addEventListener("click", openDonate);
+      if (openFooter) openFooter.addEventListener("click", openDonate);
+      if (closeBtn) closeBtn.addEventListener("click", closeDonate);
+      modal.addEventListener("click", function (e) {
+        if (e.target === modal) closeDonate();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeDonate();
+      });
+    })();
 
     // Initial render
     renderBoards();

@@ -14,13 +14,18 @@ unkeyed while the ESP32 is in reset or booting. Firmware holds the safe level
 on RTC-capable pins, but that does not cover every board.
 
 ```text
-ESP32 GPIO 25 ---- resistor ---- NPN base
+ESP32 GPIO 25 ---- 1 k resistor ---- NPN base
+NPN base ---- 10 k resistor ---- radio/accessory ground (pull-down)
 NPN emitter -------------------- radio/accessory ground
 NPN collector ------------------ radio PTT line
 
 ESP32 GPIO 26 ---- RC filter ---- coupling capacitor ---- level pot ---- radio mic input
 ESP32 GND ----------------------------------------------- radio/accessory ground
 ```
+
+The 10 k pull-down keeps the radio unkeyed while the ESP32 pin floats during
+reset and boot. Firmware also holds the safe level where the chip supports it,
+but the resistor is the guard that works on every board.
 
 For better protection, replace the NPN PTT switch with an optocoupler. This is
 especially useful if the radio accessory ground is noisy or if the radio is
@@ -39,6 +44,28 @@ GPIO 26 -> 1 k resistor -> 100 nF capacitor to ground -> 1 uF coupling capacitor
 
 Set the radio volume low while testing. Listen on a second receiver and adjust
 the trimpot until the CW and tone are clean but not distorted.
+
+## Battery Divider
+
+For battery monitoring, divide the pack voltage down to the ADC pin:
+
+```text
+Battery (+) ---- R1 ----+---- R2 ---- Battery/GND (-)
+                        |
+                     ADC pin + 100 nF to GND
+```
+
+Use 100k + 100k for single-cell Li-ion or USB 5 V (scale 2.0, low drain) with
+the 100 nF capacitor, or 10k + 10k without it. Scale is (R1 + R2) / R2.
+Recompute for other packs and keep the ADC pin under 3.3 V at full charge.
+
+## Before Connecting a Radio
+
+1. Measure the radio PTT open-circuit voltage. Confirm it is within the
+   switching transistor rating.
+2. Confirm the interface stays open-collector: radio voltage must never reach
+   an ESP32 pin.
+3. Confirm the microphone bias polarity before connecting audio.
 
 ## PTT Notes
 

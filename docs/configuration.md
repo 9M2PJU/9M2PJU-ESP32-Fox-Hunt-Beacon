@@ -282,4 +282,8 @@ show
 ```
 
 Compare the voltage printed by `show` with a multimeter and adjust
-`battery_scale` until it is close enough for field use.
+`battery_scale` until it is close enough for field use. Use 100k + 100k
+resistors with a 100 nF capacitor from the ADC pin to ground for low drain, or
+10k + 10k without the capacitor. Scale is (R1 + R2) / R2. The 2:1 default suits
+single-cell Li-ion or USB 5 V only; recompute for other packs and keep the ADC
+pin under 3.3 V.

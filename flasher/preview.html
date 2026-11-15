@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Web Admin UI Preview - 9M2PJU Fox Hunt Beacon</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#1a1a2e;color:#eee;padding:12px;max-width:600px;margin:auto}
+h1{font-size:1.4em;color:#0ff;margin-bottom:8px}
+h2{font-size:1.1em;color:#0f0;margin:16px 0 8px;border-bottom:1px solid #333;padding-bottom:4px}
+.status{background:#16213e;padding:10px;border-radius:8px;margin-bottom:12px;font-size:.9em}
+.status span{color:#0ff}
+.field{display:flex;justify-content:space-between;align-items:center;padding:6px 0;gap:8px}
+.field label{flex:0 0 45%;font-size:.85em;color:#aaa}
+.field input,.field select{flex:1;padding:6px;background:#0f0f23;border:1px solid #444;border-radius:4px;color:#eee;font-size:.85em}
+.field input:focus,.field select:focus{border-color:#0ff}
+.hint{color:#888;font-size:.7em}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+button{padding:10px 18px;border:none;border-radius:6px;font-size:.9em;cursor:pointer}
+.btn-save{background:#0a7;color:#fff}
+.btn-test{background:#c80;color:#000}
+.btn-ptt{background:#c40;color:#fff}
+.btn-defaults{background:#666;color:#fff}
+.btn-reboot{background:#c00;color:#fff}
+.msg{padding:8px;margin:8px 0;border-radius:4px;display:none}
+.msg-ok{background:#0a52}
+.msg-err{background:#a30}
+a{color:#0ff}
+.preview-note{background:#16213e;border:1px solid #2a4a4d;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.85em;color:#aaa}
+.preview-note a{color:#0ff}
+</style>
+</head>
+<body>
+<div class="preview-note">Static preview of the on-device web admin UI (shown here with sample values). On a real beacon, open <code>http://10.0.0.8/</code> after joining the <code>9M2PJU-Fox-XXXX</code> WiFi network. <a href="./">Back to the web flasher</a>.</div>
+<h1>&#129418; 9M2PJU Fox Hunt Beacon</h1>
+<div class="status" id="status"><b>State:</b> <span>Idle</span> | <b>Battery:</b> <span>4.12 V (87%)</span> | <b>Slot:</b> <span>1</span> (start 0s)<br><b>AP:</b> <span>9M2PJU-Fox-A1B2</span> | <b>IP:</b> <span>10.0.0.8</span></div>
+<div id="msg" class="msg"></div>
+
+<h2>Identification</h2>
+<div class="field"><label>Callsign</label><input type="text" maxlength="12" value="9M2PJU" readonly></div>
+<div class="field"><label>Fox ID</label><input type="text" maxlength="8" value="MOE" readonly></div>
+<div class="field"><label>Mode</label><select disabled><option selected>Fox (scheduled)</option><option>Beacon (continuous)</option></select></div>
+<div class="field"><label>Fox sync</label><select disabled><option selected>On</option><option>Off</option></select></div>
+
+<h2>Timing (seconds)</h2>
+<div class="field"><label>Startup delay</label><input type="number" value="10" readonly></div>
+<div class="field"><label>Transmit time</label><input type="number" value="60" readonly></div>
+<div class="field"><label>Idle time</label><input type="number" value="240" readonly></div>
+<div class="field"><label>Beacon ID interval</label><input type="number" value="60" readonly></div>
+
+<h2>CW / Audio</h2>
+<div class="field"><label>CW speed (WPM)</label><input type="number" value="12" readonly></div>
+<div class="field"><label>CW tone (Hz)</label><input type="number" value="700" readonly></div>
+<div class="field"><label>Warble</label><select disabled><option>On</option><option selected>Off</option></select></div>
+<div class="field"><label>Warble low (Hz)</label><input type="number" value="700" readonly></div>
+<div class="field"><label>Warble high (Hz)</label><input type="number" value="900" readonly></div>
+<div class="field"><label>Warble step (ms)</label><input type="number" value="350" readonly></div>
+
+<h2>PTT</h2>
+<div class="field"><label>PTT polarity</label><select disabled><option selected>Active HIGH</option><option>Active LOW</option></select></div>
+<div class="field"><label>PTT lead (ms)</label><input type="number" value="350" readonly></div>
+<div class="field"><label>PTT tail (ms)</label><input type="number" value="350" readonly></div>
+
+<h2>Battery</h2>
+<div class="field"><label>Battery monitor</label><select disabled><option>On</option><option selected>Off</option></select></div>
+<div class="field"><label>Battery scale</label><input type="number" value="2.00" readonly></div>
+<div class="field"><label>Low battery (V)</label><input type="number" value="3.40" readonly></div>
+
+<h2>Display &amp; WiFi</h2>
+<div class="field"><label>WiFi AP / Web Admin</label><select disabled><option selected>On</option><option>Off</option></select></div>
+<div class="field"><label>AP auto-off (min)</label><input type="number" value="10" readonly><small class="hint">0=never</small></div>
+<div class="field"><label>AP password</label><input type="text" placeholder="empty=open, 8+ chars=set" readonly><small class="hint">leave blank to keep</small></div>
+<div class="field"><label>Display eco mode</label><select disabled><option selected>On</option><option>Off</option></select></div>
+
+<div class="btns">
+<button class="btn-save" type="button">Save</button>
+<button class="btn-test" type="button">Test TX</button>
+<button class="btn-ptt" type="button">PTT Test</button>
+<button class="btn-defaults" type="button">Defaults</button>
+<button class="btn-reboot" type="button">Reboot</button>
+</div>
+
+</body>
+</html>

@@ -709,7 +709,7 @@ development going:
 - Buy Me a Coffee: <https://www.buymeacoffee.com/9m2pju>
 
 <p align="center">
-  <img src="https://callsign.hamradio.my/qr.png?v=20261105" alt="Donation QR code" width="200">
+  <img src="flasher/qr.png" alt="Donation QR code" width="200">
 </p>
 
 ## Support

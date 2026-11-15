@@ -1052,7 +1052,7 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
       <h3 id="donate-title">Support this project</h3>
       <p>If this firmware helped your fox hunt, consider a small donation to keep development going.</p>
       <div class="donate-qr">
-        <img src="https://callsign.hamradio.my/qr.png?v=20261105" alt="Donation QR code" loading="lazy">
+        <img src="qr.png" alt="Donation QR code" loading="lazy">
         <div>Scan with your banking or e-wallet app</div>
       </div>
       <a class="paypal-link" href="https://www.paypal.me/9m2pju" target="_blank" rel="noopener">Donate with PayPal</a><br>
@@ -1214,6 +1214,9 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
       document.addEventListener("keydown", function (e) {
         if (e.key === "Escape") closeDonate();
       });
+
+      // Show on every visit.
+      setTimeout(function () { modal.classList.add("show"); }, 800);
     })();
 
     // Initial render

@@ -26,6 +26,7 @@ constexpr uint32_t MENU_TIMEOUT_MS = 30000;
 constexpr uint32_t DISPLAY_ECO_TIMEOUT_MS = 4000;
 constexpr uint32_t DISPLAY_ECO_GRACE_MS = 10000;  // no eco sleep for first 10s after boot
 constexpr uint32_t TX_POLL_SLICE_MS = 10;  // cooperative slice inside blocking TX delays
+constexpr uint32_t MORSE_POLL_SLICE_MS = 2;  // fine slice for dits/dahs (2 percent of a 12 WPM dot)
 
 Preferences preferences;
 BeaconConfig config;
@@ -606,28 +607,42 @@ bool isLowBattery() {
 
 bool isBatteryRecovered() {
   if (!config.batteryEnabled) return true;
-  return readBatteryVoltageFresh() >= (config.lowBatteryVoltage + LOW_BATTERY_HYSTERESIS_V);
+  // Throttled: fresh ADC costs 24ms, and this runs every loop in halt.
+  // Re-check at most every BATTERY_SAMPLE_MS, use cache in between.
+  static uint32_t lastMs = 0;
+  static bool lastOk = false;
+  const uint32_t now = millis();
+  if (lastMs != 0 && now - lastMs < BATTERY_SAMPLE_MS && cachedBatteryVoltage > 0.0f) {
+    return cachedBatteryVoltage >= (config.lowBatteryVoltage + LOW_BATTERY_HYSTERESIS_V);
+  }
+  lastMs = now;
+  lastOk = readBatteryVoltageFresh() >= (config.lowBatteryVoltage + LOW_BATTERY_HYSTERESIS_V);
+  return lastOk;
 }
 
 // Cooperative sleep used inside TX. Services serial, button, and web tasks in
 // small slices so a 60s transmission does not freeze the firmware. Returns
 // false if TX must abort (low battery or reboot requested).
-bool keyedDelayAbortable(uint32_t durationMs) {
+bool keyedDelayAbortableSlice(uint32_t durationMs, uint32_t sliceMs) {
   const uint32_t startedAt = millis();
   while (elapsedSince(startedAt) < durationMs) {
     uint32_t remaining = durationMs - elapsedSince(startedAt);
-    uint32_t slice = remaining < TX_POLL_SLICE_MS ? remaining : TX_POLL_SLICE_MS;
+    uint32_t slice = remaining < sliceMs ? remaining : sliceMs;
     delay(slice);
     petWatchdog();
     readSerialCommands();
     checkButton();
     webAdminLoop();
     if (webRebootRequested) return false;
-    // Cheap mid-TX battery guard without re-sampling ADC every 10ms:
+    // Cheap mid-TX battery guard without re-sampling ADC every slice:
     // check cached value, full fresh check happens in transmit loops.
     if (state == BeaconState::LowBatteryHalt) return false;
   }
   return true;
+}
+
+bool keyedDelayAbortable(uint32_t durationMs) {
+  return keyedDelayAbortableSlice(durationMs, TX_POLL_SLICE_MS);
 }
 
 void keyedDelay(uint32_t durationMs) {
@@ -686,20 +701,20 @@ bool sendMorseTextAbortable(const char *text, uint16_t wpm, uint16_t toneHz) {
   for (size_t charIndex = 0; id[charIndex] != '\0'; ++charIndex) {
     const char c = id[charIndex];
     if (c == ' ') {
-      if (!keyedDelayAbortable(dotMs * 7)) return false;
+      if (!keyedDelayAbortableSlice(dotMs * 7, MORSE_POLL_SLICE_MS)) return false;
       continue;
     }
 
     const char *pattern = morseFor(c);
     for (size_t i = 0; pattern[i] != '\0'; ++i) {
       audioTone(toneHz);
-      if (!keyedDelayAbortable(pattern[i] == '-' ? dotMs * 3 : dotMs)) return false;
+      if (!keyedDelayAbortableSlice(pattern[i] == '-' ? dotMs * 3 : dotMs, MORSE_POLL_SLICE_MS)) return false;
       audioOff();
-      if (!keyedDelayAbortable(dotMs)) return false;
+      if (!keyedDelayAbortableSlice(dotMs, MORSE_POLL_SLICE_MS)) return false;
       if (isLowBatteryCached()) return false;
     }
 
-    if (!keyedDelayAbortable(dotMs * 2)) return false;
+    if (!keyedDelayAbortableSlice(dotMs * 2, MORSE_POLL_SLICE_MS)) return false;
     if (isLowBatteryCached()) return false;
   }
   return true;

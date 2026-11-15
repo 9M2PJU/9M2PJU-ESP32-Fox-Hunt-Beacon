@@ -4,7 +4,7 @@
 #include <string.h>
 #include <esp_system.h>
 #include <esp_task_wdt.h>
-#include <driver/rtc_io.h>
+#include <driver/gpio.h>
 #include "beacon_config.h"
 #include "display.h"
 #include "web_admin.h"
@@ -464,9 +464,10 @@ void setPtt(bool active) {
   digitalWrite(PTT_PIN, outputHigh ? HIGH : LOW);
 }
 
-// RTC hold keeps PTT at its safe level across software resets and the
-// bootloader window, where the pin would otherwise float. No-op on pins
-// without RTC hold support - those boards need an external pull-down.
+// Pad hold keeps PTT at its safe level across software resets and the
+// bootloader window, where the pin would otherwise float. If hold is
+// unsupported on a pin the call fails safely - those boards need an
+// external pull-down.
 static bool pttHoldActive = false;
 
 static int pttSafeGpioLevel() {
@@ -474,14 +475,13 @@ static int pttSafeGpioLevel() {
 }
 
 static void pttHoldSafe() {
-  if (!rtc_gpio_is_valid_gpio((gpio_num_t)PTT_PIN)) return;
-  rtc_gpio_set_level((gpio_num_t)PTT_PIN, (uint32_t)pttSafeGpioLevel());
-  if (rtc_gpio_hold_en((gpio_num_t)PTT_PIN) == ESP_OK) pttHoldActive = true;
+  gpio_set_level((gpio_num_t)PTT_PIN, pttSafeGpioLevel());
+  if (gpio_hold_en((gpio_num_t)PTT_PIN) == ESP_OK) pttHoldActive = true;
 }
 
 static void pttHoldRelease() {
   if (!pttHoldActive) return;
-  rtc_gpio_hold_dis((gpio_num_t)PTT_PIN);
+  gpio_hold_dis((gpio_num_t)PTT_PIN);
   pttHoldActive = false;
 }
 

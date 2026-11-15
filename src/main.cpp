@@ -74,6 +74,8 @@ void markConfigDirty();
 void flushConfigIfDirty(bool force);
 void recordBootFault();
 void clearFaultHalt(const char *why);
+uint8_t foxNumberFromId(const char *id);
+uint8_t foxNumberFromId(const String &id);
 
 // Menu state machine
 enum class DisplayMode {

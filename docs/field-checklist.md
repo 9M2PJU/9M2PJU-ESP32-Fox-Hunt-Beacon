@@ -8,6 +8,10 @@ Use this checklist before hiding a beacon for an amateur radio fox hunt.
 - Set the callsign, fox ID, transmit time, idle time, and startup delay.
 - For a multi-fox event, confirm `fox_sync on` and verify the auto startup
   delay shown by `show` matches the fox slot (MOE=0 s, MOI=60 s, etc.).
+- Confirm no overlap warning: 5 times TX must fit inside TX plus idle.
+- If foxes were powered at different times, run `sync` on each unit to
+  re-align the cycle clock.
+- If an AP password is wanted, set `wifi_password` and confirm the AP lock flag.
 - For a finish beacon, set `mode beacon` and confirm the beacon ID interval.
 - Run `show` in Serial Monitor and confirm the saved configuration.
 - Connect to the `9M2PJU-Fox-XXXX` WiFi AP from a phone and verify the web UI
@@ -23,7 +27,10 @@ Use this checklist before hiding a beacon for an amateur radio fox hunt.
   (single click) and toggle items (double click). Toggle WiFi AP off and back
   on to confirm the AP restarts. Long-hold or wait 30s to exit the menu.
 - Run `ptt_test` with no radio connected and confirm the PTT output releases.
-- Run `test` into a dummy load or very low-power setup.
+- Run `test` into a dummy load or very low-power setup. Confirm a second press
+  during TX is refused instead of queueing another slot.
+- Confirm no FAULT HALT message on boot. If latched, clear it with a 2 s button
+  hold or `clearfault` before hiding the beacon.
 - Listen on a second receiver and confirm the CW ID is readable.
 - Reduce audio level if the received tone sounds distorted or too wide.
 - Confirm the radio returns to receive after each transmission.

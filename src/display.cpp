@@ -217,6 +217,14 @@ static uint16_t stateTextColor(const char *stateStr) {
 }
 
 void displayInit(const char *callsign, const char *version) {
+#if TFT_BL >= 0
+  pinMode(TFT_BL, OUTPUT);
+#ifdef TFT_BL_ACTIVE_LOW
+  digitalWrite(TFT_BL, LOW);
+#else
+  digitalWrite(TFT_BL, HIGH);
+#endif
+#endif
   tft.init();
   tft.setRotation(1);
   displayStartupScreen(callsign, version);
@@ -345,11 +353,16 @@ void displayAPMode(const char *ssid, const char *ip) {
 
 void displayPower(bool on) {
   displayOn = on;
+#if TFT_BL >= 0
+#ifdef TFT_BL_ACTIVE_LOW
+  digitalWrite(TFT_BL, on ? LOW : HIGH);
+#else
+  digitalWrite(TFT_BL, on ? HIGH : LOW);
+#endif
+#endif
   if (on) {
     tft.fillScreen(COLOR_BG);
   }
-  // TFT_eSPI doesn't have a simple power-off; we just stop drawing.
-  // Backlight control would need a BL pin PWM which varies per board.
 }
 
 void displayClear() {
@@ -382,6 +395,42 @@ void displayClear() {
 
 static bool displayOn = true;
 static bool firstRefresh = true;
+static uint8_t einkFailCount = 0;
+
+// BUSY HIGH means the panel is still working. If it stays HIGH for 5s the
+// panel or supply is wedged; return true so callers can skip the refresh
+// instead of hanging inside GxEPD2's busy loop and tripping the task WDT.
+static bool einkBusyStuck(uint32_t timeoutMs = 5000) {
+#ifdef EINK_BUSY
+  pinMode(EINK_BUSY, INPUT);
+  const uint32_t start = millis();
+  while (digitalRead(EINK_BUSY) == HIGH) {
+    if (millis() - start >= timeoutMs) return true;
+    delay(10);
+  }
+#endif
+  return false;
+}
+
+static bool einkRefreshGuarded(bool partial) {
+  if (einkBusyStuck()) {
+    einkFailCount++;
+    if (einkFailCount >= 3) {
+      eink.init();
+      firstRefresh = true;
+      einkFailCount = 0;
+    }
+    return false;
+  }
+  einkFailCount = 0;
+  if (partial && !firstRefresh) {
+    eink.display(true);
+  } else {
+    eink.display(false);
+    firstRefresh = false;
+  }
+  return true;
+}
 
 // Draw inverted header bar (black box with white text) — emulates navy blue
 // header on TFT. GxEPD2 uses BLACK as foreground; we fill a rect then write
@@ -417,12 +466,9 @@ static void einkDrawAccentBar(const char *stateStr) {
 }
 
 static void einkRefresh() {
-  if (firstRefresh) {
-    eink.display(false);
-    firstRefresh = false;
-  } else {
-    eink.display(true);  // partial refresh for speed
-  }
+  // Partial refresh for speed after the first full refresh. Skipped on
+  // BUSY stuck so a browned-out panel cannot wedge the main loop.
+  (void)einkRefreshGuarded(true);
 }
 
 static void einkPowerOn() {
@@ -586,7 +632,7 @@ void displayPower(bool on) {
 void displayClear() {
   eink.setFullWindow();
   eink.fillScreen(GxEPD_WHITE);
-  eink.display(false);
+  (void)einkRefreshGuarded(false);
 }
 
 #else

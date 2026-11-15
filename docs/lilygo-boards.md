@@ -13,15 +13,15 @@ Use these names with PlatformIO:
 
 | Environment | PlatformIO board ID | Notes |
 | --- | --- | --- |
-| `lilygo-t-display` | `lilygo-t-display` | Original ESP32 T-Display. Display is not used. |
-| `lilygo-t-display-s3` | `lilygo-t-display-s3` | ESP32-S3 T-Display. Display is not used. |
+| `lilygo-t-display` | `lilygo-t-display` | Original ESP32 T-Display. TFT 135x240 status display is used. |
+| `lilygo-t-display-s3` | `lilygo-t-display-s3` | ESP32-S3 T-Display. TFT 170x320 status display is used. |
 | `lilygo-t3-s3` | `lilygo-t3-s3` | ESP32-S3 LoRa board. Onboard LoRa is not used. |
-| `ttgo-lora32-v1` | `ttgo-lora32-v1` | TTGO LoRa32 OLED V1. Onboard LoRa and OLED are not used. |
-| `ttgo-lora32-v2` | `ttgo-lora32-v2` | TTGO LoRa32 OLED V2. Onboard LoRa and OLED are not used. |
-| `ttgo-lora32-v21` | `ttgo-lora32-v21` | TTGO LoRa32 OLED v2.1.6. Onboard LoRa and OLED are not used. |
-| `ttgo-t-beam` | `ttgo-t-beam` | TTGO T-Beam with LoRa/GNSS hardware. Onboard LoRa and GNSS are not used. |
+| `ttgo-lora32-v1` | `ttgo-lora32-v1` | TTGO LoRa32 OLED V1. OLED status display is used. Onboard LoRa is not used. |
+| `ttgo-lora32-v2` | `ttgo-lora32-v2` | TTGO LoRa32 OLED V2. OLED status display is used. Onboard LoRa is not used. |
+| `ttgo-lora32-v21` | `ttgo-lora32-v21` | TTGO LoRa32 OLED v2.1.6. OLED status display is used. Onboard LoRa is not used. |
+| `ttgo-t-beam` | `ttgo-t-beam` | TTGO T-Beam with LoRa/GNSS hardware. OLED status display is used. Onboard LoRa and GNSS are not used. |
 | `ttgo-t-oi-plus` | `ttgo-t-oi-plus` | ESP32-C3 T-OI Plus. Fewer GPIO pins than classic ESP32 boards. |
-| `ttgo-t-watch` | `ttgo-t-watch` | T-Watch build target. Watch peripherals are not used. |
+| `ttgo-t-watch` | `ttgo-t-watch` | T-Watch build target. TFT 240x240 status display is used. Watch peripherals are not used. |
 | `ttgo-t1` | `ttgo-t1` | TTGO T1 ESP32 board. |
 | `ttgo-t7-v13-mini32` | `ttgo-t7-v13-mini32` | TTGO T7 V1.3 Mini32. |
 | `ttgo-t7-v14-mini32` | `ttgo-t7-v14-mini32` | TTGO T7 V1.4 Mini32. |
@@ -102,8 +102,8 @@ This firmware does not currently transmit ARDF IDs through those radios. Boards
 such as TTGO T-Beam may also include GNSS hardware, but the current firmware
 does not read position or time from GNSS.
 
-Boards such as T-Display and T-Watch include displays. The current firmware uses
-Serial Monitor and LED status instead of the display.
+Boards such as T-Display and T-Watch include displays. The firmware shows the
+status screen and settings menu on them, plus Serial Monitor and LED status.
 
 ## VS Code Usage
 

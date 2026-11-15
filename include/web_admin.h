@@ -27,3 +27,14 @@ String webAdminGetSsid();
 
 // Returns true if the web admin is running.
 bool webAdminIsRunning();
+
+// Deferred request entry points implemented in main.cpp. The async handlers
+// call these; the main loop performs the real work.
+struct PendingConfig;
+struct WebSnapshot;
+void queueWebTest();
+void queueWebPtt();
+void queueWebDefaults();
+void queueWebReboot();
+void queueWebConfig(const PendingConfig &cfg);
+void readWebSnapshot(WebSnapshot *dst);

@@ -103,8 +103,8 @@ The Wireless Tracker has a 0.96" TFT ST7735 display (160x80). The Vision Master
 T190 has a 1.9" TFT ST7789 display (170x320). The Wireless Paper and Vision
 Master E213 have 2.13" E-Ink displays (250x122). The Vision Master E290 has a
 2.9" E-Ink display (296x128). E-Ink displays use the GxEPD2 library and support
-the on-screen menu and status screen, but refresh more slowly (1-4 seconds) than
-OLED or TFT displays.
+the on-screen menu and status screen, but refresh on content change only (5 s
+minimum, 10-minute heartbeat) and skip the refresh if the busy line sticks.
 
 `heltec-wireless-stick-lite-v3` is also a compatibility build because this
 PlatformIO package includes the Arduino variant but not a dedicated board JSON.

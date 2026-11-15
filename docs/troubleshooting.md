@@ -38,8 +38,8 @@ behave as expected in the field.
 | Cannot find FoxBeacon WiFi | The AP starts on boot (if WiFi AP is enabled). Wait 5-10 seconds after power-on. Check the serial monitor for the AP name and IP. If WiFi AP was turned off from the menu, double-click the button to open settings and turn it back on. The AP may also have auto-off'd after the timeout (default 10 min) — turn it back on the same way or use `set wifi_ap on`. |
 | Captive portal does not auto-open | Browse to `http://10.0.0.8/` manually. Some phones block captive portals. |
 | Page loads but settings do not save | Make sure you clicked Save and wait for the confirmation message. Try rebooting from the web UI. |
-| Web UI is slow or unresponsive | The web server pauses during active transmissions. Try again during an idle period. |
-| Display is blank on a display board | Check that the correct board environment was built. Display pins vary per board. |
+| Web UI is slow or unresponsive | The web server shares the main task with TX. Try again, or wait for an idle period. Status refreshes every 5 s while the AP is up. |
+| Display is blank on a display board | Check that the correct board environment was built. Display pins vary per board. E-Ink skips refreshes when its busy line sticks and retries later. |
 
 ## Display Menu Problems
 
@@ -83,7 +83,10 @@ practical power.
 | Long silence between transmissions | Check `set idle <seconds>`. IARU standard is 240 for a 5-fox cycle. |
 | Beacon transmits continuously | `set mode beacon` enables continuous mode. Run `set mode fox` to return to scheduled operation. |
 | No CW ID in beacon mode | Check `set beacon_id <seconds>`; the ID repeats at this interval while PTT is held. |
-| Test button transmits unexpectedly | GPIO 0 may be pulled low or the button is held. Check button wiring. |
+| Test button transmits unexpectedly | GPIO 0 may be pulled low or the button is held. Check button wiring. Test requests during TX are ignored by design. |
+| `test` or PTT test refused | The radio is transmitting, in low-battery halt, or in fault halt. Wait for idle, charge the battery, or run `clearfault`. |
+| Beacon locked after crashes | Repeated panic, watchdog, or brownout boots latch TX off. Serial shows FAULT HALT. Hold the button 2 s or run `clearfault`. |
+| Overlap warning in web UI or serial | 5 times TX is longer than TX plus idle, so fox slots collide. Lengthen idle or shorten TX. |
 
 Use `show` to confirm the active saved values.
 

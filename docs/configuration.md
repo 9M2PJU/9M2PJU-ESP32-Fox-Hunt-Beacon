@@ -31,7 +31,10 @@ a live status display with callsign, fox ID, mode, state, timing, battery, and
 AP IP address.
 
 The WiFi AP can be turned on or off from the on-screen settings menu or the web
-UI. When off, the WiFi radio is disabled to save power.
+UI. When off, the WiFi radio is disabled to save power. The AP supports an
+optional password (8-64 printable chars, blank means open). The status bar
+shows an AP-lock flag when a password is set and warns when 5-fox slots
+overlap (5 times TX longer than TX plus idle).
 
 The AP also has an **auto-off timeout** (default 10 minutes). If no phone or
 laptop is connected and no web requests are received for the timeout period, the
@@ -142,8 +145,10 @@ Open Serial Monitor at 115200 baud and type commands followed by Enter.
 | Command | Meaning |
 | --- | --- |
 | `show` | Print current saved configuration and command list. |
-| `test` | Queue one complete beacon transmission. |
-| `ptt_test` | Key PTT for about 1.2 seconds with no audio. |
+| `test` | Queue one complete beacon transmission. Ignored during TX. |
+| `ptt_test` | Key PTT for about 1.2 seconds with no audio. Refused during TX. |
+| `sync` | Restart the cycle clock for multi-fox alignment. |
+| `clearfault` | Clear the crash or brownout fault halt and resume. |
 | `defaults` | Restore compile-time defaults and save them to flash. |
 | `reboot` | Restart the ESP32. |
 | `set call <text>` | Set the CW callsign. |
@@ -168,7 +173,11 @@ Open Serial Monitor at 115200 baud and type commands followed by Enter.
 | `set battery on` | Enable low-battery cutoff. |
 | `set battery off` | Disable low-battery cutoff. |
 | `set battery_scale <number>` | Set ADC divider multiplier. |
-| `set low_battery <volts>` | Set low-battery cutoff voltage. |
+| `set low_battery <volts>` | Set low-battery cutoff voltage. Cutoff uses 0.2 V hysteresis, 3-reading confirm, and 5 s key-up grace. Resumes above cutoff plus hysteresis. |
+| `set wifi_ap on\|off` | Turn WiFi AP on or off. |
+| `set wifi_ap_timeout <minutes>` | AP auto-off timeout (0 = never). |
+| `set wifi_password <text>` | AP password (empty=open, 8-64 printable chars). |
+| `set eco_mode on\|off` | Enable or disable display eco mode. |
 
 The firmware constrains values to practical ranges. If a value is outside the
 allowed range, it is clipped to the nearest allowed value.

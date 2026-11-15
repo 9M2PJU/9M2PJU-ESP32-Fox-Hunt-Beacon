@@ -8,7 +8,10 @@ the radio pinout before wiring.
 ## Recommended Interface
 
 Use isolation or transistor switching. Do not connect an ESP32 GPIO directly to
-a radio PTT line until you know the radio voltage and current.
+a radio PTT line until you know the radio voltage and current. Add an external
+PTT pull-down (for active-high) or pull-up (for active-low) so the radio stays
+unkeyed while the ESP32 is in reset or booting. Firmware holds the safe level
+on RTC-capable pins, but that does not cover every board.
 
 ```text
 ESP32 GPIO 25 ---- resistor ---- NPN base

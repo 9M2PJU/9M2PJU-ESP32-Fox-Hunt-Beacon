@@ -117,8 +117,11 @@ requirements, power limits, and event safety rules.
 - Test button for immediate transmission.
 - Serial monitor configuration at 115200 baud.
 - Web admin UI: WiFi AP with captive portal for phone/laptop configuration.
+  Optional AP password, overlap warning, and slot display.
 - On-screen status display for boards with OLED, TFT, or E-Ink screens.
 - Display eco mode (on by default, auto-off after 4 s) for battery saving.
+  TFT backlight is switched with eco mode.
+- Fault halt after repeated crash or brownout boots, cleared by button or serial.
 - Color-themed display: navy blue header bar, state-coded accent colors (TFT),
   inverted header/highlights on OLED and E-Ink.
 
@@ -295,16 +298,18 @@ configuration page. If it does not, browse to `http://10.0.0.8/`.
 
 The web UI lets you:
 
-- View current status (state, battery voltage + percentage, fox slot, AP name, IP)
+- View current status (state, battery voltage + percentage, fox slot, AP name, IP, overlap warning)
 - Edit all settings: callsign, fox ID, mode, fox sync, timing, CW, warble, PTT,
-  battery, WiFi AP on/off, AP auto-off timeout, display eco mode
+  battery, WiFi AP on/off, AP password, AP auto-off timeout, display eco mode
 - Save settings to flash (same as serial `set` commands)
 - Trigger a test transmission or PTT test
 - Restore factory defaults
 - Reboot the ESP32
 
 The web UI is served on all boards. No router or internet connection is needed.
-The AP has no password by default so it is open for easy field access.
+The AP is open with no password by default for easy field access. Set an AP
+password with `set wifi_password <text>` (8-64 printable chars) or the web UI
+password field. Leave it blank for an open AP.
 
 The WiFi AP can be turned on or off from the on-screen settings menu or the web
 UI. When off, the WiFi radio is disabled to save power in the field.
@@ -322,6 +327,8 @@ Open the serial monitor at 115200 baud. Settings are saved to ESP32 flash.
 show
 test
 ptt_test
+sync
+clearfault
 defaults
 reboot
 set call 9M2PJU
@@ -352,6 +359,7 @@ set low_battery 3.4
 set wifi_ap on
 set wifi_ap off
 set wifi_ap_timeout 10
+set wifi_password secret (empty=open, 8-64 chars)
 set eco_mode on
 set eco_mode off
 ```
@@ -361,8 +369,10 @@ Command meanings:
 | Command | Meaning |
 | --- | --- |
 | `show` | Print current saved configuration. |
-| `test` | Queue one immediate transmission. |
-| `ptt_test` | Key only the PTT line for about 1.2 seconds with no audio. |
+| `test` | Queue one immediate transmission. Ignored during TX. |
+| `ptt_test` | Key only the PTT line for about 1.2 seconds with no audio. Refused during TX. |
+| `sync` | Restart the cycle clock for multi-fox alignment. |
+| `clearfault` | Clear the crash or brownout fault halt and resume. |
 | `defaults` | Restore factory defaults and save them to flash. |
 | `reboot` | Restart the ESP32. |
 | `set call <text>` | Set the callsign sent in CW. |
@@ -387,6 +397,7 @@ Command meanings:
 | `set low_battery <volts>` | Set low-battery cutoff voltage. |
 | `set wifi_ap on/off` | Turn WiFi AP on or off. |
 | `set wifi_ap_timeout <minutes>` | AP auto-off timeout (0 = never). |
+| `set wifi_password <text>` | Set AP password (empty=open, 8-64 printable chars). |
 | `set eco_mode on/off` | Enable or disable display eco mode. |
 
 The `show` command prints the live battery reading as both voltage and
@@ -448,7 +459,7 @@ On boot, the display shows a startup splash for 3 seconds:
 ```
 9M2PJU Fox
 ────────────────
-v1.1.0
+v1.2.0
 Starting...
 ```
 
@@ -472,7 +483,9 @@ The status screen shows:
   (STARTUP), grey (IDLE) on TFT; pattern-coded (solid/dashed/dotted) on OLED
   and E-Ink
 
-The display updates once per second.
+TFT and OLED status screens update about once per second. E-Ink refreshes on
+content change only, with a 5-second minimum gap and a 10-minute heartbeat, and
+skips the refresh if the panel busy line sticks.
 
 ### Settings Menu (On-Screen)
 
@@ -569,14 +582,21 @@ but the radio interface must be built carefully.
 Firmware reliability features:
 
 - PTT is forced off during boot and again after saved settings are loaded.
+  RTC-capable pins also hold the safe level across resets. Non-RTC pins still
+  need an external PTT pull-down.
 - Transmit duration, idle duration, tone frequency, CW speed, and battery
   thresholds are constrained to sane ranges.
-- `ptt_test` verifies the keying circuit without generating audio.
-- `test` sends one complete beacon cycle on demand.
-- Settings are stored in ESP32 flash and can be restored to factory defaults
-  with `defaults`.
-- Optional low-battery cutoff halts transmission instead of sending a weak or
-  unstable signal.
+- Each TX slot snapshots callsign, timing, CW, warble, and PTT guard values, so
+  edits mid-slot apply to the next slot.
+- `ptt_test` verifies the keying circuit without generating audio. `test` sends
+  one complete beacon cycle on demand. Both are refused during TX.
+- Settings are stored in ESP32 flash with a 2-second delayed write that
+  coalesces rapid edits. `defaults` restores compile-time values.
+- Low-battery cutoff with 0.2 V hysteresis, 3-reading confirm, 5 s key-up grace,
+  and resume above cutoff plus hysteresis.
+- 5-fox overlap warning when 5 times TX exceeds TX plus idle.
+- Repeated panic, watchdog, or brownout boots latch TX off until cleared with
+  the button hold or `clearfault`.
 
 Hardware reliability rules:
 
@@ -604,7 +624,8 @@ Suggested starting values:
 - PTT tail time: 350 ms.
 
 Use `test` to make one immediate transmission. The boot button on many ESP32
-boards also queues a test transmission.
+boards also queues a test transmission when the radio is idle. Test requests
+during TX are ignored.
 
 ## Power Plan
 
@@ -645,6 +666,7 @@ idle_duration_seconds = 240
 startup_delay_seconds = 10 (overridden by fox_sync)
 fox_sync = on
 beacon_mode = off
+beacon_id = 60
 cw_wpm = 12
 cw_tone_hz = 700
 warble = off
@@ -652,6 +674,7 @@ ptt_active_level = HIGH
 ptt_lead_ms = 350
 ptt_tail_ms = 350
 low_battery_voltage = 3.4
+wifi_password = (empty=open)
 ```
 
 ## First Prototype Checklist

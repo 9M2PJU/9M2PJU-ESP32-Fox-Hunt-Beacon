@@ -57,7 +57,7 @@
     "name": "9M2PJU ESP32 Fox Hunt Beacon",
     "operatingSystem": "ESP32",
     "applicationCategory": "EmbeddedFirmware",
-    "softwareVersion": "1.1.0",
+    "softwareVersion": "1.2.0",
     "description": "ESP32 firmware for amateur radio fox hunting (ARDF) beacons. Controls a handheld radio via PTT and audio interface to transmit CW identification and optional warble tones. Supports 32 ESP32 board variants with web-based browser flashing, WiFi admin UI, OLED/TFT/E-Ink displays with color-themed UI, battery voltage and percentage monitoring, display eco mode, and IARU standard fox timing.",
     "url": "https://fox.hamradio.my/",
     "downloadUrl": "https://fox.hamradio.my/",
@@ -90,6 +90,8 @@
       "Battery voltage monitoring with Li-ion percentage and low-battery cutoff",
       "OLED, TFT, and E-Ink display support with color-themed UI",
       "Display eco mode (on by default, 4s timeout) for power saving",
+      "Optional WiFi AP password with overlap warning and fox slot display",
+      "TX slot snapshot, deferred flash saves, and crash fault halt with recovery",
       "Serial monitor configuration (115200 baud)",
       "Open source GPLv3-or-later"
     ],
@@ -168,7 +170,7 @@
         "name": "How do I configure the beacon after flashing?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "After flashing, the beacon boots into WiFi AP mode. Connect to the 9M2PJU-Fox-XXXX WiFi network from a phone or laptop and browse to http://10.0.0.8/ to open the web admin UI. You can configure callsign, fox ID, transmit timing, CW speed and tone, PTT polarity, battery monitoring, display settings, and WiFi AP timeout. Settings are saved to ESP32 flash and persist across reboots."
+          "text": "After flashing, the beacon boots into WiFi AP mode. Connect to the 9M2PJU-Fox-XXXX WiFi network from a phone or laptop and browse to http://10.0.0.8/ to open the web admin UI. You can configure callsign, fox ID, transmit timing, CW speed and tone, PTT polarity, battery monitoring, display settings, WiFi AP timeout, and an optional AP password. Settings are saved to ESP32 flash and persist across reboots."
         }
       },
       {
@@ -686,7 +688,7 @@ ESP32 GND ----------------------------------------------- radio/accessory ground
       <p>Most simple handhelds transmit when the radio PTT line is shorted to radio ground. With the recommended NPN transistor wiring above, the ESP32 GPIO goes HIGH, the transistor turns on, and the radio PTT line is pulled to ground. That means the firmware should use <code>active_high</code>, which is the default.</p>
       <pre><code>set ptt active_high    (recommended NPN/MOSFET/opto driver)
 set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
-      <p>Before connecting a radio, run <code>ptt_test</code>. Check the PTT output with an LED or multimeter. It should turn on for about 1.2 seconds, then turn off.</p>
+      <p>Before connecting a radio, run <code>ptt_test</code>. Check the PTT output with an LED or multimeter. It should turn on for about 1.2 seconds, then turn off. Add an external pull-down (active-high) or pull-up (active-low) so the radio stays unkeyed while the ESP32 is in reset or booting.</p>
 
       <h3 class="subsection">Default Firmware Pins</h3>
       <p>Pin assignments vary by board family. Find your board in the tables below to get the correct GPIO pins for PTT, audio, status LED, test button, and battery ADC.</p>
@@ -845,7 +847,7 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
     <!-- Web Admin Settings -->
     <h2 class="section-title" id="settings">Web Admin UI Settings</h2>
     <div class="card">
-      <p>After flashing, the beacon boots into WiFi AP mode. Connect to the <code>9M2PJU-Fox-XXXX</code> WiFi network from a phone or laptop and browse to <code>http://10.0.0.8/</code> to open the web admin UI. Every setting below is available on that page. Settings are saved to ESP32 flash and persist across reboots.</p>
+      <p>After flashing, the beacon boots into WiFi AP mode. Connect to the <code>9M2PJU-Fox-XXXX</code> WiFi network from a phone or laptop and browse to <code>http://10.0.0.8/</code> to open the web admin UI. Every setting below is available on that page. Settings are saved to ESP32 flash with a short delayed write and persist across reboots.</p>
 
       <h3 class="subsection">Identification</h3>
       <table>
@@ -899,6 +901,7 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
         <tr><th>Setting</th><th>Default</th><th>Range</th><th>Description</th></tr>
         <tr><td>WiFi AP / Web Admin</td><td><code>On</code></td><td>On / Off</td><td>Turns the WiFi access point and web admin UI on or off. When off, WiFi is disabled to save power. Re-enable from the on-screen menu (double-click the button) or via serial <code>set wifi_ap on</code>.</td></tr>
         <tr><td>AP auto-off (min)</td><td><code>10</code></td><td>0 - 1440</td><td>If no phone or laptop connects and no web requests are received for this duration, the AP shuts down to save power. Set to <code>0</code> to keep the AP on indefinitely.</td></tr>
+        <tr><td>AP password</td><td><code>(empty)</code></td><td>empty or 8-64 printable chars</td><td>Optional WiFi password. Blank means open. The status bar shows an AP-lock flag when set, and warns when 5-fox slots overlap.</td></tr>
         <tr><td>Display eco mode</td><td><code>On</code></td><td>On / Off</td><td>When enabled (default), the display turns off after 4 seconds of inactivity to save power. Any button press wakes the display for another 4-second glance. A 10-second grace period keeps the display on after boot. Only applies to boards with a display.</td></tr>
       </table>
 
@@ -910,7 +913,7 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
         <tr><td>Test TX</td><td>Triggers one complete beacon transmission immediately. Useful for verifying the radio interface without waiting for the schedule.</td></tr>
         <tr><td>PTT Test</td><td>Keys PTT for about 1.2 seconds with no audio. Use this to verify the PTT circuit before connecting audio.</td></tr>
         <tr><td>Defaults</td><td>Restores all settings to factory defaults and saves them to flash.</td></tr>
-        <tr><td>Reboot</td><td>Restarts the ESP32. Required for some settings (like WiFi AP on/off) to take effect.</td></tr>
+        <tr><td>Reboot</td><td>Restarts the ESP32. WiFi AP and mode changes apply at idle without reboot. Test requests during TX are refused.</td></tr>
       </table>
 
       <h3 class="subsection">Connecting To The Web Admin UI</h3>
@@ -918,7 +921,7 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
         <li>After flashing, power on the ESP32 board.</li>
         <li>Wait 5-10 seconds for the WiFi AP to start.</li>
         <li>On a phone or laptop, open WiFi settings and look for a network named <code>9M2PJU-Fox-XXXX</code> (last 4 hex of the board's MAC address).</li>
-        <li>Connect to it (open network, no password by default).</li>
+        <li>Connect to it (open network, no password by default unless you set one).</li>
         <li>A captive portal page should auto-open. If it does not, browse to <code>http://10.0.0.8/</code> manually.</li>
         <li>Configure your settings and click <strong>Save</strong>.</li>
         <li>Use <strong>Test TX</strong> or <strong>PTT Test</strong> to verify the radio interface.</li>
@@ -928,7 +931,7 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
 
     <!-- Footer -->
     <div class="footer">
-      9M2PJU Fox Hunt Beacon &middot; Firmware v1.1.0 &middot; GPLv3-or-later
+      9M2PJU Fox Hunt Beacon &middot; Firmware v1.2.0 &middot; GPLv3-or-later
       <div style="margin-top:0.4rem;">Amateur radio fox hunting beacon firmware for ESP32</div>
     </div>
 

@@ -20,7 +20,9 @@ function loadConfig(){
     set('wifi_ap_timeout',c.wifiApTimeout);
     setSel('eco_mode',c.ecoMode?'on':'off');
     var s='<b>State:</b> <span>'+c.state+'</span> | <b>Battery:</b> <span>'+c.battery+' V'+(c.batteryPct!=null?' ('+c.batteryPct+'%)':'')+'</span>';
+    if(c.wifiPwSet)s+=' | <b>AP lock:</b> <span>on</span>';
     if(c.foxSync&&!c.beaconMode&&c.foxNum>0)s+=' | <b>Slot:</b> <span>'+c.foxNum+'</span> (start '+c.startupResolved+'s)';
+    if(c.overlap)s+='<br><b>WARNING:</b> <span>5-fox slots overlap: 5*TX &gt; TX+IDLE</span>';
     s+='<br><b>AP:</b> <span>'+c.apSsid+'</span> | <b>IP:</b> <span>'+c.ip+'</span>';
     document.getElementById('status').innerHTML=s;
   }).catch(e=>msg('Load failed: '+e,false));
@@ -37,6 +39,7 @@ function save(){
   d.append('ptt',val('ptt'));d.append('lead',val('lead'));d.append('tail',val('tail'));
   d.append('battery',val('battery'));d.append('battery_scale',val('battery_scale'));d.append('low_battery',val('low_battery'));
   d.append('wifi_ap',val('wifi_ap'));d.append('wifi_ap_timeout',val('wifi_ap_timeout'));d.append('eco_mode',val('eco_mode'));
+  var pw=val('wifi_password');if(pw&&pw.length)d.append('wifi_password',pw);
   fetch('/api/config',{method:'POST',body:d}).then(r=>r.text()).then(t=>{msg(t,true);setTimeout(loadConfig,500)}).catch(e=>msg('Save failed: '+e,false));
 }
 

@@ -88,7 +88,7 @@ jobs:
           elif echo "$ENV" | grep -Eq 'c3|t-oi-plus|c3-devkit'; then CHIP=esp32c3; BOOT_OFF=0x0;
           else CHIP=esp32; BOOT_OFF=0x1000; fi
           ls -la "$BUILD"/*.bin
-          python -m esptool merge-bin --chip $CHIP -o release/firmware-${{ matrix.env }}.bin \
+          python -m esptool --chip $CHIP merge-bin -o release/firmware-${{ matrix.env }}.bin \
             --flash-mode dio --flash-freq 40m --flash-size 4MB \
             $BOOT_OFF "$BUILD/bootloader.bin" 0x8000 "$BUILD/partitions.bin" 0x10000 "$BUILD/firmware.bin"
 

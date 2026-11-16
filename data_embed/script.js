@@ -39,7 +39,8 @@ function save(){
   d.append('ptt',val('ptt'));d.append('lead',val('lead'));d.append('tail',val('tail'));
   d.append('battery',val('battery'));d.append('battery_scale',val('battery_scale'));d.append('low_battery',val('low_battery'));
   d.append('wifi_ap',val('wifi_ap'));d.append('wifi_ap_timeout',val('wifi_ap_timeout'));d.append('eco_mode',val('eco_mode'));
-  var pw=val('wifi_password');if(pw&&pw.length)d.append('wifi_password',pw);
+  // Always send the password field: empty clears to open AP, 8+ sets a lock.
+  d.append('wifi_password',val('wifi_password'));
   fetch('/api/config',{method:'POST',body:d}).then(r=>r.text()).then(t=>{msg(t,true);setTimeout(loadConfig,500)}).catch(e=>msg('Save failed: '+e,false));
 }
 

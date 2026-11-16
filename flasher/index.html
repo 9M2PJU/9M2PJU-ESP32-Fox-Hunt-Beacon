@@ -57,7 +57,7 @@
     "name": "9M2PJU ESP32 Fox Hunt Beacon",
     "operatingSystem": "ESP32",
     "applicationCategory": "EmbeddedFirmware",
-    "softwareVersion": "1.2.1",
+    "softwareVersion": "1.2.2",
     "description": "ESP32 firmware for amateur radio fox hunting (ARDF) beacons. Controls a handheld radio via PTT and audio interface to transmit CW identification and optional warble tones. Supports 32 ESP32 board variants with web-based browser flashing, WiFi admin UI, OLED/TFT/E-Ink displays with color-themed UI, battery voltage and percentage monitoring, display eco mode, and IARU standard fox timing.",
     "url": "https://fox.hamradio.my/",
     "downloadUrl": "https://fox.hamradio.my/",
@@ -807,7 +807,7 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
       <h4 class="sub-subsection">Generic ESP32-S3 DevKitC-1</h4>
       <table>
         <tr><th>Function</th><th>GPIO</th></tr>
-        <tr><td>PTT control</td><td>25</td></tr>
+        <tr><td>PTT control</td><td>8</td></tr>
         <tr><td>Audio tone</td><td>17</td></tr>
         <tr><td>Status LED</td><td>2</td></tr>
         <tr><td>Test button</td><td>0</td></tr>
@@ -1001,7 +1001,7 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
         <tr><td>Battery scale</td><td><code>2.0</code></td><td>1.0 - 10.0</td><td>Voltage divider multiplier. With equal resistors (e.g. 100k + 100k, recommended with a 100 nF capacitor from the ADC pin to ground), set to 2.0. Calibrate by comparing the reported voltage with a multimeter. The 2:1 ratio suits single-cell Li-ion or USB 5 V only; recompute for other packs so the ADC pin never sees more than 3.3 V.</td></tr>
         <tr><td>Low battery (V)</td><td><code>3.4</code></td><td>2.5 - 15.0</td><td>Voltage at which the firmware stops transmitting to protect the battery. For a single Li-ion cell, 3.4 V is a safe cutoff.</td></tr>
       </table>
-      <div class="callout callout-info">When enabled, the display and web admin show both battery voltage and Li-ion state-of-charge percentage (e.g. <code>4.12V 87%</code>). The percentage uses a piecewise-linear Li-ion discharge curve (3.2 V = 0%, 4.2 V = 100%). When voltage drops below the cutoff, the beacon stops transmitting and the status LED flashes a low-battery pattern. The beacon resumes when the voltage recovers above the cutoff.</div>
+      <div class="callout callout-info">When enabled, the display and web admin show both battery voltage and Li-ion state-of-charge percentage (e.g. <code>4.12V 87%</code>). The percentage uses a piecewise-linear Li-ion discharge curve (3.2 V = 0%, 4.2 V = 100%). When voltage drops below the cutoff, the beacon stops transmitting and the status LED flashes a low-battery pattern. The beacon resumes when the voltage recovers above the cutoff plus 0.2 V hysteresis.</div>
 
       <h3 class="subsection">Display &amp; WiFi</h3>
       <table>
@@ -1038,7 +1038,7 @@ set ptt active_low     (only if your circuit keys on GPIO LOW)</code></pre>
 
     <!-- Footer -->
     <div class="footer">
-      9M2PJU Fox Hunt Beacon &middot; Firmware v1.2.1 &middot; GPLv3-or-later
+      9M2PJU Fox Hunt Beacon &middot; Firmware v1.2.2 &middot; GPLv3-or-later
       <div style="margin-top:0.4rem;">Amateur radio fox hunting beacon firmware for ESP32</div>
       <div style="margin-top:0.6rem;"><a href="#" id="donate-open-footer" style="color:var(--yellow);text-decoration:none;">Donate</a></div>
     </div>

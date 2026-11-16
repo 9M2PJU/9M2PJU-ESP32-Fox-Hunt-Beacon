@@ -78,10 +78,22 @@ jobs:
       - name: Build ${{ matrix.env }}
         run: pio run -e ${{ matrix.env }}
 
+      - name: Merge factory image (offset-0 flashable)
+        run: |
+          pip install --upgrade esptool
+          mkdir -p release
+          BUILD=.pio/build/${{ matrix.env }}
+          ENV="${{ matrix.env }}"
+          if echo "$ENV" | grep -Eq 's3|c3'; then BOOT_OFF=0x0; else BOOT_OFF=0x1000; fi
+          ls -la "$BUILD"/*.bin
+          python -m esptool merge_bin -o release/firmware-${{ matrix.env }}.bin \
+            --flash_mode dio --flash_freq 40m --flash_size 4MB \
+            $BOOT_OFF "$BUILD/bootloader.bin" 0x8000 "$BUILD/partitions.bin" 0x10000 "$BUILD/firmware.bin"
+
       - name: Rename firmware artifact
         run: |
           mkdir -p release
-          cp .pio/build/${{ matrix.env }}/firmware.bin release/firmware-${{ matrix.env }}.bin
+          ls -la release/firmware-${{ matrix.env }}.bin
 
       - uses: actions/upload-artifact@v5
         with:

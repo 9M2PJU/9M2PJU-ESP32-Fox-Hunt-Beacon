@@ -11,6 +11,7 @@
 // readWebSnapshot() instead of touching it directly (see handleGetConfig).
 extern BeaconConfig config;
 extern void updateWebSnapshot();
+extern void markConfigDirty();
 
 static AsyncWebServer server(80);
 static DNSServer dnsServer;
@@ -70,7 +71,7 @@ static void handleGetConfig(AsyncWebServerRequest *request) {
   // config lives on the main-loop task and may be rewritten at any time.
   WebSnapshot s;
   readWebSnapshot(&s);
-  static char json[1024];
+  char json[1024];
   int n;
   if (s.hasBatteryPct) {
     n = snprintf(json, sizeof(json),
@@ -300,6 +301,7 @@ void webAdminLoop() {
                     config.wifiApTimeoutMinutes);
       config.wifiApEnabled = false;
       webAdminStop();
+      markConfigDirty();
       updateWebSnapshot();
     }
   }

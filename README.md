@@ -464,7 +464,7 @@ On boot, the display shows a startup splash for 3 seconds:
 ```
 9M2PJU Fox
 ────────────────
-v1.2.1
+v1.2.2
 Starting...
 ```
 

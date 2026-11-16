@@ -293,15 +293,20 @@ void updateDisplay() {
 #endif
   lastDisplayUpdateAt = millis();
 
-  // Eco mode: sleep display after inactivity (with startup grace period)
+  // Eco mode: sleep display after inactivity (with startup grace period).
+  // Grace only skips the sleep decision; the status screen still renders.
   if (displayMode == DisplayMode::Status && config.displayEcoMode) {
-    if (millis() < DISPLAY_ECO_GRACE_MS) return;  // grace period after boot
-    if (!displaySleeping && elapsedSince(lastActivityAt) > DISPLAY_ECO_TIMEOUT_MS) {
-      displaySleeping = true;
-      displayPower(false);
-      return;
+    if (millis() >= DISPLAY_ECO_GRACE_MS) {
+      if (!displaySleeping && elapsedSince(lastActivityAt) > DISPLAY_ECO_TIMEOUT_MS) {
+        displaySleeping = true;
+        displayPower(false);
+        return;
+      }
+      if (displaySleeping) return;
+    } else if (displaySleeping) {
+      displaySleeping = false;
+      displayPower(true);
     }
-    if (displaySleeping) return;
   } else if (displaySleeping) {
     displaySleeping = false;
     displayPower(true);
@@ -344,29 +349,41 @@ String normalizeId(String value) {
   value.toUpperCase();
   String result;
   result.reserve(value.length());
+  bool lastWasSpace = true;  // trim leading spaces
   for (size_t i = 0; i < value.length(); ++i) {
     const char c = value.charAt(i);
     if ((c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '/' || c == '-') {
       result += c;
+      lastWasSpace = false;
+    } else if (c == ' ' && !lastWasSpace) {
+      result += c;
+      lastWasSpace = true;
     }
   }
+  result.trim();
   return result.length() ? result : "FOX";
 }
 
-// Fixed-buffer variant: no heap growth in the live config. Keeps A-Z 0-9 / -,
-// uppercases, truncates, falls back to FOX.
+// Fixed-buffer variant: keeps A-Z 0-9 / - plus single spaces (trimmed,
+// collapsed), uppercases, truncates, falls back to FOX.
 void normalizeIdTo(const char *src, char *dst, size_t dstSize) {
   if (dstSize == 0) return;
   size_t w = 0;
+  bool lastWasSpace = true;  // trim leading spaces
   if (src) {
     for (size_t i = 0; src[i] != '\0' && w + 1 < dstSize; ++i) {
       char c = src[i];
       if (c >= 'a' && c <= 'z') c -= 32;
       if ((c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '/' || c == '-') {
         dst[w++] = c;
+        lastWasSpace = false;
+      } else if (c == ' ' && !lastWasSpace && w + 1 < dstSize) {
+        dst[w++] = c;
+        lastWasSpace = true;
       }
     }
   }
+  while (w > 0 && dst[w - 1] == ' ') w--;  // trim trailing space
   if (w == 0 && dstSize > 3) {
     dst[0] = 'F'; dst[1] = 'O'; dst[2] = 'X'; w = 3;
   }
@@ -462,6 +479,13 @@ void audioTone(uint16_t frequencyHz) {
 
 void setPtt(bool active) {
   const bool outputHigh = config.pttActiveLow ? !active : active;
+  digitalWrite(PTT_PIN, outputHigh ? HIGH : LOW);
+}
+
+// Slot-atomic variant: drives PTT with a snapshotted polarity so a config
+// edit mid-slot cannot glitch the keyed radio.
+static void setPttAs(bool active, bool activeLow) {
+  const bool outputHigh = activeLow ? !active : active;
   digitalWrite(PTT_PIN, outputHigh ? HIGH : LOW);
 }
 
@@ -574,16 +598,22 @@ bool isLowBatteryCached() {
   return cachedBatteryVoltage <= config.lowBatteryVoltage;
 }
 
+// True while the radio is keyed (scheduled slot, force test, continuous or
+// PTT test). Covers force-TX which runs with state Idle/StartupDelay.
+static bool txActive = false;
+static uint32_t txStartedAt = 0;
+
 bool isLowBattery() {
   if (!config.batteryEnabled) { lowBatteryTripStreak = 0; return false; }
+  bool inTx = txActive ||
+      (state == BeaconState::Transmitting || state == BeaconState::ContinuousTransmit);
   // Ignore key-up sag: TX load dips the rail for a few seconds after PTT on.
-  if ((state == BeaconState::Transmitting || state == BeaconState::ContinuousTransmit) &&
-      elapsedSince(stateStartedAt) < TX_BATTERY_GRACE_MS) {
+  if (inTx && elapsedSince(inTx && txActive ? txStartedAt : stateStartedAt) < TX_BATTERY_GRACE_MS) {
     return false;
   }
   // During TX use the pre-TX cached reading so the 24ms ADC block does not
   // jitter CW timing. Fresh sampling happens only with the radio off.
-  if (state == BeaconState::Transmitting || state == BeaconState::ContinuousTransmit) {
+  if (inTx) {
     if (isLowBatteryCached()) {
       if (++lowBatteryTripStreak >= LOW_BATTERY_TRIP_COUNT) return true;
     } else {
@@ -711,11 +741,11 @@ bool sendMorseTextAbortable(const char *text, uint16_t wpm, uint16_t toneHz) {
       if (!keyedDelayAbortableSlice(pattern[i] == '-' ? dotMs * 3 : dotMs, MORSE_POLL_SLICE_MS)) return false;
       audioOff();
       if (!keyedDelayAbortableSlice(dotMs, MORSE_POLL_SLICE_MS)) return false;
-      if (isLowBatteryCached()) return false;
+      if (isLowBattery()) return false;
     }
 
     if (!keyedDelayAbortableSlice(dotMs * 2, MORSE_POLL_SLICE_MS)) return false;
-    if (isLowBatteryCached()) return false;
+    if (isLowBattery()) return false;
   }
   return true;
 }
@@ -728,7 +758,7 @@ bool sendWarbleUntilAbortable(uint32_t untilMs, uint16_t lowHz, uint16_t highHz,
                               uint16_t stepMs) {
   bool high = false;
   while (static_cast<int32_t>(untilMs - millis()) > 0) {
-    if (isLowBatteryCached() || webRebootRequested) return false;
+    if (isLowBattery() || webRebootRequested) return false;
     audioTone(high ? highHz : lowHz);
     high = !high;
     int32_t left = static_cast<int32_t>(untilMs - millis());
@@ -864,14 +894,17 @@ void recordBootFault() {
                (reason == ESP_RST_TASK_WDT) || (reason == ESP_RST_WDT) ||
                (reason == ESP_RST_BROWNOUT);
   preferences.begin("foxboot", false);
-  uint32_t boots = preferences.getUInt("boots", 0) + 1;
-  preferences.putUInt("boots", boots);
   uint32_t streak = preferences.getUInt("faults", 0);
   streak = fault ? streak + 1 : 0;
-  preferences.putUInt("faults", streak);
-  preferences.putUInt("lastReason", (uint32_t)reason);
+  // Only write when the value changes to avoid NVS wear on every clean boot.
+  static uint32_t lastSeenStreak = 0xFFFFFFFFUL;
+  if (streak != lastSeenStreak) {
+    preferences.putUInt("faults", streak);
+    lastSeenStreak = streak;
+  }
+  if (fault) preferences.putUInt("lastReason", (uint32_t)reason);
   preferences.end();
-  Serial.printf("Boot #%lu reason %d fault streak %lu\n", (unsigned long)boots, (int)reason,
+  Serial.printf("Boot reason %d fault streak %lu\n", (int)reason,
                 (unsigned long)streak);
   if (streak >= BOOT_FAULT_TRIP_COUNT) {
     faultHalt = true;
@@ -1041,6 +1074,9 @@ void transmitBeacon() {
   Serial.println(F("TX start"));
   forceTransmit = false;  // consume any test request that arrived mid-TX
   // Snapshot slot params so web/serial/menu edits mid-slot apply next slot.
+  // PTT polarity is snapshotted too so a mid-slot edit cannot glitch the key.
+  txActive = true;
+  txStartedAt = millis();
   char slotCall[16];
   char slotFox[16];
   strncpy(slotCall, config.callSign, sizeof(slotCall) - 1);
@@ -1056,10 +1092,11 @@ void transmitBeacon() {
   const uint16_t slotWarbleStep = config.warbleStepMs;
   const uint16_t slotLead = config.pttLeadMs;
   const uint16_t slotTail = config.pttTailMs;
+  const bool slotPttActiveLow = config.pttActiveLow;
   if (config.batteryEnabled) readBatteryVoltageFresh();
   setLed(true);
   pttHoldRelease();
-  setPtt(true);
+  setPttAs(true, slotPttActiveLow);
   bool ok = keyedDelayAbortable(slotLead);
   const uint32_t transmissionEndsAt = millis() + (slotTx * 1000UL);
 
@@ -1078,7 +1115,7 @@ void transmitBeacon() {
       // polling so serial/button/web stay alive.
       uint32_t until = transmissionEndsAt;
       while (ok && static_cast<int32_t>(until - millis()) > 0) {
-        if (isLowBatteryCached() || webRebootRequested) { ok = false; break; }
+        if (isLowBattery() || webRebootRequested) { ok = false; break; }
         blinkLed(LED_TX_BLINK_MS);
         if (!keyedDelayAbortable(50)) { ok = false; break; }
       }
@@ -1087,7 +1124,12 @@ void transmitBeacon() {
 
   if (!ok) Serial.println(F("TX aborted"));
   (void)keyedDelayAbortable(slotTail);
-  safeRadioOff();
+  // Release with the same snapshot polarity, then re-assert safe hold.
+  setPttAs(false, slotPttActiveLow);
+  audioOff();
+  setLed(false);
+  pttHoldSafe();
+  txActive = false;
   Serial.println(F("TX end"));
 }
 
@@ -1095,6 +1137,8 @@ void readSerialCommands();
 
 void runContinuousBeacon() {
   Serial.println(F("Continuous beacon start"));
+  txActive = true;
+  txStartedAt = millis();
   char slotCall[16];
   char slotFox[16];
   strncpy(slotCall, config.callSign, sizeof(slotCall) - 1);
@@ -1106,13 +1150,14 @@ void runContinuousBeacon() {
   const uint16_t slotLead = config.pttLeadMs;
   const uint16_t slotTail = config.pttTailMs;
   const uint16_t slotBeaconId = config.beaconIdIntervalSeconds;
+  const bool slotPttActiveLow = config.pttActiveLow;
   if (config.batteryEnabled) readBatteryVoltageFresh();
   setLed(true);
   pttHoldRelease();
-  setPtt(true);
+  setPttAs(true, slotPttActiveLow);
   bool ok = keyedDelayAbortable(slotLead);
 
-  while (ok && state == BeaconState::ContinuousTransmit) {
+  while (ok && state == BeaconState::ContinuousTransmit && config.beaconMode) {
     audioOff();
     if (webRebootRequested) break;
     ok = sendMorseTextAbortable(slotCall, slotWpm, slotTone);
@@ -1127,32 +1172,42 @@ void runContinuousBeacon() {
 
     const uint32_t carrierUntil = millis() + (slotBeaconId * 1000UL);
     while (ok && static_cast<int32_t>(carrierUntil - millis()) > 0) {
-      if (isLowBatteryCached() || webRebootRequested) {
+      if (isLowBattery() || webRebootRequested) {
         ok = false;
         break;
       }
+      if (!config.beaconMode) { ok = true; break; }
       blinkLed(LED_TX_BLINK_MS);
       if (!keyedDelayAbortable(50)) { ok = false; break; }
       serviceWebRequests();
       if (webRebootRequested) { ok = false; break; }
+      if (!config.beaconMode) break;
     }
-    if (isLowBatteryCached()) break;
+    if (!config.beaconMode) break;
+    if (isLowBattery()) break;
   }
 
   if (!ok) Serial.println(F("Continuous beacon aborted"));
   (void)keyedDelayAbortable(slotTail);
-  safeRadioOff();
+  setPttAs(false, slotPttActiveLow);
+  audioOff();
+  setLed(false);
+  pttHoldSafe();
+  txActive = false;
   Serial.println(F("Continuous beacon end"));
 }
 
 void testPttOnly() {
   Serial.println(F("PTT test start"));
+  txActive = true;
+  txStartedAt = millis();
   audioOff();
   pttHoldRelease();
   setPtt(true);
   setLed(true);
   (void)keyedDelayAbortable(PTT_TEST_MS);
   safeRadioOff();
+  txActive = false;
   Serial.println(F("PTT test end"));
 }
 
@@ -1298,6 +1353,11 @@ static bool parseOnOffToken(const char *s, bool *out) {
 }
 
 void applyPendingConfig(const PendingConfig &p) {
+  char oldPw[sizeof(config.wifiApPassword)];
+  strncpy(oldPw, config.wifiApPassword, sizeof(oldPw) - 1);
+  oldPw[sizeof(oldPw) - 1] = '\0';
+  bool oldAp = config.wifiApEnabled;
+  bool oldBeaconMode = config.beaconMode;
   // Callsign / fox: same normalize + truncate rules as serial path.
   if (p.call[0]) {
     String v = String(p.call);
@@ -1359,12 +1419,23 @@ void applyPendingConfig(const PendingConfig &p) {
   }
   markConfigDirty();
   if (config.batteryEnabled) analogSetPinAttenuation(BATTERY_PIN, ADC_11db);
+  bool pwChanged = strcmp(oldPw, config.wifiApPassword) != 0;
+  bool apChanged = (oldAp != config.wifiApEnabled);
+  bool modeChanged = (oldBeaconMode != config.beaconMode);
   updateWebSnapshot();
   bool wantAp = config.wifiApEnabled;
   bool haveAp = webAdminIsRunning();
   if (wantAp && !haveAp) webAdminInit("9M2PJU-Fox");
   else if (!wantAp && haveAp) webAdminStop();
-  else if (wantAp && haveAp) { webAdminStop(); webAdminInit("9M2PJU-Fox"); }
+  else if (wantAp && haveAp && pwChanged) { webAdminStop(); webAdminInit("9M2PJU-Fox"); }
+  if (modeChanged) {
+    // Defer the state flip through the same path as the on-screen menu so a
+    // mid-TX edit applies cleanly at the next idle point.
+    portENTER_CRITICAL(&webMux);
+    menuModePending = true;
+    portEXIT_CRITICAL(&webMux);
+  }
+  if (apChanged || pwChanged) updateWebSnapshot();
 }
 
 void safeReboot() {
@@ -1649,8 +1720,29 @@ void loop() {
   serviceWebRequests();
   flushConfigIfDirty(false);
   // Deferred menu AP/mode flips only when TX is not active.
+  // AP flips stay deferred to avoid restarting WiFi mid-TX, but mode flips
+  // are also synced below so web/serial/mode changes take effect promptly.
   if (state != BeaconState::Transmitting && state != BeaconState::ContinuousTransmit) {
     serviceMenuPending();
+  }
+  // Sync radio state with the live beaconMode flag (web/serial/menu edits).
+  // Idle -> Continuous when beacon mode is enabled; Continuous -> Idle when
+  // it is disabled. Guarded to radio-off states so a scheduled TX slot is
+  // never interrupted mid-key.
+  bool didModeSync = false;
+  if (!faultHalt && state == BeaconState::Idle && config.beaconMode) {
+    enterState(BeaconState::ContinuousTransmit);
+    updateWebSnapshot();
+    didModeSync = true;
+  } else if (!faultHalt && state == BeaconState::ContinuousTransmit && !config.beaconMode) {
+    enterState(BeaconState::Idle);
+    updateWebSnapshot();
+    didModeSync = true;
+  }
+  if (didModeSync) {
+    portENTER_CRITICAL(&webMux);
+    menuModePending = false;
+    portEXIT_CRITICAL(&webMux);
   }
 
   if (faultHalt) {

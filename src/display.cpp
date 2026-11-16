@@ -256,8 +256,33 @@ void displayUpdate(const char *callsign, const char *foxId,
   tft.fillScreen(COLOR_BG);
   tft.setTextDatum(TL_DATUM);
 
+  const int h = tft.height();
   // 2px status accent bar on left edge
-  tft.fillRect(0, 0, 2, tft.height(), stateAccentColor(stateStr));
+  tft.fillRect(0, 0, 2, h, stateAccentColor(stateStr));
+
+  if (h < 100) {
+    // Compact layout for 160x80 panels (Heltec Tracker): 18px header,
+    // font 1 rows to fit 80px height.
+    tft.fillRect(2, 0, tft.width() - 2, 18, COLOR_HEADER_BG);
+    tft.setTextColor(COLOR_HEADER_FG, COLOR_HEADER_BG);
+    String header = String(callsign) + " " + String(foxId);
+    tft.drawString(header, 6, 2, 2);
+    tft.setTextColor(FOX_YELLOW, COLOR_BG);
+    tft.drawString(String(modeStr) + " " + String(stateStr), 4, 22, 1);
+    tft.setTextColor(stateTextColor(stateStr), COLOR_BG);
+    tft.drawString(String(stateStr), 4, 34, 1);
+    tft.setTextColor(FOX_CYAN, COLOR_BG);
+    tft.drawString(String(timingStr), 4, 46, 1);
+    if (batteryStr[0]) {
+      tft.setTextColor(FOX_ORANGE, COLOR_BG);
+      tft.drawString(String(batteryStr), 4, 58, 1);
+    }
+    if (ipStr[0]) {
+      tft.setTextColor(FOX_GREEN, COLOR_BG);
+      tft.drawString(String(ipStr), 4, 68, 1);
+    }
+    return;
+  }
 
   // Navy blue header bar with yellow callsign + fox ID
   tft.fillRect(2, 0, tft.width() - 2, 30, COLOR_HEADER_BG);
@@ -295,6 +320,31 @@ void displayMenu(int selectedIndex, int itemCount,
   if (!displayOn) return;
   tft.fillScreen(COLOR_BG);
   tft.setTextDatum(TL_DATUM);
+  const int h = tft.height();
+
+  if (h < 100) {
+    // Compact menu for 160x80: 18px header, 4 rows of font 1, no footer.
+    tft.fillRect(0, 0, tft.width(), 18, COLOR_HEADER_BG);
+    tft.setTextColor(COLOR_HEADER_FG, COLOR_HEADER_BG);
+    tft.drawString("Settings", 4, 2, 2);
+    int visibleStart = 0;
+    if (itemCount > 4 && selectedIndex > 2) {
+      visibleStart = selectedIndex - 2;
+      if (visibleStart > itemCount - 4) visibleStart = itemCount - 4;
+    }
+    int visibleCount = (itemCount < 4) ? itemCount : 4;
+    for (int i = 0; i < visibleCount; i++) {
+      int idx = visibleStart + i;
+      if (idx >= itemCount) break;
+      int y = 22 + i * 12;
+      tft.setTextColor(idx == selectedIndex ? FOX_YELLOW : FOX_WHITE, COLOR_BG);
+      char line[32];
+      snprintf(line, sizeof(line), "%c%-10s %s", idx == selectedIndex ? '>' : ' ',
+               labels[idx], values[idx]);
+      tft.drawString(line, 4, y, 1);
+    }
+    return;
+  }
 
   // Navy blue header bar
   tft.fillRect(0, 0, tft.width(), 30, COLOR_HEADER_BG);
@@ -335,6 +385,20 @@ void displayAPMode(const char *ssid, const char *ip) {
   if (!displayOn) return;
   tft.fillScreen(COLOR_BG);
   tft.setTextDatum(TL_DATUM);
+  const int h = tft.height();
+
+  if (h < 100) {
+    tft.fillRect(0, 0, tft.width(), 18, COLOR_HEADER_BG);
+    tft.setTextColor(COLOR_HEADER_FG, COLOR_HEADER_BG);
+    tft.drawString("AP MODE", 4, 2, 2);
+    tft.setTextColor(FOX_WHITE, COLOR_BG);
+    tft.drawString(String(ssid), 4, 22, 1);
+    tft.setTextColor(FOX_GREEN, COLOR_BG);
+    tft.drawString(String(ip), 4, 34, 1);
+    tft.setTextColor(FOX_ORANGE, COLOR_BG);
+    tft.drawString("Web admin ready", 4, 46, 1);
+    return;
+  }
 
   // Navy blue header bar
   tft.fillRect(0, 0, tft.width(), 30, COLOR_HEADER_BG);
@@ -618,6 +682,7 @@ void displayPower(bool on) {
   displayOn = on;
 #ifdef EINK_VEXT
   if (!on) {
+    eink.hibernate();
     #ifdef EINK_VEXT_ACTIVE_LOW
       digitalWrite(EINK_VEXT, HIGH);  // active LOW: HIGH = OFF
     #else
@@ -625,6 +690,21 @@ void displayPower(bool on) {
     #endif
   } else {
     einkPowerOn();
+    eink.init();
+    eink.setRotation(1);
+    eink.setTextColor(GxEPD_BLACK);
+    eink.setTextSize(1);
+    firstRefresh = true;
+  }
+#else
+  if (!on) {
+    eink.hibernate();
+  } else {
+    eink.init();
+    eink.setRotation(1);
+    eink.setTextColor(GxEPD_BLACK);
+    eink.setTextSize(1);
+    firstRefresh = true;
   }
 #endif
 }
